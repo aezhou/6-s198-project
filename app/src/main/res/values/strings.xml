@@ -12,6 +12,12 @@
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="planSearchFieldHint">Where are you going?</string>
+    <string name="planFindButtonText">Find</string>
+    <string name="reservationCallButtonText">Call to Reserve</string>
+    <string name="reservationOnlineButtonText">Reserve Online</string>
+    <string name="planSaveButtonText">Save</string>
+    <string name="planShareButtonText">Share</string>
 
     <array name="temporary_array">
         <item name="plan1">Plan 1</item>
