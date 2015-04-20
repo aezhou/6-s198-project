@@ -2,9 +2,9 @@
     <string name="app_name">NightOut</string>
 
 
-    <string name="title_section1">Section 1</string>
-    <string name="title_section2">Section 2</string>
-    <string name="title_section3">Section 3</string>
+    <string name="title_section1">Plan Details</string>
+    <string name="title_section2">Navigation</string>
+    <string name="title_section3">Alerts</string>
 
     <string name="hello_world">Hello world!</string>
 

@@ -7,18 +7,17 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link com.zadu.nightout.PlanDetailsFragment.OnPlanDetailsSavedListener} interface
+ * {@link com.zadu.nightout.DirectionsFragment.OnDirectionsFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link PlanDetailsFragment#newInstance} factory method to
+ * Use the {@link DirectionsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class PlanDetailsFragment extends Fragment {
+public class DirectionsFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -28,8 +27,7 @@ public class PlanDetailsFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private OnPlanDetailsSavedListener mListener;
-    private Button mSaveButton;
+    private OnDirectionsFragmentInteractionListener mListener;
 
     /**
      * Use this factory method to create a new instance of
@@ -37,11 +35,11 @@ public class PlanDetailsFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment PlanDetailsFragment.
+     * @return A new instance of fragment DirectionsFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static PlanDetailsFragment newInstance(String param1, String param2) {
-        PlanDetailsFragment fragment = new PlanDetailsFragment();
+    public static DirectionsFragment newInstance(String param1, String param2) {
+        DirectionsFragment fragment = new DirectionsFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -49,7 +47,7 @@ public class PlanDetailsFragment extends Fragment {
         return fragment;
     }
 
-    public PlanDetailsFragment() {
+    public DirectionsFragment() {
         // Required empty public constructor
     }
 
@@ -65,25 +63,14 @@ public class PlanDetailsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_plan_details, container, false);
-
-        mSaveButton = (Button) v.findViewById(R.id.save_button);
-        mSaveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onSaveButtonPressed(view);
-            }
-        });
-
-        return v;
+        return inflater.inflate(R.layout.fragment_directions, container, false);
     }
 
-    // TODO: Update argument something to reflect plan information
-    public void onSaveButtonPressed(Object something) {
+    // TODO: Rename method, update argument and hook method into UI event
+    public void onButtonPressed(Uri uri) {
         if (mListener != null) {
-            mListener.onPlanSaved(something);
+            mListener.OnDirectionsFragmentInteraction(uri);
         }
     }
 
@@ -91,7 +78,7 @@ public class PlanDetailsFragment extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            mListener = (OnPlanDetailsSavedListener) activity;
+            mListener = (OnDirectionsFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -114,12 +101,11 @@ public class PlanDetailsFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnPlanDetailsSavedListener {
-
-        // TODO: Update argument type and name
+    public interface OnDirectionsFragmentInteractionListener {
+        // TODO: Update argument type and name (you can rename listener/method)
 
         // send things in fragment to listener, which MainActivity extends
-        public void onPlanSaved(Object something);
+        public void OnDirectionsFragmentInteraction(Object object);
     }
 
 }

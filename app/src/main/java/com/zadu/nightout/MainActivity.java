@@ -2,6 +2,7 @@ package com.zadu.nightout;
 
 import java.util.Locale;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -10,6 +11,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -21,7 +23,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 
-public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, PlanDetailsFragment.OnPlanDetailsSavedListener {
+public class MainActivity extends ActionBarActivity implements ActionBar.TabListener,
+        PlanDetailsFragment.OnPlanDetailsSavedListener,
+        AlertsFragment.OnAlertsFragmentInteractionListener,
+        DirectionsFragment.OnDirectionsFragmentInteractionListener{
     private Spinner spinner;
 
     /**
@@ -105,6 +110,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
 
@@ -129,6 +136,17 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public void onPlanSaved(Object something) {
         //TODO: save the information from the saved plan (information = object)
+        Log.e("Find Me", "save button clicked");
+    }
+
+    @Override
+    public void OnAlertFragmentInteraction(Object object) {
+        //TODO: interact with any passed info in Object
+    }
+
+    @Override
+    public void OnDirectionsFragmentInteraction(Object object) {
+        //TODO: interact with any passed info in Object
     }
 
     /**
@@ -146,9 +164,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
             switch(position) {
-                case 1: return PlanDetailsFragment.newInstance(spinner.getSelectedItem().toString(), "blah");
-                case 2: return PlanDetailsFragment.newInstance(spinner.getSelectedItem().toString(), "blah");
-                case 3: return PlanDetailsFragment.newInstance(spinner.getSelectedItem().toString(), "blah");
+                case 0: return PlanDetailsFragment.newInstance(spinner.getSelectedItem().toString(), "blah");
+                case 1: return DirectionsFragment.newInstance(spinner.getSelectedItem().toString(), "blah");
+                case 2: return AlertsFragment.newInstance(spinner.getSelectedItem().toString(), "blah");
                 default: return PlanDetailsFragment.newInstance(spinner.getSelectedItem().toString(), "blah");
             }
         }
@@ -162,6 +180,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         @Override
         public CharSequence getPageTitle(int position) {
             Locale l = Locale.getDefault();
+            //TODO: try to switch these to icons
             switch (position) {
                 case 0:
                     return getString(R.string.title_section1).toUpperCase(l);
