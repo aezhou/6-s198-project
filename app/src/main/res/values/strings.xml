@@ -18,6 +18,10 @@
     <string name="reservationOnlineButtonText">Reserve Online</string>
     <string name="planSaveButtonText">Save</string>
     <string name="planShareButtonText">Share</string>
+    <string name="planDateLabelText">Date:</string>
+    <string name="timePickerLabelText">Select a time:</string>
+    <string name="datePickerTextLabel">Select a date:</string>
+    <string name="planCheckBoxText">Did you make a reservation?</string>
 
     <array name="temporary_array">
         <item name="plan1">Plan 1</item>
