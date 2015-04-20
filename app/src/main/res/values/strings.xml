@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">NightOut</string>
+
+
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
+
+    <string name="hello_world">Hello world!</string>
+
+    <string name="action_settings">Settings</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <array name="temporary_array">
+        <item name="plan1">Plan 1</item>
+        <item name="plan2">Plan 2</item>
+        <item name="plan3">Plan 3</item>
+    </array>
+</resources>
