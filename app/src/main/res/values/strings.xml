@@ -28,4 +28,10 @@
         <item name="plan2">Plan 2</item>
         <item name="plan3">Plan 3</item>
     </array>
+
+    <array name="dest_spinner_array">
+        <item name="plan_dest_address">Some Restaurant</item>
+        <item name="home_address">Home</item>
+        <item name="other">Other</item>
+    </array>
 </resources>
