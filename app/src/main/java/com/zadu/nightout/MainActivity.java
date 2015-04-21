@@ -3,6 +3,7 @@ package com.zadu.nightout;
 import java.util.Locale;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -22,12 +23,15 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener,
-        PlanDetailsFragment.OnPlanDetailsSavedListener,
+        PlanDetailsFragment.OnPlanDetailsListener,
         AlertsFragment.OnAlertsFragmentInteractionListener,
         DirectionsFragment.OnDirectionsFragmentInteractionListener{
     private Spinner spinner;
+    String TAG = "MainActivity";
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -91,6 +95,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             .setText(mSectionsPagerAdapter.getPageTitle(i))
                             .setTabListener(this));
         }
+
+//        button1.setOnClickListener(onClickListener);
     }
 
 
@@ -137,6 +143,51 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void onPlanSaved(Object something) {
         //TODO: save the information from the saved plan (information = object)
         Log.e("Find Me", "save button clicked");
+    }
+
+    @Override
+    public void makeOnlineReservation(Object something ) {
+        Log.i(TAG, "makeOnlineReservation() called");
+        String initialUrl = "https://www.opentable.com/";
+        TextView destination = (TextView) findViewById(R.id.destinationName);
+        String dest = destination.getText().toString();
+
+        String url = initialUrl + dest.replace(' ', '-');
+
+        Uri webpage = Uri.parse(url);
+        Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
+        if(intent.resolveActivity(getPackageManager()) != null) {
+            Log.i(TAG, "Webb browser intent about to be called");
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public void makeCallReservation(Object something) {
+        Log.i(TAG, "makeCallReservation() called");
+        TextView number = (TextView)findViewById(R.id.destinationNumber);
+        String phoneNumber = number.getText().toString();
+        Intent intent = new Intent(Intent.ACTION_DIAL);
+        intent.setData(Uri.parse("tel:" + phoneNumber));
+        if(intent.resolveActivity(getPackageManager()) != null) {
+            Log.i(TAG, "Call intent about to be called"); //Ignore the pun
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public void openGoogleMaps(Object something) {
+        Log.i(TAG, "openDirections() called");
+        TextView streetAddressText = (TextView)findViewById(R.id.planAddressText);
+        TextView otherAddressText = (TextView)findViewById(R.id.destinationCityStateZip);
+        String streetAddress = streetAddressText.getText().toString();
+        String otherAddress = otherAddressText.getText().toString();
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse("geo:0,0?q=" + streetAddress + otherAddress));
+        if(intent.resolveActivity(getPackageManager()) != null) {
+            Log.i(TAG, "Google Maps about to be called");
+            startActivity(intent);
+        }
     }
 
     @Override

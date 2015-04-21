@@ -46,16 +46,42 @@
                 android:id="@+id/planAddressTextLayout">
 
 
-                <TextView
+                <LinearLayout
+                    android:orientation="vertical"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="SAMPLE ADDRESS \n and more info"
-                    android:id="@+id/planAddressText" />
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="@string/sampleDestinationName"
+                        android:id="@+id/destinationName" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="800 Boylston St. "
+                        android:id="@+id/planAddressText" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Boston, MA 02199"
+                        android:id="@+id/destinationCityStateZip" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/sampleDestinationPhonenumber"
+                        android:id="@+id/destinationNumber"/>
+                </LinearLayout>
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/planAddressMap"/>
+                    android:id="@+id/planAddressMap"
+                    android:src="@drawable/topofthehub"/>
 
 
             </LinearLayout>
@@ -78,7 +104,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/reservationOnlineButtonText"
-                    android:id="@+id/reservationOnlineButton" />
+                    android:id="@+id/reservationOnlineButton"
+                    />
             </LinearLayout>
 
             <LinearLayout

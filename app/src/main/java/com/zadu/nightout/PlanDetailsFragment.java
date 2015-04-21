@@ -1,24 +1,32 @@
 package com.zadu.nightout;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import java.util.Objects;
 
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link com.zadu.nightout.PlanDetailsFragment.OnPlanDetailsSavedListener} interface
+ * {@link com.zadu.nightout.PlanDetailsFragment.OnPlanDetailsListener} interface
  * to handle interaction events.
  * Use the {@link PlanDetailsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
 public class PlanDetailsFragment extends Fragment {
+
+    String TAG = "PlanDetailsFragment";
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -28,8 +36,11 @@ public class PlanDetailsFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private OnPlanDetailsSavedListener mListener;
+    private OnPlanDetailsListener mListener;
     private Button mSaveButton;
+    private Button reserveOnlineButton;
+    private Button reserveCallButton;
+    private ImageView openMapImage;
 
     /**
      * Use this factory method to create a new instance of
@@ -77,6 +88,30 @@ public class PlanDetailsFragment extends Fragment {
             }
         });
 
+        reserveOnlineButton = (Button) v.findViewById(R.id.reservationOnlineButton);
+        reserveOnlineButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onReserveOnlineButtonPressed(view);
+            }
+        });
+
+        reserveCallButton = (Button) v.findViewById(R.id.reservationCallButton);
+        reserveCallButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onReserveCallButtonPressed(view);
+            }
+        });
+
+        openMapImage = (ImageView) v.findViewById(R.id.planAddressMap);
+        openMapImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openDirections(view);
+            }
+        });
+
         return v;
     }
 
@@ -87,11 +122,29 @@ public class PlanDetailsFragment extends Fragment {
         }
     }
 
+    public void onReserveOnlineButtonPressed(Object something) {
+        if(mListener != null) {
+            mListener.makeOnlineReservation(something);
+        }
+    }
+
+    public void onReserveCallButtonPressed(Object something) {
+        if(mListener != null) {
+            mListener.makeCallReservation(something);
+        }
+    }
+
+    public void openDirections(Object something) {
+        if(mListener != null) {
+            mListener.openGoogleMaps(something);
+        }
+    }
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            mListener = (OnPlanDetailsSavedListener) activity;
+            mListener = (OnPlanDetailsListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -114,12 +167,15 @@ public class PlanDetailsFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnPlanDetailsSavedListener {
+    public interface OnPlanDetailsListener {
 
         // TODO: Update argument type and name
 
         // send things in fragment to listener, which MainActivity extends
         public void onPlanSaved(Object something);
+        public void makeOnlineReservation(Object something);
+        public void makeCallReservation(Object something);
+        public void openGoogleMaps(Object something);
     }
 
 }
