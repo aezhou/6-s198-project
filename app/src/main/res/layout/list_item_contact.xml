@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="10dp"
+    android:paddingRight="10dp">
+
+    <CheckedTextView
+        android:id="@+id/contactCheckedTextView"
+        android:textSize="@dimen/abc_text_size_medium_material"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checkMark="?android:attr/textCheckMark"
+        android:gravity="center_vertical"/>
+
+    <TextView
+        android:id="@+id/contactDescriptionTextView"
+        android:textSize="@dimen/abc_text_size_small_material"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>
