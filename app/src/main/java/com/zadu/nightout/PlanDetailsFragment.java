@@ -37,10 +37,12 @@ public class PlanDetailsFragment extends Fragment {
     private String mParam2;
 
     private OnPlanDetailsListener mListener;
-    private Button mSaveButton;
+//    private Button mSaveButton;
     private Button reserveOnlineButton;
     private Button reserveCallButton;
     private ImageView openMapImage;
+    private Button sharePlanButton;
+    private Button timePickerButton;
 
     /**
      * Use this factory method to create a new instance of
@@ -80,13 +82,13 @@ public class PlanDetailsFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_plan_details, container, false);
 
-        mSaveButton = (Button) v.findViewById(R.id.save_button);
-        mSaveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onSaveButtonPressed(view);
-            }
-        });
+//        mSaveButton = (Button) v.findViewById(R.id.save_button);
+//        mSaveButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                onSaveButtonPressed(view);
+//            }
+//        });
 
         reserveOnlineButton = (Button) v.findViewById(R.id.reservationOnlineButton);
         reserveOnlineButton.setOnClickListener(new View.OnClickListener() {
@@ -112,15 +114,31 @@ public class PlanDetailsFragment extends Fragment {
             }
         });
 
+        sharePlanButton = (Button) v.findViewById(R.id.planShareButton);
+        sharePlanButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sharePlan(view);
+            }
+        });
+
+        timePickerButton = (Button) v.findViewById(R.id.timePickerButton);
+        timePickerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showTimePicker(view);
+            }
+        });
+
         return v;
     }
 
-    // TODO: Update argument something to reflect plan information
-    public void onSaveButtonPressed(Object something) {
-        if (mListener != null) {
-            mListener.onPlanSaved(something);
-        }
-    }
+//    // TODO: Update argument something to reflect plan information
+//    public void onSaveButtonPressed(Object something) {
+//        if (mListener != null) {
+//            mListener.onPlanSaved(something);
+//        }
+//    }
 
     public void onReserveOnlineButtonPressed(Object something) {
         if(mListener != null) {
@@ -137,6 +155,18 @@ public class PlanDetailsFragment extends Fragment {
     public void openDirections(Object something) {
         if(mListener != null) {
             mListener.openGoogleMaps(something);
+        }
+    }
+
+    public void sharePlan(Object something) {
+        if(mListener != null) {
+            mListener.callSharePlan(something);
+        }
+    }
+
+    public void showTimePicker(Object something) {
+        if(mListener != null) {
+            mListener.showTimePickerDialog(something);
         }
     }
 
@@ -172,10 +202,12 @@ public class PlanDetailsFragment extends Fragment {
         // TODO: Update argument type and name
 
         // send things in fragment to listener, which MainActivity extends
-        public void onPlanSaved(Object something);
+//        public void onPlanSaved(Object something);
         public void makeOnlineReservation(Object something);
         public void makeCallReservation(Object something);
         public void openGoogleMaps(Object something);
+        public void callSharePlan(Object something);
+        public void showTimePickerDialog(Object something);
     }
 
 }

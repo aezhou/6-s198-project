@@ -24,7 +24,7 @@
     <string name="planCheckBoxText">Did you make a reservation?</string>
     <string name="sampleAddress">800 Boylston Street, Boston, MA 02199</string>
     <string name="sampleDestinationName">Top of the Hub</string>
-    <string name="sampleDestinationPhonenumber">(617) 536-1775</string>
+    <string name="sampleDestinationPhonenumber">(903) 401-9672</string>
 
     <array name="temporary_array">
         <item name="plan1">Plan 1</item>

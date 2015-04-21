@@ -1,31 +1,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" tools:context="com.zadu.nightout.PlanDetailsFragment"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:id="@+id/planMainLayout">
 
     <!-- TODO: Update blank fragment layout -->
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:gravity="center_horizontal"
-        android:id="@+id/planFindLayout">
-
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/searchField"
-            android:layout_gravity="center_horizontal"
-            android:hint="@string/planSearchFieldHint"/>
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/planFindButtonText"
-            android:id="@+id/findButton" />
-    </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -38,6 +19,28 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_horizontal"
+                android:id="@+id/planFindLayout">
+
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/searchField"
+                    android:layout_gravity="center_horizontal"
+                    android:hint="@string/planSearchFieldHint"/>
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/planFindButtonText"
+                    android:id="@+id/findButton" />
+            </LinearLayout>
 
             <LinearLayout
                 android:orientation="horizontal"
@@ -122,6 +125,12 @@
                     android:text="@string/datePickerTextLabel"
                     android:id="@+id/datePickerText" />
 
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Select a date"
+                    android:id="@+id/timePickerButton" />
+
                 <DatePicker
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -163,13 +172,6 @@
                 android:layout_height="fill_parent"
                 android:gravity="center_horizontal"
                 android:id="@+id/saveShareButtonLayout">
-
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/planSaveButtonText"
-                    android:id="@+id/save_button">
-                    </Button>
 
                 <Button
                     android:layout_width="wrap_content"
