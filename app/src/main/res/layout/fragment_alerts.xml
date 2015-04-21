@@ -4,26 +4,48 @@
     android:layout_marginLeft="10dp" android:layout_marginRight="10dp"
     tools:context="com.zadu.nightout.AlertsFragment">
 
-    <ExpandableListView
-        android:id="@+id/contactsListView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-    </ExpandableListView>
-
-    <!-- Clickable toggle -->
+    <!-- contacts header -->
     <LinearLayout
+        android:id="@+id/contactsListHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Emergency Contacts"
+            android:layout_gravity="center_vertical"
+            android:textSize="@dimen/abc_text_size_medium_material"
+            android:layout_weight="1"/>
+        <ToggleButton
+            android:id="@+id/collapseContactsToggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:textOn="collapse"
+            android:textOff="expand"
+            android:checked="true"/>
+    </LinearLayout>
 
+    <!-- contacts details -->
+    <ListView
+        android:id="@+id/contactsListView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </ListView>
+
+    <!-- ping header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal">
         <TextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="Check In"
             android:textSize="@dimen/abc_text_size_medium_material"
             android:layout_weight="1"/>
-
         <Switch
             android:id="@+id/pingSwitch"
             android:layout_width="wrap_content"
@@ -33,96 +55,82 @@
             android:showText="true"
             android:textOn="ON"
             android:textOff="OFF"/>
-
     </LinearLayout>
 
-    <!--content to hide/show -->
+    <!--ping details -->
     <LinearLayout
         android:id="@+id/pingDetailsLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Check in every 30 minutes"/>
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Alert emergency contacts after 2 missed check-ins"/>
-
         <Button
             android:id="@+id/checkInButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:text="Check In"/>
-
     </LinearLayout>
 
+    <!-- action buttons -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
+        android:layout_marginTop="12dp"
         android:orientation="vertical">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/ThereSafeButton"
-            android:text="I Made It There"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"/>
-
-        <Button
-            android:id="@+id/HomeSafeButton"
-            android:text="I Made It Home"
-            android:layout_width="wrap_content"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/ThereSafeButton"
+                android:text="I Made It There"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"/>
+            <Button
+                android:id="@+id/HomeSafeButton"
+                android:text="I Made It Home"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"/>
+            <Button
+                android:id="@+id/AllClearButton"
+                android:text="I'm Safe"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"/>
-
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/FakeCallButton"
+                android:text="Fake Call"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"/>
+            <Button
+                android:id="@+id/GetMeButton"
+                android:text="Come Get Me"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"/>
+        </LinearLayout>
         <Button
-            android:id="@+id/AllClearButton"
-            android:text="I'm Safe / All Clear"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/FakeCallButton"
-            android:text="Fake Call"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"/>
-
-        <Button
-            android:id="@+id/GetMeButton"
-            android:text="Come Get Me"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"/>
-
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/PanicButton"
-        android:text="PANIC"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
+            android:id="@+id/PanicButton"
+            android:text="PANIC"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
 </LinearLayout>

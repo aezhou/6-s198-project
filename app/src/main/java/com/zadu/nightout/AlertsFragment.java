@@ -1,8 +1,10 @@
 package com.zadu.nightout;
 
 import android.app.Activity;
-import android.content.Context;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,9 +13,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ExpandableListView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.Switch;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import java.util.ArrayList;
 
@@ -36,12 +41,10 @@ public class AlertsFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private MyExpandableAdapter mAdapter;
-    private ArrayList<String> parentItems = new ArrayList<String>();
-    private ArrayList<Object> childItems = new ArrayList<Object>();
+    private SimpleCursorAdapter mAdapter;
+    private MyOpenHelper mSqlHelper;
 
     private OnAlertsFragmentInteractionListener mListener;
-    private Activity mActivity;
 
     /**
      * Use this factory method to create a new instance of
@@ -79,6 +82,43 @@ public class AlertsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_alerts, container, false);
+
+        ListView list = (ListView) v.findViewById(R.id.contactsListView);
+        if (!isDummyContactSet) {
+            setDummyContact();
+            isDummyContactSet = true;
+        }
+        Cursor c = getDefaultContacts();
+        mAdapter = new SimpleCursorAdapter(getActivity(),
+                R.layout.list_item_contact,
+                c,
+                new String[] { "name", "number" },
+                new int[] { R.id.contactNameTextView, R.id.contactDescriptionTextView },
+                0);
+
+        list.setAdapter(mAdapter);
+
+
+        LinearLayout contactsListHeader = (LinearLayout) v.findViewById(R.id.contactsListHeader);
+        contactsListHeader.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View headerView) {
+                View contactsListView = getActivity().findViewById(R.id.contactsListView);
+                ToggleButton toggle = (ToggleButton) getActivity().findViewById(R.id.collapseContactsToggle);
+                if (contactsListView.getVisibility() == View.GONE) {
+                    // TODO: change the toggle image
+                    contactsListView.setVisibility(View.VISIBLE);
+                    toggle.setChecked(true);
+                } else {
+                    // TODO: change the toggle image
+                    contactsListView.setVisibility(View.GONE);
+                    toggle.setChecked(false);
+                }
+            }
+        });
+
+
+        // set button and switch listeners
 
         // TODO: make ping options editable (mins between and num missed)
         Switch pingSwitch = (Switch) v.findViewById(R.id.pingSwitch);
@@ -151,7 +191,7 @@ public class AlertsFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mActivity = activity;
+        mSqlHelper = new MyOpenHelper(getActivity());
         try {
             mListener = (OnAlertsFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
@@ -164,25 +204,6 @@ public class AlertsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        parentItems.add("Emergency Contacts");
-
-        ArrayList<String> child = new ArrayList<String>();
-        child.add("Kristin");
-        child.add("Tricia");
-        childItems.add(child);
-
-        ExpandableListView lv = (ExpandableListView) getActivity().findViewById(R.id.contactsListView);
-
-        MyExpandableAdapter adapter = new MyExpandableAdapter(parentItems, childItems);
-        adapter.setInflater((LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE), mActivity);
-        lv.setAdapter(adapter);
-
     }
 
     public void onTogglePings(View view) {
@@ -202,22 +223,22 @@ public class AlertsFragment extends Fragment {
         Toast.makeText(getActivity(), "You Checked In!", Toast.LENGTH_SHORT).show();
     }
 
-    public ArrayList<String> getContactNumbers() {
+    public ArrayList<String> getSetContactNumbers() {
         // TODO: fix me, get numbers from actual emergency contacts
         ArrayList<String> nums = new ArrayList<String>();
-        nums.add("(540)-446-4776");
+        nums.add("15404461776");
         return nums;
     }
 
     public void onMessageButton(String message) {
         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
 
-        if (getContactNumbers().size() == 0) {
+        if (getSetContactNumbers().size() == 0) {
             Toast.makeText(getActivity(), "No contact numbers to send to!", Toast.LENGTH_SHORT).show();
             return;
         }
         String smsto = "";
-        for (String phoneNumber : getContactNumbers()) {
+        for (String phoneNumber : getSetContactNumbers()) {
             smsto = smsto + phoneNumber + ";";
         }
         smsto = smsto.substring(0, smsto.length()-2); // remove trailing semicolon
@@ -238,6 +259,24 @@ public class AlertsFragment extends Fragment {
     public void fakeCall() {
         // TODO: use API to make a fake call
         Toast.makeText(getActivity(), "Fake Call!", Toast.LENGTH_SHORT).show();
+    }
+
+    private boolean isDummyContactSet = false;
+
+    public void setDummyContact() {
+        SQLiteDatabase db = mSqlHelper.getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS contacts;");
+        mSqlHelper.onCreate(db);
+        ContentValues cv = new ContentValues();
+        cv.put("name", "Kristin");
+        cv.put("number", "15404464776");
+        db.insert("contacts", null, cv);
+        db.close();
+    }
+
+    public Cursor getDefaultContacts() {
+        SQLiteDatabase db = mSqlHelper.getReadableDatabase();
+        return db.rawQuery("select * from contacts", null);
     }
 
 
