@@ -1,7 +1,9 @@
 package com.zadu.nightout;
 
+import java.sql.Time;
 import java.util.Locale;
 
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
@@ -20,8 +22,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import org.w3c.dom.Text;
 
@@ -29,7 +34,8 @@ import org.w3c.dom.Text;
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener,
         PlanDetailsFragment.OnPlanDetailsListener,
         AlertsFragment.OnAlertsFragmentInteractionListener,
-        DirectionsFragment.OnDirectionsFragmentInteractionListener{
+        DirectionsFragment.OnDirectionsFragmentInteractionListener,
+        TimePickerFragment.OnFragmentInteractionListener{
     private Spinner spinner;
     String TAG = "MainActivity";
 
@@ -139,11 +145,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
     }
 
-    @Override
-    public void onPlanSaved(Object something) {
-        //TODO: save the information from the saved plan (information = object)
-        Log.e("Find Me", "save button clicked");
-    }
+//    @Override
+//    public void onPlanSaved(Object something) {
+//        //TODO: save the information from the saved plan (information = object)
+//        Log.e("Find Me", "save button clicked");
+//    }
 
     @Override
     public void makeOnlineReservation(Object something ) {
@@ -191,6 +197,42 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     @Override
+    public void callSharePlan(Object something) {
+        Log.i(TAG, "calling callSharePlan()");
+        TextView destinationName = (TextView) findViewById(R.id.destinationName);
+        TextView planAddressText = (TextView) findViewById(R.id.planAddressText);
+        TextView destinationCityStateZip = (TextView) findViewById(R.id.destinationCityStateZip);
+        CheckBox reservationMade = (CheckBox) findViewById(R.id.checkReservationCheckBox);
+        DatePicker datePicker = (DatePicker) findViewById(R.id.datePicker);
+        TimePicker timePicker = (TimePicker) findViewById(R.id.timePicker);
+
+        String destination = destinationName.getText().toString();
+        String address = planAddressText.getText().toString() + destinationCityStateZip.getText().toString();
+        boolean isReserved = reservationMade.isChecked();
+        String date = datePicker.getMonth() + "/" + datePicker.getDayOfMonth() + "/" + datePicker.getYear();
+        String time = timePicker.getCurrentHour() + ":" + timePicker.getCurrentMinute();
+        String reservationMessage = "";
+        if(isReserved) {
+            reservationMessage = "A reservation has already been made.";
+        }
+
+        String messageBody = "Hi, I will be going to " + destination + " " + address+ " on " + date + " at " + time + ". I hope to see " +
+                "you there! " + reservationMessage;
+
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, messageBody);
+        startActivity(intent);
+    }
+
+    @Override
+    public void showTimePickerDialog(Object something) {
+        Log.i(TAG, "called showTimePickerDialog()");
+        DialogFragment newFragment = new TimePickerFragment();
+        newFragment.show(getFragmentManager(), "timePicker");
+    }
+
+    @Override
     public void OnAlertFragmentInteraction(Object object) {
         //TODO: interact with any passed info in Object
     }
@@ -198,6 +240,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public void OnDirectionsFragmentInteraction(Object object) {
         //TODO: interact with any passed info in Object
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
     }
 
     /**
