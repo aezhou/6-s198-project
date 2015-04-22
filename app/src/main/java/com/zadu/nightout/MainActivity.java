@@ -31,6 +31,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import com.google.android.gms.actions.ReserveIntents;
+
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener,
         PlanDetailsFragment.OnPlanDetailsListener,
@@ -241,7 +243,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     @Override
     public void openGoogleMaps(Object something) {
-        Log.i(TAG, "openDirections() called");
+        Log.i(TAG, "openGoogleMaps() called");
         TextView streetAddressText = (TextView)findViewById(R.id.planAddressText);
         TextView otherAddressText = (TextView)findViewById(R.id.destinationCityStateZip);
         String streetAddress = streetAddressText.getText().toString();
@@ -298,6 +300,35 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public void OnDirectionsFragmentInteraction(Object object) {
         //TODO: interact with any passed info in Object
+    }
+
+    @Override
+    public void callRide(Object something) {
+        Log.i(TAG, "callRide() called");
+        TextView currentAddressTextView = (TextView)findViewById(R.id.current_address);
+        String currentAddress = currentAddressTextView.getText().toString();
+        Intent intent = new Intent(ReserveIntents.ACTION_RESERVE_TAXI_RESERVATION);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            Log.i(TAG, "resolving taxi intent");
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public void openGoogleMapsDirections(Object something) {
+        Log.i(TAG, "openGoogleMapsDirections() called");
+        TextView destAddressTextView = (TextView)findViewById(R.id.dest_address);
+        String destAddress = destAddressTextView.getText().toString();
+        String destAddressFormatted = destAddress.replace(" ", "+");
+        Log.i(TAG, destAddressFormatted);
+        Uri gmmIntentUri = Uri.parse("google.navigation:q=" + destAddressFormatted);
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+        startActivity(mapIntent);
+        if(mapIntent.resolveActivity(getPackageManager()) != null) {
+            Log.i(TAG, "Google Maps Navigation about to be called");
+            startActivity(mapIntent);
+        }
     }
 
     /**

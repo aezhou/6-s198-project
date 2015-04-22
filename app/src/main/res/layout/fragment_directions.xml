@@ -7,9 +7,24 @@
         android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_marginBottom="10dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView"
+            android:src="@drawable/topofthehub" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:id="@+id/spinner_layout">
+        android:id="@+id/spinner_layout"
+        android:layout_marginBottom="10dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -30,7 +45,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/spinner_layout"
         android:layout_centerHorizontal="true"
-        android:id="@+id/dest_address_layout">
+        android:id="@+id/dest_address_layout"
+        android:layout_marginBottom="10dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -51,7 +67,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/dest_address_layout"
         android:layout_centerHorizontal="true"
-        android:id="@+id/home_address_layout">
+        android:id="@+id/home_address_layout"
+        android:layout_marginBottom="10dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -184,18 +201,10 @@
             <Button
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="Call a Cab"
-                android:id="@+id/cab_button"
+                android:text="Call a Ride"
+                android:id="@+id/call_ride_button"
                 android:layout_gravity="center_horizontal"
                 android:layout_below="@+id/directions_button"/>
-
-            <Button
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="Request an Uber"
-                android:id="@+id/uber_button"
-                android:layout_gravity="center_horizontal"
-                android:layout_below="@id/cab_button"/>
         </RelativeLayout>
 
         <RelativeLayout
