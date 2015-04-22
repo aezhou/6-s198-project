@@ -6,7 +6,7 @@
         android:title="@string/pref_header_general" />
 
     <header android:fragment="com.zadu.nightout.SettingsActivity$NotificationPreferenceFragment"
-        android:title="@string/pref_header_notifications" />
+        android:title="@string/pref_header_emergency" />
 
     <header android:fragment="com.zadu.nightout.SettingsActivity$DataSyncPreferenceFragment"
         android:title="@string/pref_header_data_sync" />

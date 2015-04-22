@@ -8,20 +8,20 @@
             <item name="android:textColor">@android:color/white</item>
         </style>
 
-     <style name="spinnerItemStyle" parent="@style/Widget.AppCompat.Light.DropDownItem.Spinner">
+    <style name="spinnerItemStyle" parent="@style/Widget.AppCompat.Light.DropDownItem.Spinner">
     <!--       <item name="android:textAppearance">@style/textApearanceActionBar</item> -->
-           <item name="android:gravity">center_vertical</item>  
-           <item name="android:textColor">@android:color/white</item>
-    <item name="android:textSize">18sp</item>
-        </style>
+        <item name="android:gravity">center_vertical</item>  
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">18sp</item>
+    </style>
  
    <style name="AppTheme" parent="AppBaseTheme">
-            <item name="android:spinnerItemStyle">@style/spinnerItemStyle</item>
-            <item name="android:spinnerDropDownItemStyle">@style/spinnerItemStyle</item>
-        </style>
+       <item name="android:spinnerItemStyle">@style/spinnerItemStyle</item>
+       <item name="android:spinnerDropDownItemStyle">@style/spinnerItemStyle</item>
+   </style>
  
-    <style name="ActionBarSpinnerStyle" parent="@style/Widget.AppCompat.Spinner.DropDown.ActionBar">            
-    </style>
+   <style name="ActionBarSpinnerStyle" parent="@style/Widget.AppCompat.Spinner.DropDown.ActionBar">            
+   </style>
      
      
 </resources>

@@ -26,11 +26,11 @@
     <string name="sampleDestinationName">Top of the Hub</string>
     <string name="sampleDestinationPhonenumber">(903) 401-9672</string>
 
-    <array name="temporary_array">
+    <string-array name="temporary_array">
         <item name="plan1">Plan 1</item>
         <item name="plan2">Plan 2</item>
         <item name="plan3">Plan 3</item>
-    </array>
+    </string-array>
 
     <array name="dest_spinner_array">
         <item name="plan_dest_address">Some Restaurant</item>

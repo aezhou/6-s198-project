@@ -1,9 +1,12 @@
 package com.zadu.nightout;
 
-import java.sql.Time;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
+import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
@@ -14,29 +17,29 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
-import org.w3c.dom.Text;
+import com.google.android.gms.actions.ReserveIntents;
 
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener,
         PlanDetailsFragment.OnPlanDetailsListener,
         AlertsFragment.OnAlertsFragmentInteractionListener,
-        DirectionsFragment.OnDirectionsFragmentInteractionListener,
-        TimePickerFragment.OnFragmentInteractionListener{
-    private Spinner spinner;
+        DirectionsFragment.OnDirectionsFragmentInteractionListener{
+    private Spinner mSpinner;
+    private ArrayAdapter mArrayAdapter;
     String TAG = "MainActivity";
 
     /**
@@ -66,11 +69,16 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         actionBar.setCustomView(R.layout.custom_actionbar);
         actionBar.setDisplayShowCustomEnabled(true);
 
-        spinner = (Spinner) findViewById(R.id.spinner);
-        ArrayAdapter adapter = ArrayAdapter.createFromResource(this,
-                R.array.temporary_array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
+        mSpinner = (Spinner) findViewById(R.id.spinner);
+        List dropdown = new ArrayList();
+        dropdown.add("Plan 1");
+        dropdown.add("Plan 2");
+        mArrayAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, dropdown);
+//                ArrayAdapter.createFromResource(this,
+//                R.array.temporary_array, android.R.layout.simple_spinner_item);
+        mArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpinner.setAdapter(mArrayAdapter);
+
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -127,6 +135,59 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             return true;
         }
 
+        if (id == R.id.action_new_plan) {
+            final View nameNewPlan = getLayoutInflater().inflate(R.layout.dialog_newplan, null);
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setView(nameNewPlan);
+
+            EditText name = (EditText) nameNewPlan.findViewById(R.id.new_plan_edittext);
+
+            builder.setCancelable(true)
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                            EditText name = (EditText) nameNewPlan.findViewById(R.id.new_plan_edittext);
+                            mArrayAdapter.add(name.getText().toString());
+                            mArrayAdapter.notifyDataSetChanged();
+                            mSpinner.setSelection(mArrayAdapter.getPosition(name.getText().toString()));
+                        }
+                    }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+
+                }
+            });
+
+            final AlertDialog alert = builder.create();
+            alert.show();
+
+            if(name.getText().toString().isEmpty()) {
+                alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+            }
+
+            name.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    if (editable.length() != 0) {
+                        alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                    }
+                }
+            });
+
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -148,7 +209,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 //    @Override
 //    public void onPlanSaved(Object something) {
 //        //TODO: save the information from the saved plan (information = object)
-//        Log.e("Find Me", "save button clicked");
 //    }
 
     @Override
@@ -183,7 +243,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     @Override
     public void openGoogleMaps(Object something) {
-        Log.i(TAG, "openDirections() called");
+        Log.i(TAG, "openGoogleMaps() called");
         TextView streetAddressText = (TextView)findViewById(R.id.planAddressText);
         TextView otherAddressText = (TextView)findViewById(R.id.destinationCityStateZip);
         String streetAddress = streetAddressText.getText().toString();
@@ -243,8 +303,32 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     @Override
-    public void onFragmentInteraction(Uri uri) {
+    public void callRide(Object something) {
+        Log.i(TAG, "callRide() called");
+        TextView currentAddressTextView = (TextView)findViewById(R.id.current_address);
+        String currentAddress = currentAddressTextView.getText().toString();
+        Intent intent = new Intent(ReserveIntents.ACTION_RESERVE_TAXI_RESERVATION);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            Log.i(TAG, "resolving taxi intent");
+            startActivity(intent);
+        }
+    }
 
+    @Override
+    public void openGoogleMapsDirections(Object something) {
+        Log.i(TAG, "openGoogleMapsDirections() called");
+        TextView destAddressTextView = (TextView)findViewById(R.id.dest_address);
+        String destAddress = destAddressTextView.getText().toString();
+        String destAddressFormatted = destAddress.replace(" ", "+");
+        Log.i(TAG, destAddressFormatted);
+        Uri gmmIntentUri = Uri.parse("google.navigation:q=" + destAddressFormatted);
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+        startActivity(mapIntent);
+        if(mapIntent.resolveActivity(getPackageManager()) != null) {
+            Log.i(TAG, "Google Maps Navigation about to be called");
+            startActivity(mapIntent);
+        }
     }
 
     /**
@@ -262,10 +346,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
             switch(position) {
-                case 0: return PlanDetailsFragment.newInstance(spinner.getSelectedItem().toString(), "blah");
-                case 1: return DirectionsFragment.newInstance(spinner.getSelectedItem().toString(), "blah");
-                case 2: return AlertsFragment.newInstance(spinner.getSelectedItem().toString(), "blah");
-                default: return PlanDetailsFragment.newInstance(spinner.getSelectedItem().toString(), "blah");
+                case 0: return PlanDetailsFragment.newInstance(mSpinner.getSelectedItem().toString(), "blah");
+                case 1: return DirectionsFragment.newInstance(mSpinner.getSelectedItem().toString(), "blah");
+                case 2: return AlertsFragment.newInstance(mSpinner.getSelectedItem().toString(), "blah");
+                default: return PlanDetailsFragment.newInstance(mSpinner.getSelectedItem().toString(), "blah");
             }
         }
 

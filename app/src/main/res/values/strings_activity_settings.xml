@@ -49,8 +49,8 @@
 
     <string name="pref_title_system_sync_settings">System sync settings</string>
 
-    <!-- Example settings for Notifications -->
-    <string name="pref_header_notifications">Notifications</string>
+    <!-- Example settings for Emergency Contacts -->
+    <string name="pref_header_emergency">Emergency Contacts</string>
 
     <string name="pref_title_new_message_notifications">New message notifications</string>
 

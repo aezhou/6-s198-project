@@ -66,7 +66,7 @@ public class SettingsActivity extends PreferenceActivity {
 
         // Add 'notifications' preferences, and a corresponding header.
         PreferenceCategory fakeHeader = new PreferenceCategory(this);
-        fakeHeader.setTitle(R.string.pref_header_notifications);
+        fakeHeader.setTitle(R.string.pref_header_emergency);
         getPreferenceScreen().addPreference(fakeHeader);
         addPreferencesFromResource(R.xml.pref_notification);
 

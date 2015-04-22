@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 
 
@@ -32,6 +33,8 @@ public class DirectionsFragment extends Fragment {
     private String mParam2;
 
     private OnDirectionsFragmentInteractionListener mListener;
+    private Button getDirectionsButton;
+    private Button callRideButton;
 
     /**
      * Use this factory method to create a new instance of
@@ -77,6 +80,24 @@ public class DirectionsFragment extends Fragment {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         destSpinner.setAdapter(adapter);
 
+        // Set listener for the "Get Directions" button
+        getDirectionsButton = (Button) v.findViewById(R.id.directions_button);
+        getDirectionsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onGetDirectionsButtonPressed(view);
+            }
+        });
+
+        // Set listener for the "Call a Ride" button
+        callRideButton = (Button) v.findViewById(R.id.call_ride_button);
+        callRideButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onCallRideButtonPressed(view);
+            }
+        });
+
         return v;
     }
 
@@ -84,6 +105,18 @@ public class DirectionsFragment extends Fragment {
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.OnDirectionsFragmentInteraction(uri);
+        }
+    }
+
+    public void onGetDirectionsButtonPressed(Object something) {
+        if(mListener != null) {
+            mListener.openGoogleMapsDirections(something);
+        }
+    }
+
+    public void onCallRideButtonPressed(Object something) {
+        if(mListener != null) {
+            mListener.callRide(something);
         }
     }
 
@@ -119,6 +152,8 @@ public class DirectionsFragment extends Fragment {
 
         // send things in fragment to listener, which MainActivity extends
         public void OnDirectionsFragmentInteraction(Object object);
+        public void callRide(Object something);
+        public void openGoogleMapsDirections(Object something);
     }
 
 }
