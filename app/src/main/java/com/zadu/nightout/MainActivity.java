@@ -1,6 +1,5 @@
 package com.zadu.nightout;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -21,16 +20,13 @@ import android.support.v4.view.ViewPager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -211,7 +207,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 //    @Override
 //    public void onPlanSaved(Object something) {
 //        //TODO: save the information from the saved plan (information = object)
-//        Log.e("Find Me", "save button clicked");
 //    }
 
     @Override
