@@ -34,7 +34,8 @@ import org.w3c.dom.Text;
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener,
         PlanDetailsFragment.OnPlanDetailsListener,
         AlertsFragment.OnAlertsFragmentInteractionListener,
-        DirectionsFragment.OnDirectionsFragmentInteractionListener{
+        DirectionsFragment.OnDirectionsFragmentInteractionListener,
+        TimePickerFragment.OnFragmentInteractionListener{
     private Spinner spinner;
     String TAG = "MainActivity";
 
@@ -228,7 +229,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void showTimePickerDialog(Object something) {
         Log.i(TAG, "called showTimePickerDialog()");
         DialogFragment newFragment = new TimePickerFragment();
-//        newFragment.show(getSupportFragmentManager(), "timePicker");
+        newFragment.show(getFragmentManager(), "timePicker");
     }
 
     @Override
@@ -239,6 +240,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public void OnDirectionsFragmentInteraction(Object object) {
         //TODO: interact with any passed info in Object
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
     }
 
     /**

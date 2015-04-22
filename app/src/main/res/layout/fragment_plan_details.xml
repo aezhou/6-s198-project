@@ -6,8 +6,6 @@
     android:focusableInTouchMode="true"
     android:id="@+id/planMainLayout">
 
-    <!-- TODO: Update blank fragment layout -->
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -129,7 +127,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Select a date"
-                    android:id="@+id/timePickerButton" />
+                    android:id="@+id/timePickerButton"
+                    android:visibility="invisible" />
 
                 <DatePicker
                     android:layout_width="wrap_content"
