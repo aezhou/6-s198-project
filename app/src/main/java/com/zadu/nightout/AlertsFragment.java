@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -103,17 +104,15 @@ public class AlertsFragment extends Fragment {
         contactsListHeader.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View headerView) {
-                View contactsListView = getActivity().findViewById(R.id.contactsListView);
-                ToggleButton toggle = (ToggleButton) getActivity().findViewById(R.id.collapseContactsToggle);
-                if (contactsListView.getVisibility() == View.GONE) {
-                    // TODO: change the toggle image
-                    contactsListView.setVisibility(View.VISIBLE);
-                    toggle.setChecked(true);
-                } else {
-                    // TODO: change the toggle image
-                    contactsListView.setVisibility(View.GONE);
-                    toggle.setChecked(false);
-                }
+                onCollapseContacts(false);
+            }
+        });
+
+        CheckBox contactsListToggle = (CheckBox) v.findViewById(R.id.collapseContactsToggle);
+        contactsListToggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View toggleView) {
+                onCollapseContacts(true);
             }
         });
 
@@ -204,6 +203,18 @@ public class AlertsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    public void onCollapseContacts(boolean wasToggleClicked) {
+        View contactsListView = getActivity().findViewById(R.id.contactsListView);
+        CheckBox toggle = (CheckBox) getActivity().findViewById(R.id.collapseContactsToggle);
+        if (contactsListView.getVisibility() == View.GONE) {
+            contactsListView.setVisibility(View.VISIBLE);
+            if (!wasToggleClicked) {toggle.setChecked(true);}
+        } else {
+            contactsListView.setVisibility(View.GONE);
+            if (!wasToggleClicked) {toggle.setChecked(false);}
+        }
     }
 
     public void onTogglePings(View view) {

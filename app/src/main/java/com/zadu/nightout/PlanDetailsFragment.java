@@ -1,6 +1,7 @@
 package com.zadu.nightout;
 
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,7 +25,7 @@ import java.util.Objects;
  * Use the {@link PlanDetailsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class PlanDetailsFragment extends Fragment {
+public class PlanDetailsFragment extends Fragment implements TimePickerFragment.OnFragmentInteractionListener{
 
     String TAG = "PlanDetailsFragment";
     // TODO: Rename parameter arguments, choose names that match
@@ -166,7 +167,10 @@ public class PlanDetailsFragment extends Fragment {
 
     public void showTimePicker(Object something) {
         if(mListener != null) {
-            mListener.showTimePickerDialog(something);
+//            mListener.showTimePickerDialog(something);
+            Log.i(TAG, "called showTimePickerDialog()");
+            DialogFragment newFragment = new TimePickerFragment();
+            newFragment.show(getActivity().getFragmentManager(), "timePicker");
         }
     }
 
@@ -185,6 +189,11 @@ public class PlanDetailsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
     }
 
     /**

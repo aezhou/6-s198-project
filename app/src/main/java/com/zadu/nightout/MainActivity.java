@@ -292,7 +292,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void showTimePickerDialog(Object something) {
         Log.i(TAG, "called showTimePickerDialog()");
         DialogFragment newFragment = new TimePickerFragment();
-//        newFragment.show(getSupportFragmentManager(), "timePicker");
+        newFragment.show(getFragmentManager(), "timePicker");
     }
 
     @Override
