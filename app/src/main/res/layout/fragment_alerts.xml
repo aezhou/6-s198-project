@@ -38,7 +38,7 @@
         android:id="@+id/otherContactButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
+        android:layout_gravity="center_horizontal"
         android:text="Other"/>
 
     <!-- ping header -->
@@ -58,11 +58,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:checked="true"
-            android:showText="true"
-            android:textOn="ON"
-            android:textOff="OFF"/>
+            android:checked="true"/>
     </LinearLayout>
+    <!--android:showText="true"-->
+    <!--android:textOn="ON"-->
+    <!--android:textOff="OFF"-->
 
     <!--ping details -->
     <LinearLayout
