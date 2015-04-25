@@ -77,8 +77,8 @@ public class MyOpenHelper extends SQLiteOpenHelper{
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(DEFAULT_CONTACTS_TABLE_CREATE);
-        db.execSQL(PLAN_CONTACTS_TABLE_CREATE);
         db.execSQL(PLAN_TABLE_CREATE);
+        db.execSQL(PLAN_CONTACTS_TABLE_CREATE);
     }
 
     @Override
