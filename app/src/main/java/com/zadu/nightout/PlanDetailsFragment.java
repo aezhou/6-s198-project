@@ -44,6 +44,7 @@ public class PlanDetailsFragment extends Fragment implements TimePickerFragment.
     private ImageView openMapImage;
     private Button sharePlanButton;
     private Button timePickerButton;
+    private Button findButton;
 
     /**
      * Use this factory method to create a new instance of
@@ -131,6 +132,14 @@ public class PlanDetailsFragment extends Fragment implements TimePickerFragment.
             }
         });
 
+        findButton = (Button) v.findViewById(R.id.findButton);
+        findButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
         return v;
     }
 
@@ -171,6 +180,12 @@ public class PlanDetailsFragment extends Fragment implements TimePickerFragment.
             Log.i(TAG, "called showTimePickerDialog()");
             DialogFragment newFragment = new TimePickerFragment();
             newFragment.show(getActivity().getFragmentManager(), "timePicker");
+        }
+    }
+
+    public void findLocationInfo(Object something) {
+        if(mListener != null) {
+            mListener.findLocation(something);
         }
     }
 
@@ -217,6 +232,7 @@ public class PlanDetailsFragment extends Fragment implements TimePickerFragment.
         public void openGoogleMaps(Object something);
         public void callSharePlan(Object something);
         public void showTimePickerDialog(Object something);
+        public void findLocation(Object something);
     }
 
 }

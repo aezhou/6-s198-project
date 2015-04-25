@@ -1,5 +1,12 @@
 package com.zadu.nightout;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -9,6 +16,7 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -33,6 +41,12 @@ import android.widget.TimePicker;
 
 import com.google.android.gms.actions.ReserveIntents;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import javax.security.auth.callback.UnsupportedCallbackException;
+
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener,
         PlanDetailsFragment.OnPlanDetailsListener,
@@ -41,6 +55,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private Spinner mSpinner;
     private ArrayAdapter mArrayAdapter;
     String TAG = "MainActivity";
+    String openTableApiUrl = "http://opentable.herokuapp.com/api/";
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -331,6 +346,25 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
+    @Override
+    public void findLocation(Object something) {
+        Log.i(TAG, "findLocation() called");
+        EditText searchField = (EditText) findViewById(R.id.searchField);
+        String searchText = searchField.getText().toString();
+        String encodedInput = null;
+        try{
+            encodedInput = URLEncoder.encode(searchText, "UTF-8");
+        }
+        catch (UnsupportedEncodingException e) {
+            Log.e(TAG, "Encoding exception");
+            e.printStackTrace();
+        }
+        if(encodedInput != null) {
+            String apiUrl = openTableApiUrl + "restaurants?name=" + encodedInput;
+            new CallAPI().execute(apiUrl);
+        }
+    }
+
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
@@ -373,6 +407,88 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             }
             return null;
         }
+    }
+
+    /*
+    Private class taken from WebAPIExample code from class
+     */
+    private class CallAPI extends AsyncTask<String, String, String> {
+
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            String urlString = params[0]; // URL to call
+
+            HttpURLConnection urlConnection = null;
+
+            InputStream in = null;
+            StringBuilder sb = new StringBuilder();
+
+            char[] buf = new char[4096];
+
+            // do the HTTP Get
+            try {
+                URL url = new URL(urlString);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                InputStreamReader reader = new InputStreamReader(urlConnection.getInputStream());
+
+                Log.i(TAG, "got input stream");
+
+                int read;
+                while ((read = reader.read(buf)) != -1) {
+                    sb.append(buf, 0, read);
+                }
+            } catch (Exception e) {
+                // if any I/O error occurs
+                e.printStackTrace();
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                try {
+                    // releases any system resources associated with the stream
+                    if (in != null)
+                        in.close();
+                } catch (IOException e) {
+                    Log.i(TAG + " Error:", e.getMessage());
+                }
+            }
+            Log.i(TAG, "Finished reading");
+            return sb.toString();
+        }
+
+        /**
+         * Method ran after receiving response from API
+         * @param result string result returned from API
+         */
+        protected void onPostExecute(String result) {
+            Log.i(TAG, "starting onPostExecute");
+
+            JSONArray restaurantEntries = null;
+//            TODO: Filter based upon the API used
+            // separate this out so people can work on it.
+            try {
+                JSONObject jObject = new JSONObject(result);
+                restaurantEntries = jObject.getJSONArray("restaurants");
+
+            } catch (JSONException e) {
+                Log.e(TAG, "Could not find restaurants entry in JSON result");
+                Log.i(TAG, e.getMessage());
+            }
+
+            if (restaurantEntries != null) {
+//                showFoodEntries1(foodEntries);
+//                showFoodEntries2(foodEntries);
+//                showFoodEntries3(foodEntries);
+//                showFoodEntries4(foodEntries);
+            }
+        }
+
+    } // end CallAPI
+
+    private void displayRestaurants(final JSONArray restaurants) {
+        
     }
 
     public String getCurrentPlanName() {
