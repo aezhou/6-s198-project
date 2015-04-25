@@ -20,23 +20,12 @@ public class MyOpenHelper extends SQLiteOpenHelper{
     private static final String CONTACT_NUMBER = "contact_number";
     private static final String DEFAULT_CONTACTS_TABLE_CREATE =
             "CREATE TABLE " + DEFAULT_CONTACTS_TABLE_NAME + " (" +
-                    "_id" + " INTEGER AUTOINCREMENT, " +
+                    "_id" + " INTEGER PRIMARY KEY, " +
                     CONTACT_NAME + " TEXT, "+
-                    CONTACT_NUMBER + " TEXT PRIMARY KEY);";
-
-    private static final String PLAN_CONTACTS_TABLE_NAME = "plan_contacts";
-    private static final String PLAN_NAME = "plan_name";
-    private static final String IS_DEFAULT = "is_default";
-    private static final String PLAN_CONTACTS_TABLE_CREATE =
-            "CREATE TABLE " + PLAN_CONTACTS_TABLE_NAME + " (" +
-                    "_id" + " INTEGER AUTOINCREMENT, " +
-                    PLAN_NAME + " TEXT, "+
-                    CONTACT_NAME + " TEXT, "+
-                    CONTACT_NUMBER + " TEXT,"+
-                    IS_DEFAULT + " INTEGER,"+ //one or zero
-                    "PRIMARY KEY ("+PLAN_NAME+", "+CONTACT_NUMBER+")"+");";
+                    CONTACT_NUMBER + " TEXT UNIQUE);";
 
     private static final String PLAN_TABLE_NAME = "plans";
+    private static final String PLAN_NAME = "plan_name";
     private static final String PLACE_NAME = "place_name";
     private static final String PLACE_ADDRESS = "place_address";
     private static final String PLACE_NUMBER = "place_number";
@@ -52,8 +41,8 @@ public class MyOpenHelper extends SQLiteOpenHelper{
     private static final String PING_ALLOWANCE = "ping_allowance";
     private static final String PLAN_TABLE_CREATE =
             "CREATE TABLE " + PLAN_TABLE_NAME + " (" +
-                    "_id" + " INTEGER AUTOINCREMENT, " +
-                    PLAN_NAME + " TEXT PRIMARY KEY, "+
+                    "_id" + " INTEGER PRIMARY KEY, " +
+                    PLAN_NAME + " TEXT UNIQUE, "+
                     PLACE_NAME + " TEXT,"+
                     PLACE_ADDRESS + " TEXT, "+
                     PLACE_NUMBER + " TEXT, "+
@@ -67,6 +56,19 @@ public class MyOpenHelper extends SQLiteOpenHelper{
                     PINGS_ON + " INTEGER, "+//one or zero
                     PING_INTERVAL + " INTEGER, "+
                     PING_ALLOWANCE + " INTEGER"+ ");";
+
+    private static final String PLAN_CONTACTS_TABLE_NAME = "plan_contacts";
+    private static final String IS_DEFAULT = "is_default";
+    private static final String PLAN_CONTACTS_TABLE_CREATE =
+            "CREATE TABLE " + PLAN_CONTACTS_TABLE_NAME + " (" +
+                    "_id" + " INTEGER PRIMARY KEY, " +
+                    PLAN_NAME + " TEXT, "+
+                    CONTACT_NAME + " TEXT, "+
+                    CONTACT_NUMBER + " TEXT,"+
+                    IS_DEFAULT + " INTEGER,"+ //one or zero
+                    " FOREIGN KEY ("+PLAN_NAME+") REFERENCES "+PLAN_TABLE_NAME+" ("+PLAN_NAME+"),"+
+                    "CONSTRAINT unq UNIQUE ("+PLAN_NAME+", "+CONTACT_NUMBER+"))"+");";
+
 
     MyOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -158,8 +160,17 @@ public class MyOpenHelper extends SQLiteOpenHelper{
                 new String[] {activity.getCurrentPlanName()});
     }
 
-    public Cursor getPlans() {
-        return getReadableDatabase().rawQuery("select " + PLAN_NAME + " from " + PLAN_TABLE_NAME, null);
+    public ArrayList<String> getPlans() {
+        Cursor c = getReadableDatabase().rawQuery("select " + PLAN_NAME + " from " + PLAN_TABLE_NAME, null);
+        ArrayList<String> plans = new ArrayList<String>();
+        boolean hasPlan = c.moveToFirst();
+        if (!hasPlan) return null;
+        while (c.isAfterLast() == false) {
+            plans.add(c.getString(0));
+            c.moveToNext();
+        }
+        c.close();
+        return plans;
     }
 
     public void insertNewPlan(String planName) {
