@@ -8,11 +8,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.DialogFragment;
+import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -278,14 +281,17 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         TextView planAddressText = (TextView) findViewById(R.id.planAddressText);
         TextView destinationCityStateZip = (TextView) findViewById(R.id.destinationCityStateZip);
         CheckBox reservationMade = (CheckBox) findViewById(R.id.checkReservationCheckBox);
-        DatePicker datePicker = (DatePicker) findViewById(R.id.datePicker);
-        TimePicker timePicker = (TimePicker) findViewById(R.id.timePicker);
+//        DatePicker datePicker = (DatePicker) findViewById(R.id.datePicker);
+//        TimePicker timePicker = (TimePicker) findViewById(R.id.timePicker);
 
         String destination = destinationName.getText().toString();
         String address = planAddressText.getText().toString() + destinationCityStateZip.getText().toString();
         boolean isReserved = reservationMade.isChecked();
-        String date = datePicker.getMonth() + "/" + datePicker.getDayOfMonth() + "/" + datePicker.getYear();
-        String time = timePicker.getCurrentHour() + ":" + timePicker.getCurrentMinute();
+        TextView dateView = (TextView)findViewById(R.id.selectedDateText);//datePicker.getMonth() + "/" + datePicker.getDayOfMonth() + "/" + datePicker.getYear();
+        String date = dateView.getText().toString();
+        TextView timeView = (TextView)findViewById(R.id.selectedTimeText);
+        String time = timeView.getText().toString();
+//        String time = timePicker.getCurrentHour() + ":" + timePicker.getCurrentMinute();
         String reservationMessage = "";
         if(isReserved) {
             reservationMessage = "A reservation has already been made.";
@@ -303,8 +309,40 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public void showTimePickerDialog(Object something) {
         Log.i(TAG, "called showTimePickerDialog()");
-        DialogFragment newFragment = new TimePickerFragment();
-        newFragment.show(getFragmentManager(), "timePicker");
+        TimePickerDialog tpd = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                TextView timeView = (TextView)findViewById(R.id.selectedTimeText);
+                timeView.setText(hourOfDay + " : " + minute);
+            }
+        }, 12, 0, false);
+        tpd.show();
+
+//        DialogFragment newFragment = new TimePickerFragment();
+//        newFragment.show(getFragmentManager(), "timePicker");
+    }
+
+    @Override
+    public void showDatePickerDialog(Object something) {
+        Log.i(TAG, "called showDatePickerDialog()");
+        final Calendar c = Calendar.getInstance();
+        int mYear = c.get(Calendar.YEAR);
+        int mMonth = c.get(Calendar.MONTH);
+        int mDay = c.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog dpd = new DatePickerDialog(this,
+                new DatePickerDialog.OnDateSetListener() {
+
+                    @Override
+                    public void onDateSet(DatePicker view, int year,
+                                          int monthOfYear, int dayOfMonth) {
+                        TextView dateView = (TextView)findViewById(R.id.selectedDateText);
+                        dateView.setText(dayOfMonth + "-"
+                                + (monthOfYear + 1) + "-" + year);
+
+                    }
+                }, mYear, mMonth, mDay);
+        dpd.show();
     }
 
     @Override
@@ -413,8 +451,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     Private class taken from WebAPIExample code from class
      */
     private class CallAPI extends AsyncTask<String, String, String> {
-
-
         @Override
         protected String doInBackground(String... params) {
 
@@ -487,8 +523,32 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     } // end CallAPI
 
+//    TODO: Finih the function below
+    /**
+     * Filters and displays restaurant options
+     * @param restaurants JSONArray of restaurants and their relevant information
+     */
     private void displayRestaurants(final JSONArray restaurants) {
-        
+        ArrayList<String> restaurantNames = new ArrayList<>();
+        ArrayList<String> restaurantAddresses = new ArrayList<>();
+        ArrayList<Integer> restaurantIDs = new ArrayList<>();
+        ArrayList<String> restaurantPhones = new ArrayList<>();
+
+        for(int i = 0; i < restaurants.length(); i++) {
+            try {
+                JSONObject restInfo = (JSONObject) restaurants.get(i);
+                restaurantNames.add(restInfo.getJSONObject("name").toString());
+                String finaAddress = restInfo.getString("address") + restInfo.getString("city") + restInfo.getString("state") + restInfo.getString("postal_code");
+                restaurantAddresses.add(finaAddress);
+                restaurantIDs.add(restInfo.getInt("id"));
+                restaurantPhones.add(restInfo.getString("phone"));
+            }
+            catch (JSONException e){
+                Log.e(TAG, e.getMessage());
+                e.printStackTrace();
+            }
+
+        }
     }
 
     public String getCurrentPlanName() {
