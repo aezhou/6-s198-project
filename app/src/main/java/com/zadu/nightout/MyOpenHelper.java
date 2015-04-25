@@ -64,10 +64,10 @@ public class MyOpenHelper extends SQLiteOpenHelper{
                     "_id" + " INTEGER PRIMARY KEY, " +
                     PLAN_NAME + " TEXT, "+
                     CONTACT_NAME + " TEXT, "+
-                    CONTACT_NUMBER + " TEXT,"+
-                    IS_DEFAULT + " INTEGER,"+ //one or zero
-                    " FOREIGN KEY ("+PLAN_NAME+") REFERENCES "+PLAN_TABLE_NAME+" ("+PLAN_NAME+"),"+
-                    "CONSTRAINT unq UNIQUE ("+PLAN_NAME+", "+CONTACT_NUMBER+"))"+");";
+                    CONTACT_NUMBER + " TEXT, "+
+                    IS_DEFAULT + " INTEGER, "+ //one or zero
+                    "FOREIGN KEY ("+PLAN_NAME+") REFERENCES "+PLAN_TABLE_NAME+" ("+PLAN_NAME+"), "+
+                    "CONSTRAINT unq UNIQUE ("+PLAN_NAME+", "+CONTACT_NUMBER+")"+");";
 
 
     MyOpenHelper(Context context) {
