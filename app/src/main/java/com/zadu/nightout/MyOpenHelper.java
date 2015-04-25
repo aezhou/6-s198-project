@@ -128,7 +128,7 @@ public class MyOpenHelper extends SQLiteOpenHelper{
 
     public void updateHasReservation(MainActivity activity, boolean reserved) {
         int reservedInt = 0;
-        if (on) {reservedInt = 1;}
+        if (reserved) {reservedInt = 1;}
         ContentValues cv = new ContentValues();
         cv.put(HAS_RESERVATION, reservedInt);
         getWritableDatabase().update(PLAN_TABLE_NAME, cv, PLAN_NAME+" == ?",
@@ -146,7 +146,7 @@ public class MyOpenHelper extends SQLiteOpenHelper{
 
     public void updatePingInterval(MainActivity activity, int interval) {
         ContentValues cv = new ContentValues();
-        cv.put(PING_INTERVAL, inverval);
+        cv.put(PING_INTERVAL, interval);
         getWritableDatabase().update(PLAN_TABLE_NAME, cv, PLAN_NAME+" == ?",
                 new String[] {activity.getCurrentPlanName()});
     }
@@ -176,11 +176,11 @@ public class MyOpenHelper extends SQLiteOpenHelper{
     public ArrayList<String> getContactNumbers(MainActivity activity) {
         ArrayList<String> nums = new ArrayList<String>();
         Cursor c =  getReadableDatabase().rawQuery("select " + CONTACT_NUMBER + " from " + PLAN_CONTACTS_TABLE_NAME +
-                " where " + PLACE_NAME + " == " + getCurrentPlanName(activity), null);
+                " where " + PLACE_NAME + " == " + activity.getCurrentPlanName(), null);
         boolean hasNum = c.moveToFirst();
         if (!hasNum) return null;
         while (c.isAfterLast() == false) {
-            names.add(c.getString(1));
+            nums.add(c.getString(1));
             c.moveToNext();
         }
         c.close();
