@@ -374,4 +374,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             return null;
         }
     }
+
+    public String getCurrentPlanName() {
+        return mSpinner.getSelectedItem().toString();
+    }
 }
