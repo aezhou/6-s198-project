@@ -1,14 +1,25 @@
 package com.zadu.nightout;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.DialogFragment;
+import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -33,6 +44,12 @@ import android.widget.TimePicker;
 
 import com.google.android.gms.actions.ReserveIntents;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import javax.security.auth.callback.UnsupportedCallbackException;
+
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener,
         PlanDetailsFragment.OnPlanDetailsListener,
@@ -41,6 +58,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private Spinner mSpinner;
     private ArrayAdapter mArrayAdapter;
     String TAG = "MainActivity";
+    String openTableApiUrl = "http://opentable.herokuapp.com/api/";
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -263,14 +281,17 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         TextView planAddressText = (TextView) findViewById(R.id.planAddressText);
         TextView destinationCityStateZip = (TextView) findViewById(R.id.destinationCityStateZip);
         CheckBox reservationMade = (CheckBox) findViewById(R.id.checkReservationCheckBox);
-        DatePicker datePicker = (DatePicker) findViewById(R.id.datePicker);
-        TimePicker timePicker = (TimePicker) findViewById(R.id.timePicker);
+//        DatePicker datePicker = (DatePicker) findViewById(R.id.datePicker);
+//        TimePicker timePicker = (TimePicker) findViewById(R.id.timePicker);
 
         String destination = destinationName.getText().toString();
         String address = planAddressText.getText().toString() + destinationCityStateZip.getText().toString();
         boolean isReserved = reservationMade.isChecked();
-        String date = datePicker.getMonth() + "/" + datePicker.getDayOfMonth() + "/" + datePicker.getYear();
-        String time = timePicker.getCurrentHour() + ":" + timePicker.getCurrentMinute();
+        TextView dateView = (TextView)findViewById(R.id.selectedDateText);//datePicker.getMonth() + "/" + datePicker.getDayOfMonth() + "/" + datePicker.getYear();
+        String date = dateView.getText().toString();
+        TextView timeView = (TextView)findViewById(R.id.selectedTimeText);
+        String time = timeView.getText().toString();
+//        String time = timePicker.getCurrentHour() + ":" + timePicker.getCurrentMinute();
         String reservationMessage = "";
         if(isReserved) {
             reservationMessage = "A reservation has already been made.";
@@ -288,8 +309,40 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public void showTimePickerDialog(Object something) {
         Log.i(TAG, "called showTimePickerDialog()");
-        DialogFragment newFragment = new TimePickerFragment();
-        newFragment.show(getFragmentManager(), "timePicker");
+        TimePickerDialog tpd = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                TextView timeView = (TextView)findViewById(R.id.selectedTimeText);
+                timeView.setText(hourOfDay + " : " + minute);
+            }
+        }, 12, 0, false);
+        tpd.show();
+
+//        DialogFragment newFragment = new TimePickerFragment();
+//        newFragment.show(getFragmentManager(), "timePicker");
+    }
+
+    @Override
+    public void showDatePickerDialog(Object something) {
+        Log.i(TAG, "called showDatePickerDialog()");
+        final Calendar c = Calendar.getInstance();
+        int mYear = c.get(Calendar.YEAR);
+        int mMonth = c.get(Calendar.MONTH);
+        int mDay = c.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog dpd = new DatePickerDialog(this,
+                new DatePickerDialog.OnDateSetListener() {
+
+                    @Override
+                    public void onDateSet(DatePicker view, int year,
+                                          int monthOfYear, int dayOfMonth) {
+                        TextView dateView = (TextView)findViewById(R.id.selectedDateText);
+                        dateView.setText(dayOfMonth + "-"
+                                + (monthOfYear + 1) + "-" + year);
+
+                    }
+                }, mYear, mMonth, mDay);
+        dpd.show();
     }
 
     @Override
@@ -328,6 +381,25 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         if(mapIntent.resolveActivity(getPackageManager()) != null) {
             Log.i(TAG, "Google Maps Navigation about to be called");
             startActivity(mapIntent);
+        }
+    }
+
+    @Override
+    public void findLocation(Object something) {
+        Log.i(TAG, "findLocation() called");
+        EditText searchField = (EditText) findViewById(R.id.searchField);
+        String searchText = searchField.getText().toString();
+        String encodedInput = null;
+        try{
+            encodedInput = URLEncoder.encode(searchText, "UTF-8");
+        }
+        catch (UnsupportedEncodingException e) {
+            Log.e(TAG, "Encoding exception");
+            e.printStackTrace();
+        }
+        if(encodedInput != null) {
+            String apiUrl = openTableApiUrl + "restaurants?name=" + encodedInput;
+            new CallAPI().execute(apiUrl);
         }
     }
 
@@ -372,6 +444,110 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     return getString(R.string.title_section3).toUpperCase(l);
             }
             return null;
+        }
+    }
+
+    /*
+    Private class taken from WebAPIExample code from class
+     */
+    private class CallAPI extends AsyncTask<String, String, String> {
+        @Override
+        protected String doInBackground(String... params) {
+
+            String urlString = params[0]; // URL to call
+
+            HttpURLConnection urlConnection = null;
+
+            InputStream in = null;
+            StringBuilder sb = new StringBuilder();
+
+            char[] buf = new char[4096];
+
+            // do the HTTP Get
+            try {
+                URL url = new URL(urlString);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                InputStreamReader reader = new InputStreamReader(urlConnection.getInputStream());
+
+                Log.i(TAG, "got input stream");
+
+                int read;
+                while ((read = reader.read(buf)) != -1) {
+                    sb.append(buf, 0, read);
+                }
+            } catch (Exception e) {
+                // if any I/O error occurs
+                e.printStackTrace();
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                try {
+                    // releases any system resources associated with the stream
+                    if (in != null)
+                        in.close();
+                } catch (IOException e) {
+                    Log.i(TAG + " Error:", e.getMessage());
+                }
+            }
+            Log.i(TAG, "Finished reading");
+            return sb.toString();
+        }
+
+        /**
+         * Method ran after receiving response from API
+         * @param result string result returned from API
+         */
+        protected void onPostExecute(String result) {
+            Log.i(TAG, "starting onPostExecute");
+
+            JSONArray restaurantEntries = null;
+//            TODO: Filter based upon the API used
+            // separate this out so people can work on it.
+            try {
+                JSONObject jObject = new JSONObject(result);
+                restaurantEntries = jObject.getJSONArray("restaurants");
+
+            } catch (JSONException e) {
+                Log.e(TAG, "Could not find restaurants entry in JSON result");
+                Log.i(TAG, e.getMessage());
+            }
+
+            if (restaurantEntries != null) {
+//                showFoodEntries1(foodEntries);
+//                showFoodEntries2(foodEntries);
+//                showFoodEntries3(foodEntries);
+//                showFoodEntries4(foodEntries);
+            }
+        }
+
+    } // end CallAPI
+
+//    TODO: Finih the function below
+    /**
+     * Filters and displays restaurant options
+     * @param restaurants JSONArray of restaurants and their relevant information
+     */
+    private void displayRestaurants(final JSONArray restaurants) {
+        ArrayList<String> restaurantNames = new ArrayList<>();
+        ArrayList<String> restaurantAddresses = new ArrayList<>();
+        ArrayList<Integer> restaurantIDs = new ArrayList<>();
+        ArrayList<String> restaurantPhones = new ArrayList<>();
+
+        for(int i = 0; i < restaurants.length(); i++) {
+            try {
+                JSONObject restInfo = (JSONObject) restaurants.get(i);
+                restaurantNames.add(restInfo.getJSONObject("name").toString());
+                String finaAddress = restInfo.getString("address") + restInfo.getString("city") + restInfo.getString("state") + restInfo.getString("postal_code");
+                restaurantAddresses.add(finaAddress);
+                restaurantIDs.add(restInfo.getInt("id"));
+                restaurantPhones.add(restInfo.getString("phone"));
+            }
+            catch (JSONException e){
+                Log.e(TAG, e.getMessage());
+                e.printStackTrace();
+            }
+
         }
     }
 

@@ -117,36 +117,40 @@
                 android:gravity="center_horizontal">
 
 
-                <TextView
+                <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/datePickerTextLabel"
+                    android:id="@+id/datePickerButton" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="You've selected: "
                     android:id="@+id/datePickerText" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/selectedDateText" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Select a date"
-                    android:id="@+id/timePickerButton"
-                    android:visibility="invisible" />
-
-                <DatePicker
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/datePicker"
-                    android:calendarViewShown="false" />
+                    android:text="@string/timePickerLabelText"
+                    android:id="@+id/timePickerButton" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/timePickerLabelText"
+                    android:text="You've selected: "
                     android:id="@+id/timePickerText" />
 
-                <TimePicker
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/timePicker"
-                    android:clickable="false" />
+                    android:id="@+id/selectedTimeText"/>
+
 
             </LinearLayout>
 
@@ -181,5 +185,12 @@
 
         </LinearLayout>
     </ScrollView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/textView"
+        android:layout_gravity="right" />
 
 </LinearLayout>

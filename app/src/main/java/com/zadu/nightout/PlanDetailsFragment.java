@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,6 +45,8 @@ public class PlanDetailsFragment extends Fragment implements TimePickerFragment.
     private ImageView openMapImage;
     private Button sharePlanButton;
     private Button timePickerButton;
+    private Button datePickerButton;
+    private Button findButton;
 
     /**
      * Use this factory method to create a new instance of
@@ -131,6 +134,22 @@ public class PlanDetailsFragment extends Fragment implements TimePickerFragment.
             }
         });
 
+        datePickerButton = (Button) v.findViewById(R.id.datePickerButton);
+        datePickerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDatePicker(view);
+            }
+        });
+
+        findButton = (Button) v.findViewById(R.id.findButton);
+        findButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
         return v;
     }
 
@@ -167,10 +186,23 @@ public class PlanDetailsFragment extends Fragment implements TimePickerFragment.
 
     public void showTimePicker(Object something) {
         if(mListener != null) {
-//            mListener.showTimePickerDialog(something);
-            Log.i(TAG, "called showTimePickerDialog()");
-            DialogFragment newFragment = new TimePickerFragment();
-            newFragment.show(getActivity().getFragmentManager(), "timePicker");
+            Log.i(TAG, "called showTimePicker()");
+            mListener.showTimePickerDialog(something);
+//            DialogFragment newFragment = new TimePickerFragment();
+//            newFragment.show((getActivity()).getFragmentManager(), "timePicker");
+        }
+    }
+
+    public void showDatePicker(Object something) {
+        if(mListener != null) {
+            Log.i(TAG, "called showDatePicker()");
+            mListener.showDatePickerDialog(something);
+        }
+    }
+
+    public void findLocationInfo(Object something) {
+        if(mListener != null) {
+            mListener.findLocation(something);
         }
     }
 
@@ -217,6 +249,8 @@ public class PlanDetailsFragment extends Fragment implements TimePickerFragment.
         public void openGoogleMaps(Object something);
         public void callSharePlan(Object something);
         public void showTimePickerDialog(Object something);
+        public void showDatePickerDialog(Object something);
+        public void findLocation(Object something);
     }
 
 }
