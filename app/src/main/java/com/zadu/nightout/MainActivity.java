@@ -57,6 +57,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         DirectionsFragment.OnDirectionsFragmentInteractionListener{
     private Spinner mSpinner;
     private ArrayAdapter mArrayAdapter;
+    private MyOpenHelper mSqlHelper;
     String TAG = "MainActivity";
     String openTableApiUrl = "http://opentable.herokuapp.com/api/";
 
@@ -83,14 +84,17 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        mSqlHelper = new MyOpenHelper(this);
 
         actionBar.setCustomView(R.layout.custom_actionbar);
         actionBar.setDisplayShowCustomEnabled(true);
 
         mSpinner = (Spinner) findViewById(R.id.spinner);
-        List dropdown = new ArrayList();
-        dropdown.add("Plan 1");
-        dropdown.add("Plan 2");
+        List dropdown = mSqlHelper.getPlans();
+        if (dropdown.size() == 0) {
+            mSqlHelper.insertNewPlan("New Plan");
+            dropdown = mSqlHelper.getPlans();
+        }
         mArrayAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, dropdown);
 //                ArrayAdapter.createFromResource(this,
 //                R.array.temporary_array, android.R.layout.simple_spinner_item);
@@ -165,6 +169,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
+
+                            // TODO: replace this code with database entry
 
                             EditText name = (EditText) nameNewPlan.findViewById(R.id.new_plan_edittext);
                             mArrayAdapter.add(name.getText().toString());

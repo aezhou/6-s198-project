@@ -93,7 +93,7 @@ public class AlertsFragment extends Fragment {
         mAdapter = new SimpleCursorAdapter(getActivity(),
                 R.layout.list_item_contact,
                 c,
-                new String[] { "name", "number" },
+                new String[] { mSqlHelper.CONTACT_NAME, mSqlHelper.CONTACT_NUMBER },
                 new int[] { R.id.contactNameTextView, R.id.contactDescriptionTextView },
                 0);
 
@@ -275,14 +275,7 @@ public class AlertsFragment extends Fragment {
     private boolean isDummyContactSet = false;
 
     public void setDummyContact() {
-        SQLiteDatabase db = mSqlHelper.getWritableDatabase();
-        db.execSQL("DROP TABLE IF EXISTS contacts;");
-        mSqlHelper.onCreate(db);
-        ContentValues cv = new ContentValues();
-        cv.put("name", "Kristin");
-        cv.put("number", "15404464776");
-        db.insert("contacts", null, cv);
-        db.close();
+        mSqlHelper.insertDefaultContact("Kristin", "15404464776");
     }
 
     public Cursor getDefaultContacts() {

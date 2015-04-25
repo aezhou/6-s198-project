@@ -14,31 +14,31 @@ import java.util.ArrayList;
 public class MyOpenHelper extends SQLiteOpenHelper{
 
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "nightOut";
-    private static final String DEFAULT_CONTACTS_TABLE_NAME = "contacts";
-    private static final String CONTACT_NAME = "contact_name";
-    private static final String CONTACT_NUMBER = "contact_number";
+    public static final String DATABASE_NAME = "nightOut";
+    public static final String DEFAULT_CONTACTS_TABLE_NAME = "contacts";
+    public static final String CONTACT_NAME = "contact_name";
+    public static final String CONTACT_NUMBER = "contact_number";
     private static final String DEFAULT_CONTACTS_TABLE_CREATE =
             "CREATE TABLE " + DEFAULT_CONTACTS_TABLE_NAME + " (" +
                     "_id" + " INTEGER PRIMARY KEY, " +
                     CONTACT_NAME + " TEXT, "+
                     CONTACT_NUMBER + " TEXT UNIQUE);";
 
-    private static final String PLAN_TABLE_NAME = "plans";
-    private static final String PLAN_NAME = "plan_name";
-    private static final String PLACE_NAME = "place_name";
-    private static final String PLACE_ADDRESS = "place_address";
-    private static final String PLACE_NUMBER = "place_number";
-    private static final String PLACE_URL = "place_url";
-    private static final String RESERVATION_YEAR = "reservation_year";
-    private static final String RESERVATION_MONTH = "reservation_month";
-    private static final String RESERVATION_DATE = "reservation_date";
-    private static final String RESERVATION_HOUR = "reservation_hour";
-    private static final String RESERVATION_MINUTE = "reservation_minute";
-    private static final String HAS_RESERVATION = "has_reservation";
-    private static final String PINGS_ON = "pings_on";
-    private static final String PING_INTERVAL = "ping_interval";
-    private static final String PING_ALLOWANCE = "ping_allowance";
+    public static final String PLAN_TABLE_NAME = "plans";
+    public static final String PLAN_NAME = "plan_name";
+    public static final String PLACE_NAME = "place_name";
+    public static final String PLACE_ADDRESS = "place_address";
+    public static final String PLACE_NUMBER = "place_number";
+    public static final String PLACE_URL = "place_url";
+    public static final String RESERVATION_YEAR = "reservation_year";
+    public static final String RESERVATION_MONTH = "reservation_month";
+    public static final String RESERVATION_DATE = "reservation_date";
+    public static final String RESERVATION_HOUR = "reservation_hour";
+    public static final String RESERVATION_MINUTE = "reservation_minute";
+    public static final String HAS_RESERVATION = "has_reservation";
+    public static final String PINGS_ON = "pings_on";
+    public static final String PING_INTERVAL = "ping_interval";
+    public static final String PING_ALLOWANCE = "ping_allowance";
     private static final String PLAN_TABLE_CREATE =
             "CREATE TABLE " + PLAN_TABLE_NAME + " (" +
                     "_id" + " INTEGER PRIMARY KEY, " +
@@ -57,8 +57,8 @@ public class MyOpenHelper extends SQLiteOpenHelper{
                     PING_INTERVAL + " INTEGER, "+
                     PING_ALLOWANCE + " INTEGER"+ ");";
 
-    private static final String PLAN_CONTACTS_TABLE_NAME = "plan_contacts";
-    private static final String IS_DEFAULT = "is_default";
+    public static final String PLAN_CONTACTS_TABLE_NAME = "plan_contacts";
+    public static final String IS_DEFAULT = "is_default";
     private static final String PLAN_CONTACTS_TABLE_CREATE =
             "CREATE TABLE " + PLAN_CONTACTS_TABLE_NAME + " (" +
                     "_id" + " INTEGER PRIMARY KEY, " +
@@ -164,7 +164,6 @@ public class MyOpenHelper extends SQLiteOpenHelper{
         Cursor c = getReadableDatabase().rawQuery("select " + PLAN_NAME + " from " + PLAN_TABLE_NAME, null);
         ArrayList<String> plans = new ArrayList<String>();
         boolean hasPlan = c.moveToFirst();
-        if (!hasPlan) return null;
         while (c.isAfterLast() == false) {
             plans.add(c.getString(0));
             c.moveToNext();
