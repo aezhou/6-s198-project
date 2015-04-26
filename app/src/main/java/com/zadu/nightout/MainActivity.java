@@ -19,6 +19,7 @@ import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
@@ -47,6 +48,9 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.android.gms.actions.ReserveIntents;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -56,12 +60,16 @@ import org.json.JSONObject;
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener,
         PlanDetailsFragment.OnPlanDetailsListener,
         AlertsFragment.OnAlertsFragmentInteractionListener,
-        DirectionsFragment.OnDirectionsFragmentInteractionListener{
+        DirectionsFragment.OnDirectionsFragmentInteractionListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener{
     private Spinner mSpinner;
     private ArrayAdapter mArrayAdapter;
     private ArrayAdapter locationArrayAdapter;
     private MyOpenHelper mSqlHelper;
     private Dialog dialog;
+    private GoogleApiClient mGoogleApiClient;
+    private Location mLastLocation;
     String TAG = "MainActivity";
     String openTableApiUrl = "http://opentable.herokuapp.com/api/";
 
@@ -92,6 +100,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         actionBar.setCustomView(R.layout.custom_actionbar);
         actionBar.setDisplayShowCustomEnabled(true);
+
+        //Set up Google Client API
+        buildGoogleApiClient();
 
         mSpinner = (Spinner) findViewById(R.id.spinner);
         mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -434,6 +445,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }*/
 
+    @Override
+    public void getLastLoc() {
+        mGoogleApiClient.connect();
+//        mGoogleApiClient.disconnect();
+    }
+
 
     @Override
     public void updateReservationStatus(boolean isReserved) {
@@ -526,6 +543,26 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 }
             }
         });
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (mLastLocation != null) {
+            Log.i(TAG, "the location should be below: ");
+            Log.i(TAG, String.valueOf(mLastLocation.getLatitude()) + String.valueOf(mLastLocation.getLongitude()));
+            mGoogleApiClient.disconnect();
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.i(TAG, "connection suspended");
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.i(TAG, "connection failed");
     }
 
     /**
@@ -646,8 +683,33 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         protected void onPostExecute(String result) {
             Log.i(TAG, "starting onPostExecute");
 
+            JSONArray resultEntries = null;
+            //TODO: Filter based upon the API used
+            // separate this out so people can work on it.
+            try {
+                JSONObject jObject = new JSONObject(result);
+
+            } catch (JSONException e) {
+            }
+
+            if (resultEntries != null) {
+            }
+        }
+
+    } // end CallAPI
+
+    /**
+     * Private class for connecting to OpenTable API
+     */
+    private class OpenTableCallApi extends CallAPI {
+        /**
+         * Method ran after receiving response from API
+         * @param result string result returned from API
+         */
+        protected void onPostExecute(String result) {
+            Log.i(TAG, "starting onPostExecute");
+
             JSONArray restaurantEntries = null;
-//            TODO: Filter based upon the API used
             // separate this out so people can work on it.
             try {
                 JSONObject jObject = new JSONObject(result);
@@ -663,8 +725,15 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 displayRestaurants(restaurantEntries);
             }
         }
+    }
 
-    } // end CallAPI
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
 
 //    TODO: Finish the function below
     /**
@@ -713,7 +782,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 updatePlaceInfo("PLACE_ADDRESS", itemAddress);
                 updatePlaceInfo("PLACE_NUMBER", itemPhone);
 
-                //TODO: clear out search field text
 
                 dialog.dismiss();
             }

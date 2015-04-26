@@ -228,6 +228,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
             @Override
             public void onClick(View v) {
                 onMessageButton("Come get me ASAP.");
+                openLastKnownLocation();
             }
         });
 
@@ -379,6 +380,10 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
         }
     }
 
+    public void openLastKnownLocation() {
+        mListener.getLastLoc();
+    }
+
 
     /**
      * This interface must be implemented by activities that contain this
@@ -395,5 +400,6 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
 
         // send things in fragment to listener, which MainActivity extends
         public void OnAlertFragmentInteraction(Object object);
+        public void getLastLoc();
     }
 }

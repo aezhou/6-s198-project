@@ -55,7 +55,7 @@ import java.util.Objects;
  * create an instance of this fragment.
  */
 
-public class PlanDetailsFragment extends Fragment implements TimePickerFragment.OnFragmentInteractionListener, AdapterView.OnItemClickListener, PlanChangedListener{
+public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemClickListener, PlanChangedListener{
 
     private static String TAG = "PlanDetailsFragment";
     // TODO: Rename parameter arguments, choose names that match
@@ -195,12 +195,7 @@ public class PlanDetailsFragment extends Fragment implements TimePickerFragment.
         return v;
     }
 
-//    // TODO: Update argument something to reflect plan information
-//    public void onSaveButtonPressed(Object something) {
-//        if (mListener != null) {
-//            mListener.onPlanSaved(something);
-//        }
-//    }
+    // TODO: Update argument something to reflect plan information
 
     public void onReserveOnlineButtonPressed(Object something) {
         if(mListener != null) {
@@ -248,7 +243,7 @@ public class PlanDetailsFragment extends Fragment implements TimePickerFragment.
 
     public void updateReservationStatus(boolean isReserved) {
         if(mListener != null) {
-            mListener.updateReservationStatus(reservationMadeBox.isChecked());
+            mListener.updateReservationStatus(isReserved);
         }
     }
 
@@ -267,11 +262,6 @@ public class PlanDetailsFragment extends Fragment implements TimePickerFragment.
     public void onDetach() {
         super.onDetach();
         mListener = null;
-    }
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
     }
 
     @Override
