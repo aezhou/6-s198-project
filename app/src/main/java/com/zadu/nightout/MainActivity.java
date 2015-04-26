@@ -14,7 +14,6 @@ import java.util.Locale;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -48,9 +47,6 @@ import com.google.android.gms.actions.ReserveIntents;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
-
-import javax.security.auth.callback.UnsupportedCallbackException;
 
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener,
