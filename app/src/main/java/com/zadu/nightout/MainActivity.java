@@ -684,7 +684,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         modeList.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView parent, View view, int pos, long id) {
-//                String itemName = modeList.getItemAtPosition(pos).toString();
                 String itemName = restaurantNames.get(pos);
                 String itemAddress = restaurantAddresses.get(pos);
                 String itemPhone = restaurantPhones.get(pos);
@@ -705,19 +704,19 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     public void updatePlaceInfo(String infoType, String infoVal) {
-        mSqlHelper.updatePlanPlaceInfo((MainActivity)this, infoType, infoVal);
+        mSqlHelper.updatePlanPlaceInfo(this, infoType, infoVal);
     }
 
     public void updatePlanReservationTime(int hour, int min) {
-        mSqlHelper.updatePlanReservationTime((MainActivity)this, hour, min);
+        mSqlHelper.updatePlanReservationTime(this, hour, min);
     }
 
     public void updatePlanReservationDate(int year, int month, int day) {
-        mSqlHelper.updatePlanReservationDate((MainActivity) this, year, month, day);
+        mSqlHelper.updatePlanReservationDate(this, year, month, day);
     }
 
     public void updateHasReservation(boolean reserved) {
-        mSqlHelper.updateHasReservation((MainActivity)this, reserved);
+        mSqlHelper.updateHasReservation(this, reserved);
     }
 
     public String getCurrentPlanName() {
