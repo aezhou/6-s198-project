@@ -11,6 +11,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -20,7 +26,7 @@ import android.widget.Spinner;
  * Use the {@link DirectionsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class DirectionsFragment extends Fragment {
+public class DirectionsFragment extends Fragment implements PlanChangedListener, OnMapReadyCallback {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -73,6 +79,10 @@ public class DirectionsFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_directions, container, false);
 
+/*        MapFragment mapFragment = (MapFragment) getChildFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);*/
+
         // Populate the destination spinner
         destSpinner = (Spinner) v.findViewById(R.id.dest_spinner);
         ArrayAdapter adapter = ArrayAdapter.createFromResource(getActivity(),
@@ -99,6 +109,14 @@ public class DirectionsFragment extends Fragment {
         });
 
         return v;
+    }
+
+    @Override
+    public void onMapReady(GoogleMap map) {
+        // TODO: Make use actual coordinates and name of destination
+        map.addMarker(new MarkerOptions()
+                .position(new LatLng(42, -71))
+                .title("Marker"));
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -135,6 +153,11 @@ public class DirectionsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onPlanChanged() {
+        // TODO: when plan changes, update destination and ETAs
     }
 
     /**

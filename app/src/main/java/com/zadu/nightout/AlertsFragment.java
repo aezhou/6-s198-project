@@ -3,27 +3,21 @@ package com.zadu.nightout;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -36,7 +30,7 @@ import java.util.ArrayList;
  * Use the {@link AlertsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AlertsFragment extends Fragment {
+public class AlertsFragment extends Fragment implements PlanChangedListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -46,8 +40,9 @@ public class AlertsFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private SimpleCursorAdapter mDefaultContactsAdapter;
+    private SimpleCursorAdapter mContactsAdapter;
     private MyOpenHelper mSqlHelper;
+    private View mView;
 
     private OnAlertsFragmentInteractionListener mListener;
 
@@ -86,35 +81,47 @@ public class AlertsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_alerts, container, false);
+        final View v = inflater.inflate(R.layout.fragment_alerts, container, false);
 
         ListView list = (ListView) v.findViewById(R.id.contactsListView);
-        Cursor c = getDefaultContacts();
+        Cursor c = mSqlHelper.getContactsToDisplay((MainActivity) getActivity());
         isDummyContactSet = c.moveToFirst();
         if (!isDummyContactSet) {
             setDummyContact();
             isDummyContactSet = true;
+            c = mSqlHelper.getContactsToDisplay((MainActivity) getActivity());
+            c.moveToFirst();
         }
-        mDefaultContactsAdapter = new SimpleCursorAdapter(getActivity(),
+        Log.d("ALERT FRAG", c.getString(c.getColumnIndex(mSqlHelper.CONTACT_NAME)));
+        Log.d("ALERT FRAG", c.getString(c.getColumnIndex(mSqlHelper.CONTACT_NUMBER)));
+        Log.d("ALERT FRAG", String.valueOf(c.getInt(c.getColumnIndex(mSqlHelper.IS_ON))));
+        mContactsAdapter = new SimpleCursorAdapter(getActivity(),
                 R.layout.list_item_contact,
                 c,
-                new String[] { mSqlHelper.CONTACT_NAME, mSqlHelper.CONTACT_NUMBER },
-                new int[] { R.id.contactNameTextView, R.id.contactDescriptionTextView },
+                new String[] { mSqlHelper.CONTACT_NAME, mSqlHelper.CONTACT_NUMBER, mSqlHelper.IS_ON },
+                new int[] { R.id.contactNameTextView, R.id.contactDescriptionTextView, R.id.contactCheckBox },
                 0);
 
-        list.setAdapter(mDefaultContactsAdapter);
+        list.setAdapter(mContactsAdapter);
         final View.OnClickListener contactsCheckListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
               onContactChecked((CheckBox) v, true);
             }
         };
-        mDefaultContactsAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+        mContactsAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
             public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
                 if (view.getId() == R.id.contactCheckBox) {
                     view.setOnClickListener(contactsCheckListener);
+                    if (cursor.getInt(columnIndex) == 1) {
+                        ((CheckBox) view).setChecked(true);
+                    } else {
+                        ((CheckBox) view).setChecked(false);
+                    }
+                    return true;
+                } else {
+                    return false;
                 }
-                return false;
             }
         });
 
@@ -147,16 +154,23 @@ public class AlertsFragment extends Fragment {
 
         // set button and switch listeners
 
-        // TODO: make ping options editable (mins between and num missed)
+        // TODO: pull contacts on/off out of database on create
+        // TODO: pull others out of database on create
         Switch pingSwitch = (Switch) v.findViewById(R.id.pingSwitch);
+        boolean pingsOn = mSqlHelper.arePingsOn((MainActivity) getActivity());
         pingSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                onTogglePings(v);
+            public void onClick(View toggleView) {
+                onTogglePings(toggleView, v);
             }
         });
+        pingSwitch.setChecked(pingsOn);
+        onTogglePings(pingSwitch, v);
+
 
         TextView pingIntervalText = (TextView) v.findViewById(R.id.pingIntervalText);
+        int savedInterval = mSqlHelper.getPingInterval((MainActivity) getActivity());
+        pingIntervalText.setText(String.valueOf(savedInterval));
         pingIntervalText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -165,6 +179,8 @@ public class AlertsFragment extends Fragment {
             }
         });
         TextView pingAllowanceText = (TextView) v.findViewById(R.id.pingAllowanceText);
+        int savedAllowance = mSqlHelper.getPingAllowance((MainActivity) getActivity());
+        pingAllowanceText.setText(String.valueOf(savedAllowance));
         pingAllowanceText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -231,6 +247,7 @@ public class AlertsFragment extends Fragment {
             }
         });
 
+        mView = v;
         return v;
     }
 
@@ -267,30 +284,21 @@ public class AlertsFragment extends Fragment {
     public void addOtherContact() {
         // TODO: open contacts to select one
         // TODO: add result to plan_contacts db as non-default
-        // TODO: update other contacts list view
+        // TODO: update list view
     }
 
     public void onContactChecked(CheckBox v, boolean isDefault) {
-        TextView nameView = (TextView) v.findViewById(R.id.contactNameTextView);
+        // TODO: would be good to ensure at least one is always checked
+        TextView nameView = (TextView) mView.findViewById(R.id.contactNameTextView);
         String name = nameView.getText().toString();
-        TextView numberView = (TextView) v.findViewById(R.id.contactDescriptionTextView);
-        String number = nameView.getText().toString();
-        if (v.isChecked()) {
-            // they just checked it, so add to plan contacts
-            mSqlHelper.setPlanContactNumber((MainActivity) getActivity(),
-                    name, number, isDefault);
-        } else {
-            // they just unchecked it, so delete from plan contacts
-            mSqlHelper.removePlanContactNumber((MainActivity) getActivity(), number);
-            if (!isDefault) {
-                // TODO: could remove this from other contacts list then
-            }
-        }
+        TextView numberView = (TextView) mView.findViewById(R.id.contactDescriptionTextView);
+        String number = numberView.getText().toString();
+        mSqlHelper.checkPlanContactNumber((MainActivity) getActivity(), number, ((CheckBox) v).isChecked());
     }
 
-    public void onTogglePings(View view) {
-        Switch toggle = (Switch) view;
-        View detailView = getActivity().findViewById(R.id.pingDetailsLayout);
+    public void onTogglePings(View toggleView, View masterView) {
+        Switch toggle = (Switch) toggleView;
+        View detailView = masterView.findViewById(R.id.pingDetailsLayout);
         if (toggle.isChecked()) {
             detailView.setVisibility(View.VISIBLE);
             mSqlHelper.updatePingsOnOff((MainActivity) getActivity(), true);
@@ -348,9 +356,27 @@ public class AlertsFragment extends Fragment {
         mSqlHelper.insertDefaultContact("Kristin", "15404464776");
     }
 
-    public Cursor getDefaultContacts() {
-        SQLiteDatabase db = mSqlHelper.getReadableDatabase();
-        return db.rawQuery("select * from contacts", null);
+    @Override
+    public void onPlanChanged() {
+        if (mView != null) {
+            Switch pingSwitch = (Switch) mView.findViewById(R.id.pingSwitch);
+            boolean pingsOn = mSqlHelper.arePingsOn((MainActivity) getActivity());
+            pingSwitch.setChecked(pingsOn);
+            onTogglePings(pingSwitch, mView);
+
+            TextView pingIntervalText = (TextView) mView.findViewById(R.id.pingIntervalText);
+            int savedInterval = mSqlHelper.getPingInterval((MainActivity) getActivity());
+            pingIntervalText.setText(String.valueOf(savedInterval));
+
+            TextView pingAllowanceText = (TextView) mView.findViewById(R.id.pingAllowanceText);
+            int savedAllowance = mSqlHelper.getPingAllowance((MainActivity) getActivity());
+            pingAllowanceText.setText(String.valueOf(savedAllowance));
+
+            // TODO: update the cursor adapter for the contacts list view
+            mContactsAdapter.changeCursor(mSqlHelper.getContactsToDisplay((MainActivity) getActivity()));
+            ListView list = (ListView) mView.findViewById(R.id.contactsListView);
+            list.setAdapter(mContactsAdapter);
+        }
     }
 
 

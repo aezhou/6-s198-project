@@ -13,7 +13,7 @@ import java.util.ArrayList;
  */
 public class MyOpenHelper extends SQLiteOpenHelper{
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     public static final String DATABASE_NAME = "nightOut";
     public static final String DEFAULT_CONTACTS_TABLE_NAME = "contacts";
     public static final String CONTACT_NAME = "contact_name";
@@ -58,6 +58,7 @@ public class MyOpenHelper extends SQLiteOpenHelper{
                     PING_ALLOWANCE + " INTEGER"+ ");";
 
     public static final String PLAN_CONTACTS_TABLE_NAME = "plan_contacts";
+    public static final String IS_ON = "is_on";
     public static final String IS_DEFAULT = "is_default";
     private static final String PLAN_CONTACTS_TABLE_CREATE =
             "CREATE TABLE " + PLAN_CONTACTS_TABLE_NAME + " (" +
@@ -66,6 +67,7 @@ public class MyOpenHelper extends SQLiteOpenHelper{
                     CONTACT_NAME + " TEXT, "+
                     CONTACT_NUMBER + " TEXT, "+
                     IS_DEFAULT + " INTEGER, "+ //one or zero
+                    IS_ON + " INTEGER, "+ //one or zero
                     "FOREIGN KEY ("+PLAN_NAME+") REFERENCES "+PLAN_TABLE_NAME+" ("+PLAN_NAME+"), "+
                     "CONSTRAINT unq UNIQUE ("+PLAN_NAME+", "+CONTACT_NUMBER+")"+");";
 
@@ -85,7 +87,14 @@ public class MyOpenHelper extends SQLiteOpenHelper{
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}
 
     public Cursor getDefaultContacts() {
-        return getReadableDatabase().rawQuery("select * from "+DEFAULT_CONTACTS_TABLE_NAME, null);
+        return getReadableDatabase().rawQuery("select "+CONTACT_NAME+", "+CONTACT_NUMBER+
+                " from "+DEFAULT_CONTACTS_TABLE_NAME, null);
+    }
+
+    public Cursor getContactsToDisplay(MainActivity activity) {
+        String planName = activity.getCurrentPlanName();
+        return getReadableDatabase().rawQuery("SELECT * FROM "+PLAN_CONTACTS_TABLE_NAME+
+            " WHERE "+PLAN_NAME+" == '"+planName+"' ORDER BY "+IS_DEFAULT, null);
     }
 
     public void insertDefaultContact(String name, String number) {
@@ -93,29 +102,38 @@ public class MyOpenHelper extends SQLiteOpenHelper{
         cv.put(CONTACT_NAME, name);
         cv.put(CONTACT_NUMBER, number);
         getWritableDatabase().insert(DEFAULT_CONTACTS_TABLE_NAME, null, cv);
+
+        ArrayList<String> planNames = getPlans();
+        for (String planName : planNames) {
+            addDefaultContactToPlan(planName, name, number, 0);
+        }
     }
 
     public void deleteDefaultContact(String number) {
         getWritableDatabase().delete(DEFAULT_CONTACTS_TABLE_NAME, CONTACT_NUMBER+" == ?", new String[] {number});
     }
 
-    public Cursor getPlanInfo(String planName) {
+    public Cursor getPlanInfo(MainActivity activity) {
+        String planName = activity.getCurrentPlanName();
         return getReadableDatabase().rawQuery("select * from " + PLAN_TABLE_NAME +
-                " where " + PLAN_NAME + " == " + planName, null);
+                " where " + PLAN_NAME + " == '" + planName + "'", null);
     }
 
-    public String getPlanDetail(String planName, String param) {
+    public String getPlanDetail(MainActivity activity, String param) {
+        String planName = activity.getCurrentPlanName();
         Cursor c = getReadableDatabase().rawQuery("select "+param+" from " + PLAN_TABLE_NAME +
-                " where " + PLAN_NAME + " == " + planName, null);
+                " where " + PLAN_NAME + " == '" + planName + "'", null);
         c.moveToFirst();
+        if (c.isNull(0)) return null;
         String info = c.getString(0);
         c.close();
         return info;
     }
 
-    public boolean hasReservation(String planName) {
+    public boolean hasReservation(MainActivity activity) {
+        String planName = activity.getCurrentPlanName();
         Cursor c = getReadableDatabase().rawQuery("select "+HAS_RESERVATION+" from " + PLAN_TABLE_NAME +
-                " where " + PLAN_NAME + " == " + planName, null);
+                " where " + PLAN_NAME + " == '" + planName + "'", null);
         c.moveToFirst();
         int reserved = c.getInt(0);
         c.close();
@@ -126,18 +144,20 @@ public class MyOpenHelper extends SQLiteOpenHelper{
         }
     }
 
-    public int getReservationInfo(String planName, String param) {
+    public int getReservationInfo(MainActivity activity, String param) {
+        String planName = activity.getCurrentPlanName();
         Cursor c = getReadableDatabase().rawQuery("select "+param+" from " + PLAN_TABLE_NAME +
-                " where " + PLAN_NAME + " == " + planName, null);
+                " where " + PLAN_NAME + " == '" + planName + "'", null);
         c.moveToFirst();
         int info = c.getInt(0);
         c.close();
         return info;
     }
 
-    public boolean arePingsOn(String planName) {
+    public boolean arePingsOn(MainActivity activity) {
+        String planName = activity.getCurrentPlanName();
         Cursor c = getReadableDatabase().rawQuery("select "+PINGS_ON+" from " + PLAN_TABLE_NAME +
-                " where " + PLAN_NAME + " == " + planName, null);
+                " where " + PLAN_NAME + " == '" + planName + "'", null);
         c.moveToFirst();
         int ping = c.getInt(0);
         c.close();
@@ -148,18 +168,20 @@ public class MyOpenHelper extends SQLiteOpenHelper{
         }
     }
 
-    public int getPingInterval(String planName) {
+    public int getPingInterval(MainActivity activity) {
+        String planName = activity.getCurrentPlanName();
         Cursor c = getReadableDatabase().rawQuery("select "+PING_INTERVAL+" from " + PLAN_TABLE_NAME +
-                " where " + PLAN_NAME + " == " + planName, null);
+                " where " + PLAN_NAME + " == '" + planName + "'", null);
         c.moveToFirst();
         int interval = c.getInt(0);
         c.close();
         return interval;
     }
 
-    public int getPingAllowance(String planName) {
+    public int getPingAllowance(MainActivity activity) {
+        String planName = activity.getCurrentPlanName();
         Cursor c = getReadableDatabase().rawQuery("select "+PING_ALLOWANCE+" from " + PLAN_TABLE_NAME +
-                " where " + PLAN_NAME + " == " + planName, null);
+                " where " + PLAN_NAME + " == '" + planName + "'", null);
         c.moveToFirst();
         int allowance = c.getInt(0);
         c.close();
@@ -237,6 +259,7 @@ public class MyOpenHelper extends SQLiteOpenHelper{
     public void insertNewPlan(String planName) {
         ContentValues cv = new ContentValues();
         cv.put(PLAN_NAME, planName);
+        cv.put(HAS_RESERVATION, false);
         cv.put(PINGS_ON, false);
         cv.put(PING_INTERVAL, 30);
         cv.put(PING_ALLOWANCE, 2);
@@ -251,7 +274,8 @@ public class MyOpenHelper extends SQLiteOpenHelper{
     public ArrayList<String> getContactNumbers(MainActivity activity) {
         ArrayList<String> nums = new ArrayList<String>();
         Cursor c =  getReadableDatabase().rawQuery("select " + CONTACT_NUMBER + " from " + PLAN_CONTACTS_TABLE_NAME +
-                " where " + PLACE_NAME + " == " + activity.getCurrentPlanName(), null);
+                " where " + PLAN_NAME + " == '" + activity.getCurrentPlanName() + "' AND "+
+                IS_ON+" == 1", null);
         boolean hasNum = c.moveToFirst();
         while (c.isAfterLast() == false) {
             nums.add(c.getString(1));
@@ -274,36 +298,37 @@ public class MyOpenHelper extends SQLiteOpenHelper{
         defaultContacts.close();
 
         for (int i=0; i<names.size(); i++) {
-            ContentValues cv = new ContentValues();
-            cv.put(PLAN_NAME, planName);
-            cv.put(CONTACT_NAME, names.get(i));
-            cv.put(CONTACT_NUMBER, nums.get(i));
-            getWritableDatabase().insert(PLAN_CONTACTS_TABLE_NAME, null, cv);
+            addDefaultContactToPlan(planName, names.get(i), nums.get(i), 1);
         }
     }
 
-    public void setPlanContactNumber(MainActivity activity, String name, String number, boolean isDefault) {
+    public void addDefaultContactToPlan(String planName, String contactName, String contactNumber, int on) {
+        ContentValues cv = new ContentValues();
+        cv.put(PLAN_NAME, planName);
+        cv.put(CONTACT_NAME, contactName);
+        cv.put(CONTACT_NUMBER, contactNumber);
+        cv.put(IS_DEFAULT, 1);
+        cv.put(IS_ON, on);
+        getWritableDatabase().insert(PLAN_CONTACTS_TABLE_NAME, null, cv);
+    }
+
+    public void addPlanContactNumber(MainActivity activity, String name, String number) {
         ContentValues cv = new ContentValues();
         cv.put(PLAN_NAME, activity.getCurrentPlanName());
         cv.put(CONTACT_NAME, name);
         cv.put(CONTACT_NUMBER, number);
-        int isDefaultInt = 0;
-        if (isDefault) {isDefaultInt=1;}
-        cv.put(IS_DEFAULT, isDefaultInt);
+        cv.put(IS_DEFAULT, 0);
+        cv.put(IS_ON, 1);
         getWritableDatabase().insert(PLAN_CONTACTS_TABLE_NAME, null, cv);
     }
 
-    public void removePlanContactNumber(MainActivity activity, String number) {
-        getWritableDatabase().delete(PLAN_CONTACTS_TABLE_NAME,
-                CONTACT_NUMBER+" == ? AND "+PLAN_NAME+" == ?",
-                new String[] {number, activity.getCurrentPlanName()});
-    }
-
-    public Cursor getOtherPlanContacts(MainActivity activity) {
-        return getReadableDatabase().rawQuery("select " + CONTACT_NAME + ", " + CONTACT_NUMBER +
-                " from " + PLAN_CONTACTS_TABLE_NAME +
-                " where " + PLACE_NAME + " == " + activity.getCurrentPlanName() +
-                " AND " + IS_DEFAULT + " == 0", null);
+    public void checkPlanContactNumber(MainActivity activity, String number, boolean on) {
+        ContentValues cv = new ContentValues();
+        int isOn = 0;
+        if (on) isOn = 1;
+        cv.put(IS_ON, isOn);
+        getWritableDatabase().update(PLAN_CONTACTS_TABLE_NAME, cv, PLAN_NAME+" == ? AND "+
+                CONTACT_NUMBER+" == ?", new String[] {activity.getCurrentPlanName(), number});
     }
 
 }

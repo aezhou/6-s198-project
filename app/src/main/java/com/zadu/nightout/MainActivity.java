@@ -14,6 +14,8 @@ import java.util.Locale;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -38,9 +40,11 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.google.android.gms.actions.ReserveIntents;
 
@@ -55,7 +59,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         DirectionsFragment.OnDirectionsFragmentInteractionListener{
     private Spinner mSpinner;
     private ArrayAdapter mArrayAdapter;
+    private ArrayAdapter locationArrayAdapter;
     private MyOpenHelper mSqlHelper;
+    private Dialog dialog;
     String TAG = "MainActivity";
     String openTableApiUrl = "http://opentable.herokuapp.com/api/";
 
@@ -91,7 +97,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
+                for (int i=0; i<mSectionsPagerAdapter.getCount(); i++) {
+                    Fragment f = mSectionsPagerAdapter.getItem(i);
+                    ((PlanChangedListener) f).onPlanChanged();
+                }
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
@@ -306,17 +315,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         TextView planAddressText = (TextView) findViewById(R.id.planAddressText);
         TextView destinationCityStateZip = (TextView) findViewById(R.id.destinationCityStateZip);
         CheckBox reservationMade = (CheckBox) findViewById(R.id.checkReservationCheckBox);
-//        DatePicker datePicker = (DatePicker) findViewById(R.id.datePicker);
-//        TimePicker timePicker = (TimePicker) findViewById(R.id.timePicker);
 
         String destination = destinationName.getText().toString();
         String address = planAddressText.getText().toString() + destinationCityStateZip.getText().toString();
         boolean isReserved = reservationMade.isChecked();
-        TextView dateView = (TextView)findViewById(R.id.selectedDateText);//datePicker.getMonth() + "/" + datePicker.getDayOfMonth() + "/" + datePicker.getYear();
+        TextView dateView = (TextView)findViewById(R.id.selectedDateText);
         String date = dateView.getText().toString();
         TextView timeView = (TextView)findViewById(R.id.selectedTimeText);
         String time = timeView.getText().toString();
-//        String time = timePicker.getCurrentHour() + ":" + timePicker.getCurrentMinute();
         String reservationMessage = "";
         if(isReserved) {
             reservationMessage = "A reservation has already been made.";
@@ -334,26 +340,27 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public void showTimePickerDialog(Object something) {
         Log.i(TAG, "called showTimePickerDialog()");
+        final Calendar c = Calendar.getInstance();
+        final int mHour = c.get(Calendar.HOUR_OF_DAY);
+        final int mMinute = c.get(Calendar.MINUTE);
         TimePickerDialog tpd = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 TextView timeView = (TextView)findViewById(R.id.selectedTimeText);
                 timeView.setText(hourOfDay + " : " + minute);
+                updatePlanReservationTime(mHour, mMinute);
             }
-        }, 12, 0, false);
+        }, mHour, mMinute, false);
         tpd.show();
-
-//        DialogFragment newFragment = new TimePickerFragment();
-//        newFragment.show(getFragmentManager(), "timePicker");
     }
 
     @Override
     public void showDatePickerDialog(Object something) {
         Log.i(TAG, "called showDatePickerDialog()");
         final Calendar c = Calendar.getInstance();
-        int mYear = c.get(Calendar.YEAR);
-        int mMonth = c.get(Calendar.MONTH);
-        int mDay = c.get(Calendar.DAY_OF_MONTH);
+        final int mYear = c.get(Calendar.YEAR);
+        final int mMonth = c.get(Calendar.MONTH);
+        final int mDay = c.get(Calendar.DAY_OF_MONTH);
 
         DatePickerDialog dpd = new DatePickerDialog(this,
                 new DatePickerDialog.OnDateSetListener() {
@@ -362,9 +369,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     public void onDateSet(DatePicker view, int year,
                                           int monthOfYear, int dayOfMonth) {
                         TextView dateView = (TextView)findViewById(R.id.selectedDateText);
-                        dateView.setText(dayOfMonth + "-"
-                                + (monthOfYear + 1) + "-" + year);
-
+                        dateView.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
+                        updatePlanReservationDate(mYear, mMonth, mDay);
                     }
                 }, mYear, mMonth, mDay);
         dpd.show();
@@ -409,7 +415,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
-    @Override
+/*    @Override
     public void findLocation(Object something) {
         Log.i(TAG, "findLocation() called");
         EditText searchField = (EditText) findViewById(R.id.searchField);
@@ -426,6 +432,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             String apiUrl = openTableApiUrl + "restaurants?name=" + encodedInput;
             new CallAPI().execute(apiUrl);
         }
+    }*/
+
+
+    @Override
+    public void updateReservationStatus(boolean isReserved) {
+        updateHasReservation(isReserved);
     }
 
     public void showPingIntervalDialog(final String initValue, final TextView v) {
@@ -485,7 +497,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     public void onClick(DialogInterface dialogInterface, int i) {
                         EditText allowanceEdit = (EditText) pingAllowanceView.findViewById(R.id.pingAllowanceEditText);
                         String allowance = allowanceEdit.getText().toString();
-                        mSqlHelper.updatePingInterval(MainActivity.this, Integer.parseInt(allowance));
+                        mSqlHelper.updatePingAllowance(MainActivity.this, Integer.parseInt(allowance));
                         v.setText(allowance);
                     }
                 }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -522,6 +534,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
+        private PlanDetailsFragment mPlanDetailsFrag;
+        private DirectionsFragment mDirectionsFrag;
+        private AlertsFragment mAlertsFrag;
+
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
@@ -531,10 +547,26 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
             switch(position) {
-                case 0: return PlanDetailsFragment.newInstance(mSpinner.getSelectedItem().toString(), "blah");
-                case 1: return DirectionsFragment.newInstance(mSpinner.getSelectedItem().toString(), "blah");
-                case 2: return AlertsFragment.newInstance(mSpinner.getSelectedItem().toString(), "blah");
-                default: return PlanDetailsFragment.newInstance(mSpinner.getSelectedItem().toString(), "blah");
+                case 0:
+                    if (mPlanDetailsFrag == null) {
+                        mPlanDetailsFrag = PlanDetailsFragment.newInstance(mSpinner.getSelectedItem().toString(), "blah");
+                    }
+                    return mPlanDetailsFrag;
+                case 1:
+                    if (mDirectionsFrag == null) {
+                        mDirectionsFrag = DirectionsFragment.newInstance(mSpinner.getSelectedItem().toString(), "blah");
+                    }
+                    return mDirectionsFrag;
+                case 2:
+                    if (mAlertsFrag == null) {
+                        mAlertsFrag = AlertsFragment.newInstance(mSpinner.getSelectedItem().toString(), "blah");
+                    }
+                    return  mAlertsFrag;
+                default:
+                    if (mPlanDetailsFrag == null) {
+                        mPlanDetailsFrag = PlanDetailsFragment.newInstance(mSpinner.getSelectedItem().toString(), "blah");
+                    }
+                    return mPlanDetailsFrag;
             }
         }
 
@@ -619,6 +651,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             // separate this out so people can work on it.
             try {
                 JSONObject jObject = new JSONObject(result);
+                Log.i(TAG, result);
                 restaurantEntries = jObject.getJSONArray("restaurants");
 
             } catch (JSONException e) {
@@ -627,34 +660,32 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             }
 
             if (restaurantEntries != null) {
-//                showFoodEntries1(foodEntries);
-//                showFoodEntries2(foodEntries);
-//                showFoodEntries3(foodEntries);
-//                showFoodEntries4(foodEntries);
+                displayRestaurants(restaurantEntries);
             }
         }
 
     } // end CallAPI
 
-//    TODO: Finih the function below
+//    TODO: Finish the function below
     /**
      * Filters and displays restaurant options
      * @param restaurants JSONArray of restaurants and their relevant information
      */
     private void displayRestaurants(final JSONArray restaurants) {
-        ArrayList<String> restaurantNames = new ArrayList<>();
-        ArrayList<String> restaurantAddresses = new ArrayList<>();
+        final ArrayList<String> restaurantNames = new ArrayList<>();
+        final ArrayList<String> restaurantAddresses = new ArrayList<>();
         ArrayList<Integer> restaurantIDs = new ArrayList<>();
-        ArrayList<String> restaurantPhones = new ArrayList<>();
+        final ArrayList<String> restaurantPhones = new ArrayList<>();
 
         for(int i = 0; i < restaurants.length(); i++) {
             try {
                 JSONObject restInfo = (JSONObject) restaurants.get(i);
-                restaurantNames.add(restInfo.getJSONObject("name").toString());
-                String finaAddress = restInfo.getString("address") + restInfo.getString("city") + restInfo.getString("state") + restInfo.getString("postal_code");
+                restaurantNames.add(restInfo.getString("name"));
+                String finaAddress = restInfo.getString("address") +  " " + restInfo.getString("city") + ", " + restInfo.getString("state") + " " + restInfo.getString("postal_code");
                 restaurantAddresses.add(finaAddress);
                 restaurantIDs.add(restInfo.getInt("id"));
                 restaurantPhones.add(restInfo.getString("phone"));
+
             }
             catch (JSONException e){
                 Log.e(TAG, e.getMessage());
@@ -662,6 +693,50 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             }
 
         }
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select Location");
+
+        final ListView modeList = new ListView(this);
+        locationArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, restaurantNames);
+        modeList.setAdapter(locationArrayAdapter);
+
+        builder.setView(modeList);
+        modeList.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView parent, View view, int pos, long id) {
+                String itemName = restaurantNames.get(pos);
+                String itemAddress = restaurantAddresses.get(pos);
+                String itemPhone = restaurantPhones.get(pos);
+
+                Log.i(TAG, "item clicked" + itemName);
+                updatePlaceInfo("PLACE_NAME", itemName);
+                updatePlaceInfo("PLACE_ADDRESS", itemAddress);
+                updatePlaceInfo("PLACE_NUMBER", itemPhone);
+
+                //TODO: clear out search field text
+
+                dialog.dismiss();
+            }
+        });
+        dialog = builder.create();
+
+        dialog.show();
+    }
+
+    public void updatePlaceInfo(String infoType, String infoVal) {
+        mSqlHelper.updatePlanPlaceInfo(this, infoType, infoVal);
+    }
+
+    public void updatePlanReservationTime(int hour, int min) {
+        mSqlHelper.updatePlanReservationTime(this, hour, min);
+    }
+
+    public void updatePlanReservationDate(int year, int month, int day) {
+        mSqlHelper.updatePlanReservationDate(this, year, month, day);
+    }
+
+    public void updateHasReservation(boolean reserved) {
+        mSqlHelper.updateHasReservation(this, reserved);
     }
 
     public String getCurrentPlanName() {
