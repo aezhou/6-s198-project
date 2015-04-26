@@ -418,7 +418,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
-    @Override
+/*    @Override
     public void findLocation(Object something) {
         Log.i(TAG, "findLocation() called");
         EditText searchField = (EditText) findViewById(R.id.searchField);
@@ -435,7 +435,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             String apiUrl = openTableApiUrl + "restaurants?name=" + encodedInput;
             new CallAPI().execute(apiUrl);
         }
-    }
+    }*/
 
 
     @Override
