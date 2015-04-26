@@ -13,7 +13,7 @@ import java.util.ArrayList;
  */
 public class MyOpenHelper extends SQLiteOpenHelper{
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     public static final String DATABASE_NAME = "nightOut";
     public static final String DEFAULT_CONTACTS_TABLE_NAME = "contacts";
     public static final String CONTACT_NAME = "contact_name";
@@ -104,6 +104,68 @@ public class MyOpenHelper extends SQLiteOpenHelper{
                 " where " + PLAN_NAME + " == " + planName, null);
     }
 
+    public String getPlanDetail(String planName, String param) {
+        Cursor c = getReadableDatabase().rawQuery("select "+param+" from " + PLAN_TABLE_NAME +
+                " where " + PLAN_NAME + " == " + planName, null);
+        c.moveToFirst();
+        String info = c.getString(0);
+        c.close();
+        return info;
+    }
+
+    public boolean hasReservation(String planName) {
+        Cursor c = getReadableDatabase().rawQuery("select "+HAS_RESERVATION+" from " + PLAN_TABLE_NAME +
+                " where " + PLAN_NAME + " == " + planName, null);
+        c.moveToFirst();
+        int reserved = c.getInt(0);
+        c.close();
+        if (reserved==0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public int getReservationInfo(String planName, String param) {
+        Cursor c = getReadableDatabase().rawQuery("select "+param+" from " + PLAN_TABLE_NAME +
+                " where " + PLAN_NAME + " == " + planName, null);
+        c.moveToFirst();
+        int info = c.getInt(0);
+        c.close();
+        return info;
+    }
+
+    public boolean arePingsOn(String planName) {
+        Cursor c = getReadableDatabase().rawQuery("select "+PINGS_ON+" from " + PLAN_TABLE_NAME +
+                " where " + PLAN_NAME + " == " + planName, null);
+        c.moveToFirst();
+        int ping = c.getInt(0);
+        c.close();
+        if (ping==0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public int getPingInterval(String planName) {
+        Cursor c = getReadableDatabase().rawQuery("select "+PING_INTERVAL+" from " + PLAN_TABLE_NAME +
+                " where " + PLAN_NAME + " == " + planName, null);
+        c.moveToFirst();
+        int interval = c.getInt(0);
+        c.close();
+        return interval;
+    }
+
+    public int getPingAllowance(String planName) {
+        Cursor c = getReadableDatabase().rawQuery("select "+PING_ALLOWANCE+" from " + PLAN_TABLE_NAME +
+                " where " + PLAN_NAME + " == " + planName, null);
+        c.moveToFirst();
+        int allowance = c.getInt(0);
+        c.close();
+        return allowance;
+    }
+
     public void updatePlanPlaceInfo(MainActivity activity, String infoType, String value) {
         ContentValues cv = new ContentValues();
         cv.put(infoType, value);
@@ -175,6 +237,9 @@ public class MyOpenHelper extends SQLiteOpenHelper{
     public void insertNewPlan(String planName) {
         ContentValues cv = new ContentValues();
         cv.put(PLAN_NAME, planName);
+        cv.put(PINGS_ON, false);
+        cv.put(PING_INTERVAL, 30);
+        cv.put(PING_ALLOWANCE, 2);
         getWritableDatabase().insert(PLAN_TABLE_NAME, null, cv);
         setPlanDefaultContactNumbers(planName);
     }
@@ -188,7 +253,6 @@ public class MyOpenHelper extends SQLiteOpenHelper{
         Cursor c =  getReadableDatabase().rawQuery("select " + CONTACT_NUMBER + " from " + PLAN_CONTACTS_TABLE_NAME +
                 " where " + PLACE_NAME + " == " + activity.getCurrentPlanName(), null);
         boolean hasNum = c.moveToFirst();
-        if (!hasNum) return null;
         while (c.isAfterLast() == false) {
             nums.add(c.getString(1));
             c.moveToNext();
@@ -201,6 +265,7 @@ public class MyOpenHelper extends SQLiteOpenHelper{
         ArrayList<String> nums = new ArrayList<String>();
         ArrayList<String> names = new ArrayList<String>();
         Cursor defaultContacts = getDefaultContacts();
+        defaultContacts.moveToFirst();
         while (defaultContacts.isAfterLast() == false) {
             names.add(defaultContacts.getString(0));
             nums.add(defaultContacts.getString(1));

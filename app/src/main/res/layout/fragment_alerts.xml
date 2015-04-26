@@ -28,18 +28,26 @@
     </LinearLayout>
 
     <!-- contacts details -->
-    <ListView
-        android:id="@+id/contactsListView"
+    <LinearLayout
+        android:id="@+id/contactsView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-    </ListView>
-
-    <Button
-        android:id="@+id/otherContactButton"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="Other"/>
+        android:orientation="vertical">
+
+        <ListView
+            android:id="@+id/contactsListView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </ListView>
+
+        <Button
+            android:id="@+id/otherContactButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Other"/>
+
+    </LinearLayout>
 
     <!-- ping header -->
     <LinearLayout
@@ -58,26 +66,54 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:checked="true"/>
+            android:checked="false"/>
     </LinearLayout>
-    <!--android:showText="true"-->
-    <!--android:textOn="ON"-->
-    <!--android:textOff="OFF"-->
 
     <!--ping details -->
     <LinearLayout
         android:id="@+id/pingDetailsLayout"
+        android:visibility="invisible"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Check in every 30 minutes"/>
-        <TextView
-            android:layout_width="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Check in every "/>
+            <TextView
+                android:id="@+id/pingIntervalText"
+                android:textStyle="bold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="30"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" minutes"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Alert emergency contacts after 2 missed check-ins"/>
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Alert emergency contacts after "/>
+            <TextView
+                android:id="@+id/pingAllowanceText"
+                android:textStyle="bold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" missed check-in(s)"/>
+        </LinearLayout>
         <Button
             android:id="@+id/checkInButton"
             android:layout_width="wrap_content"

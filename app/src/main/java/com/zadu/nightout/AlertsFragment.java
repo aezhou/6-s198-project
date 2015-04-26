@@ -1,25 +1,29 @@
 package com.zadu.nightout;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -42,7 +46,7 @@ public class AlertsFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private SimpleCursorAdapter mAdapter;
+    private SimpleCursorAdapter mDefaultContactsAdapter;
     private MyOpenHelper mSqlHelper;
 
     private OnAlertsFragmentInteractionListener mListener;
@@ -85,20 +89,37 @@ public class AlertsFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_alerts, container, false);
 
         ListView list = (ListView) v.findViewById(R.id.contactsListView);
+        Cursor c = getDefaultContacts();
+        isDummyContactSet = c.moveToFirst();
         if (!isDummyContactSet) {
             setDummyContact();
             isDummyContactSet = true;
         }
-        Cursor c = getDefaultContacts();
-        mAdapter = new SimpleCursorAdapter(getActivity(),
+        mDefaultContactsAdapter = new SimpleCursorAdapter(getActivity(),
                 R.layout.list_item_contact,
                 c,
                 new String[] { mSqlHelper.CONTACT_NAME, mSqlHelper.CONTACT_NUMBER },
                 new int[] { R.id.contactNameTextView, R.id.contactDescriptionTextView },
                 0);
 
-        list.setAdapter(mAdapter);
+        list.setAdapter(mDefaultContactsAdapter);
+        final View.OnClickListener contactsCheckListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+              onContactChecked((CheckBox) v, true);
+            }
+        };
+        mDefaultContactsAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+                if (view.getId() == R.id.contactCheckBox) {
+                    view.setOnClickListener(contactsCheckListener);
+                }
+                return false;
+            }
+        });
 
+        // TODO: set up "other" contacts list view
+        // TODO: set up listeners for checkboxes on either view
 
         LinearLayout contactsListHeader = (LinearLayout) v.findViewById(R.id.contactsListHeader);
         contactsListHeader.setOnClickListener(new View.OnClickListener() {
@@ -116,6 +137,13 @@ public class AlertsFragment extends Fragment {
             }
         });
 
+        Button otherContactButton = (Button) v.findViewById(R.id.otherContactButton);
+        otherContactButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addOtherContact();
+            }
+        });
 
         // set button and switch listeners
 
@@ -128,6 +156,23 @@ public class AlertsFragment extends Fragment {
             }
         });
 
+        TextView pingIntervalText = (TextView) v.findViewById(R.id.pingIntervalText);
+        pingIntervalText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String initValue = ((TextView) v).getText().toString();
+                ((MainActivity) getActivity()).showPingIntervalDialog(initValue, (TextView) v);
+            }
+        });
+        TextView pingAllowanceText = (TextView) v.findViewById(R.id.pingAllowanceText);
+        pingAllowanceText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String initValue = ((TextView) v).getText().toString();
+                ((MainActivity) getActivity()).showPingAllowanceDialog(initValue, (TextView) v);
+            }
+        });
+
         Button checkInButton = (Button) v.findViewById(R.id.checkInButton);
         checkInButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,6 +180,8 @@ public class AlertsFragment extends Fragment {
                 onCheckIn();
             }
         });
+
+        // set texting button listeners
 
         Button ThereSafeButton = (Button) v.findViewById(R.id.ThereSafeButton);
         ThereSafeButton.setOnClickListener(new View.OnClickListener() {
@@ -206,14 +253,38 @@ public class AlertsFragment extends Fragment {
     }
 
     public void onCollapseContacts(boolean wasToggleClicked) {
-        View contactsListView = getActivity().findViewById(R.id.contactsListView);
+        View contactsView = getActivity().findViewById(R.id.contactsView);
         CheckBox toggle = (CheckBox) getActivity().findViewById(R.id.collapseContactsToggle);
-        if (contactsListView.getVisibility() == View.GONE) {
-            contactsListView.setVisibility(View.VISIBLE);
+        if (contactsView.getVisibility() == View.GONE) {
+            contactsView.setVisibility(View.VISIBLE);
             if (!wasToggleClicked) {toggle.setChecked(true);}
         } else {
-            contactsListView.setVisibility(View.GONE);
+            contactsView.setVisibility(View.GONE);
             if (!wasToggleClicked) {toggle.setChecked(false);}
+        }
+    }
+
+    public void addOtherContact() {
+        // TODO: open contacts to select one
+        // TODO: add result to plan_contacts db as non-default
+        // TODO: update other contacts list view
+    }
+
+    public void onContactChecked(CheckBox v, boolean isDefault) {
+        TextView nameView = (TextView) v.findViewById(R.id.contactNameTextView);
+        String name = nameView.getText().toString();
+        TextView numberView = (TextView) v.findViewById(R.id.contactDescriptionTextView);
+        String number = nameView.getText().toString();
+        if (v.isChecked()) {
+            // they just checked it, so add to plan contacts
+            mSqlHelper.setPlanContactNumber((MainActivity) getActivity(),
+                    name, number, isDefault);
+        } else {
+            // they just unchecked it, so delete from plan contacts
+            mSqlHelper.removePlanContactNumber((MainActivity) getActivity(), number);
+            if (!isDefault) {
+                // TODO: could remove this from other contacts list then
+            }
         }
     }
 
@@ -222,9 +293,11 @@ public class AlertsFragment extends Fragment {
         View detailView = getActivity().findViewById(R.id.pingDetailsLayout);
         if (toggle.isChecked()) {
             detailView.setVisibility(View.VISIBLE);
+            mSqlHelper.updatePingsOnOff((MainActivity) getActivity(), true);
             // TODO: turn on ping functionality
         } else {
             detailView.setVisibility(View.INVISIBLE);
+            mSqlHelper.updatePingsOnOff((MainActivity) getActivity(), false);
             // TODO: turn off ping functionality
         }
     }
@@ -235,10 +308,7 @@ public class AlertsFragment extends Fragment {
     }
 
     public ArrayList<String> getSetContactNumbers() {
-        // TODO: fix me, get numbers from actual emergency contacts
-        ArrayList<String> nums = new ArrayList<String>();
-        nums.add("15404461776");
-        return nums;
+        return mSqlHelper.getContactNumbers((MainActivity) getActivity());
     }
 
     public void onMessageButton(String message) {
