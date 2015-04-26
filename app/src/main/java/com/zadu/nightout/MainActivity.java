@@ -51,6 +51,7 @@ import com.google.android.gms.actions.ReserveIntents;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import javax.security.auth.callback.UnsupportedCallbackException;
 
@@ -96,9 +97,19 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         actionBar.setDisplayShowCustomEnabled(true);
 
         mSpinner = (Spinner) findViewById(R.id.spinner);
+        mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
         List dropdown = mSqlHelper.getPlans();
         if (dropdown.size() == 0) {
-            mSqlHelper.insertNewPlan("New Plan");
+            mSqlHelper.insertNewPlan("My First Plan");
             dropdown = mSqlHelper.getPlans();
         }
         mArrayAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, dropdown);
@@ -141,6 +152,21 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 //        button1.setOnClickListener(onClickListener);
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        // TODO: save current tab, current plan
+
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        // Always call the superclass so it can restore the view hierarchy
+        super.onRestoreInstanceState(savedInstanceState);
+
+        // TODO: reselect tab, reselect plan, repopulate tab from plan db
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -175,11 +201,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-
-                            // TODO: replace this code with database entry
-
                             EditText name = (EditText) nameNewPlan.findViewById(R.id.new_plan_edittext);
-                            mArrayAdapter.add(name.getText().toString());
+                            mSqlHelper.insertNewPlan(name.getText().toString());
+                            mArrayAdapter.clear();
+                            mArrayAdapter.addAll(mSqlHelper.getPlans());
                             mArrayAdapter.notifyDataSetChanged();
                             mSpinner.setSelection(mArrayAdapter.getPosition(name.getText().toString()));
                         }
@@ -212,6 +237,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 public void afterTextChanged(Editable editable) {
                     if (editable.length() != 0) {
                         alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                    } else {
+                        alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
                     }
                 }
             });
@@ -235,11 +262,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
     }
-
-//    @Override
-//    public void onPlanSaved(Object something) {
-//        //TODO: save the information from the saved plan (information = object)
-//    }
 
     @Override
     public void makeOnlineReservation(Object something ) {
@@ -412,9 +434,98 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
+
     @Override
     public void updateReservationStatus(boolean isReserved) {
         updateHasReservation(isReserved);
+    }
+
+    public void showPingIntervalDialog(final String initValue, final TextView v) {
+        final View pingIntervalView = getLayoutInflater().inflate(R.layout.dialog_pinginterval, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setView(pingIntervalView);
+        EditText intervalEditText = (EditText) pingIntervalView.findViewById(R.id.pingIntervalEditText);
+        intervalEditText.setText(initValue);
+
+        builder.setCancelable(true)
+            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    EditText intervalEdit = (EditText) pingIntervalView.findViewById(R.id.pingIntervalEditText);
+                    String interval = intervalEdit.getText().toString();
+                    mSqlHelper.updatePingInterval(MainActivity.this, Integer.parseInt(interval));
+                    v.setText(interval);
+                }
+            }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    v.setText(initValue);
+                }
+            }
+        );
+        final AlertDialog alert = builder.create();
+        alert.show();
+
+        intervalEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {}
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (editable.length() != 0) {
+                    alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                } else {
+                    alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                }
+            }
+        });
+    }
+
+    public void showPingAllowanceDialog(final String initValue, final TextView v) {
+        final View pingAllowanceView = getLayoutInflater().inflate(R.layout.dialog_pingallowance, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setView(pingAllowanceView);
+        EditText pingAllowanceEditText = (EditText) pingAllowanceView.findViewById(R.id.pingAllowanceEditText);
+        pingAllowanceEditText.setText(initValue);
+
+        builder.setCancelable(true)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        EditText allowanceEdit = (EditText) pingAllowanceView.findViewById(R.id.pingAllowanceEditText);
+                        String allowance = allowanceEdit.getText().toString();
+                        mSqlHelper.updatePingInterval(MainActivity.this, Integer.parseInt(allowance));
+                        v.setText(allowance);
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        v.setText(initValue);
+                    }
+                }
+        );
+        final AlertDialog alert = builder.create();
+        alert.show();
+
+        pingAllowanceEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {}
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (editable.length() != 0) {
+                    alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                } else {
+                    alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                }
+            }
+        });
     }
 
     /**
