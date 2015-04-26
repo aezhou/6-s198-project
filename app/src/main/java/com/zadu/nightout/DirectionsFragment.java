@@ -20,7 +20,7 @@ import android.widget.Spinner;
  * Use the {@link DirectionsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class DirectionsFragment extends Fragment {
+public class DirectionsFragment extends Fragment implements PlanChangedListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -135,6 +135,11 @@ public class DirectionsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onPlanChanged() {
+        // TODO: when plan changes, update destination and ETAs
     }
 
     /**

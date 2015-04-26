@@ -26,7 +26,9 @@ import java.util.Objects;
  * Use the {@link PlanDetailsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class PlanDetailsFragment extends Fragment implements TimePickerFragment.OnFragmentInteractionListener{
+public class PlanDetailsFragment extends Fragment implements
+        TimePickerFragment.OnFragmentInteractionListener,
+        PlanChangedListener {
 
     String TAG = "PlanDetailsFragment";
     // TODO: Rename parameter arguments, choose names that match
@@ -39,7 +41,6 @@ public class PlanDetailsFragment extends Fragment implements TimePickerFragment.
     private String mParam2;
 
     private OnPlanDetailsListener mListener;
-//    private Button mSaveButton;
     private Button reserveOnlineButton;
     private Button reserveCallButton;
     private ImageView openMapImage;
@@ -86,13 +87,7 @@ public class PlanDetailsFragment extends Fragment implements TimePickerFragment.
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_plan_details, container, false);
 
-//        mSaveButton = (Button) v.findViewById(R.id.save_button);
-//        mSaveButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                onSaveButtonPressed(view);
-//            }
-//        });
+
 
         reserveOnlineButton = (Button) v.findViewById(R.id.reservationOnlineButton);
         reserveOnlineButton.setOnClickListener(new View.OnClickListener() {
@@ -226,6 +221,11 @@ public class PlanDetailsFragment extends Fragment implements TimePickerFragment.
     @Override
     public void onFragmentInteraction(Uri uri) {
 
+    }
+
+    @Override
+    public void onPlanChanged() {
+        // TODO: update ui with info from database for place info and reservation info
     }
 
     /**

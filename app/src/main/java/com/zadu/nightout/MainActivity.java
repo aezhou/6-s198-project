@@ -95,7 +95,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
+                for (int i=0; i<mSectionsPagerAdapter.getCount(); i++) {
+                    Fragment f = mSectionsPagerAdapter.getItem(i);
+                    ((PlanChangedListener) f).onPlanChanged();
+                }
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
@@ -489,7 +492,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     public void onClick(DialogInterface dialogInterface, int i) {
                         EditText allowanceEdit = (EditText) pingAllowanceView.findViewById(R.id.pingAllowanceEditText);
                         String allowance = allowanceEdit.getText().toString();
-                        mSqlHelper.updatePingInterval(MainActivity.this, Integer.parseInt(allowance));
+                        mSqlHelper.updatePingAllowance(MainActivity.this, Integer.parseInt(allowance));
                         v.setText(allowance);
                     }
                 }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -526,6 +529,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
+        private PlanDetailsFragment mPlanDetailsFrag;
+        private DirectionsFragment mDirectionsFrag;
+        private AlertsFragment mAlertsFrag;
+
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
@@ -535,10 +542,26 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
             switch(position) {
-                case 0: return PlanDetailsFragment.newInstance(mSpinner.getSelectedItem().toString(), "blah");
-                case 1: return DirectionsFragment.newInstance(mSpinner.getSelectedItem().toString(), "blah");
-                case 2: return AlertsFragment.newInstance(mSpinner.getSelectedItem().toString(), "blah");
-                default: return PlanDetailsFragment.newInstance(mSpinner.getSelectedItem().toString(), "blah");
+                case 0:
+                    if (mPlanDetailsFrag == null) {
+                        mPlanDetailsFrag = PlanDetailsFragment.newInstance(mSpinner.getSelectedItem().toString(), "blah");
+                    }
+                    return mPlanDetailsFrag;
+                case 1:
+                    if (mDirectionsFrag == null) {
+                        mDirectionsFrag = DirectionsFragment.newInstance(mSpinner.getSelectedItem().toString(), "blah");
+                    }
+                    return mDirectionsFrag;
+                case 2:
+                    if (mAlertsFrag == null) {
+                        mAlertsFrag = AlertsFragment.newInstance(mSpinner.getSelectedItem().toString(), "blah");
+                    }
+                    return  mAlertsFrag;
+                default:
+                    if (mPlanDetailsFrag == null) {
+                        mPlanDetailsFrag = PlanDetailsFragment.newInstance(mSpinner.getSelectedItem().toString(), "blah");
+                    }
+                    return mPlanDetailsFrag;
             }
         }
 
