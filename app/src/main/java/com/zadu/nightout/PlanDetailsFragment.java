@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -48,6 +49,7 @@ public class PlanDetailsFragment extends Fragment implements
     private Button timePickerButton;
     private Button datePickerButton;
     private Button findButton;
+    private CheckBox reservationMadeBox;
 
     /**
      * Use this factory method to create a new instance of
@@ -141,7 +143,15 @@ public class PlanDetailsFragment extends Fragment implements
         findButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                findLocationInfo(view);
+            }
+        });
 
+        reservationMadeBox = (CheckBox) v.findViewById(R.id.checkReservationCheckBox);
+        reservationMadeBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                updateReservationStatus(reservationMadeBox.isChecked());
             }
         });
 
@@ -183,8 +193,6 @@ public class PlanDetailsFragment extends Fragment implements
         if(mListener != null) {
             Log.i(TAG, "called showTimePicker()");
             mListener.showTimePickerDialog(something);
-//            DialogFragment newFragment = new TimePickerFragment();
-//            newFragment.show((getActivity()).getFragmentManager(), "timePicker");
         }
     }
 
@@ -198,6 +206,12 @@ public class PlanDetailsFragment extends Fragment implements
     public void findLocationInfo(Object something) {
         if(mListener != null) {
             mListener.findLocation(something);
+        }
+    }
+
+    public void updateReservationStatus(boolean isReserved) {
+        if(mListener != null) {
+            mListener.updateReservationStatus(reservationMadeBox.isChecked());
         }
     }
 
@@ -251,6 +265,7 @@ public class PlanDetailsFragment extends Fragment implements
         public void showTimePickerDialog(Object something);
         public void showDatePickerDialog(Object something);
         public void findLocation(Object something);
+        public void updateReservationStatus(boolean isReserved);
     }
 
 }
