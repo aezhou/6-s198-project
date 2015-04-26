@@ -654,6 +654,36 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             // separate this out so people can work on it.
             try {
                 JSONObject jObject = new JSONObject(result);
+//                Log.i(TAG, result);
+//                restaurantEntries = jObject.getJSONArray("restaurants");
+
+            } catch (JSONException e) {
+//                Log.e(TAG, "Could not find restaurants entry in JSON result");
+//                Log.i(TAG, e.getMessage());
+            }
+
+            if (restaurantEntries != null) {
+//                displayRestaurants(restaurantEntries);
+            }
+        }
+
+    } // end CallAPI
+
+    /**
+     * Private class for connecting to OpenTable API
+     */
+    private class OpenTableCallApi extends CallAPI {
+        /**
+         * Method ran after receiving response from API
+         * @param result string result returned from API
+         */
+        protected void onPostExecute(String result) {
+            Log.i(TAG, "starting onPostExecute");
+
+            JSONArray restaurantEntries = null;
+            // separate this out so people can work on it.
+            try {
+                JSONObject jObject = new JSONObject(result);
                 Log.i(TAG, result);
                 restaurantEntries = jObject.getJSONArray("restaurants");
 
@@ -666,8 +696,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 displayRestaurants(restaurantEntries);
             }
         }
-
-    } // end CallAPI
+    }
 
 //    TODO: Finish the function below
     /**
@@ -716,7 +745,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 updatePlaceInfo("PLACE_ADDRESS", itemAddress);
                 updatePlaceInfo("PLACE_NUMBER", itemPhone);
 
-                //TODO: clear out search field text
 
                 dialog.dismiss();
             }
