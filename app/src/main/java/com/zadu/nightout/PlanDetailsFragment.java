@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -47,6 +48,7 @@ public class PlanDetailsFragment extends Fragment implements TimePickerFragment.
     private Button timePickerButton;
     private Button datePickerButton;
     private Button findButton;
+    private CheckBox reservationMadeBox;
 
     /**
      * Use this factory method to create a new instance of
@@ -86,13 +88,7 @@ public class PlanDetailsFragment extends Fragment implements TimePickerFragment.
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_plan_details, container, false);
 
-//        mSaveButton = (Button) v.findViewById(R.id.save_button);
-//        mSaveButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                onSaveButtonPressed(view);
-//            }
-//        });
+
 
         reserveOnlineButton = (Button) v.findViewById(R.id.reservationOnlineButton);
         reserveOnlineButton.setOnClickListener(new View.OnClickListener() {
@@ -146,7 +142,15 @@ public class PlanDetailsFragment extends Fragment implements TimePickerFragment.
         findButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                findLocationInfo(view);
+            }
+        });
 
+        reservationMadeBox = (CheckBox) v.findViewById(R.id.checkReservationCheckBox);
+        reservationMadeBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                updateReservationStatus(reservationMadeBox.isChecked());
             }
         });
 
@@ -188,8 +192,6 @@ public class PlanDetailsFragment extends Fragment implements TimePickerFragment.
         if(mListener != null) {
             Log.i(TAG, "called showTimePicker()");
             mListener.showTimePickerDialog(something);
-//            DialogFragment newFragment = new TimePickerFragment();
-//            newFragment.show((getActivity()).getFragmentManager(), "timePicker");
         }
     }
 
@@ -203,6 +205,12 @@ public class PlanDetailsFragment extends Fragment implements TimePickerFragment.
     public void findLocationInfo(Object something) {
         if(mListener != null) {
             mListener.findLocation(something);
+        }
+    }
+
+    public void updateReservationStatus(boolean isReserved) {
+        if(mListener != null) {
+            mListener.updateReservationStatus(reservationMadeBox.isChecked());
         }
     }
 
@@ -251,6 +259,7 @@ public class PlanDetailsFragment extends Fragment implements TimePickerFragment.
         public void showTimePickerDialog(Object something);
         public void showDatePickerDialog(Object something);
         public void findLocation(Object something);
+        public void updateReservationStatus(boolean isReserved);
     }
 
 }
