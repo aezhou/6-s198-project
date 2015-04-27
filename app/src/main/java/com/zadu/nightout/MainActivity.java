@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.location.Location;
 import android.net.Uri;
@@ -419,12 +420,25 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public void callRide(Object something) {
         Log.i(TAG, "callRide() called");
-        TextView currentAddressTextView = (TextView)findViewById(R.id.current_address);
+/*        TextView currentAddressTextView = (TextView)findViewById(R.id.current_address);
         String currentAddress = currentAddressTextView.getText().toString();
         Intent intent = new Intent(ReserveIntents.ACTION_RESERVE_TAXI_RESERVATION);
         if (intent.resolveActivity(getPackageManager()) != null) {
             Log.i(TAG, "resolving taxi intent");
             startActivity(intent);
+        }*/
+        PackageManager pm = getPackageManager();
+        try
+        {
+            pm.getPackageInfo("com.ubercab", PackageManager.GET_ACTIVITIES);
+            // Do something awesome - the app is installed! Launch App.
+            Intent launchIntent = pm.getLaunchIntentForPackage("com.ubercab");
+            startActivity(launchIntent);
+        }
+        catch (PackageManager.NameNotFoundException e)
+        {
+            // No Uber app! Open Mobile Website.
+            Log.i(TAG, "No Uber App installed");
         }
     }
 
@@ -752,7 +766,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 restaurantEntries = jObject.getJSONArray("restaurants");
 
             } catch (JSONException e) {
-                Log.e(TAG, "Could not find restaurants entry in JSON result");
+                Log.e(TAG, "Could not read OpenTable JSON result");
                 Log.i(TAG, e.getMessage());
             }
 
@@ -763,7 +777,81 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     /**
-     * Private class for connecting to OpenTable API
+     * Private class for connecting to Google Distance Matrix API
+     */
+    private class GoogleDistanceMatrixCallApi extends CallAPI {
+        /**
+         * Method ran after receiving response from API
+         * @param result string result returned from API
+         */
+        @Override
+        protected void onPostExecute(String result) {
+            Log.i(TAG, "starting Distance Matrix onPostExecute");
+
+            JSONObject distanceResult = null;
+            String durationResultText = "unknown";
+
+            try {
+                JSONObject jObject = new JSONObject(result);
+                Log.i(TAG, result);
+                distanceResult = jObject.getJSONObject("rows").getJSONObject("elements");
+                JSONObject durationResult = distanceResult.getJSONObject("duration");
+                durationResultText = durationResult.getJSONArray("text").toString();
+
+            } catch (JSONException e) {
+                Log.e(TAG, "Could not read Distance Matrix JSON result");
+                Log.i(TAG, e.getMessage());
+            }
+
+            if (distanceResult != null) {
+                // TODO: Call helper to update ETAs in directions fragment
+                Log.i(TAG, getFragmentManager().toString());
+                //((DirectionsFragment)getFragmentManager().findFragmentById(0x7f0b0044)).setTempETA(durationResultText);
+            }
+        }
+    }
+
+    /**
+     * Private class for connecting to Google Geocoding API
+     */
+    private class GoogleGeocodingCallApi extends CallAPI {
+        /**
+         * Method ran after receiving response from API
+         * @param result string result returned from API
+         */
+        @Override
+        protected void onPostExecute(String result) {
+            Log.i(TAG, "starting Geocoding onPostExecute");
+
+            JSONObject geocodingResult = null;
+            String lat = null;
+            String lng = null;
+            String placeID = null;
+
+            try {
+                JSONObject jObject = new JSONObject(result);
+                Log.i(TAG, result);
+                geocodingResult = jObject.getJSONObject("results");
+                JSONObject geometryResult = geocodingResult.getJSONObject("geometry");
+                JSONObject locationResult = geometryResult.getJSONObject("location");
+                lat = locationResult.getJSONArray("lat").toString();
+                lng = locationResult.getJSONArray("lng").toString();
+                placeID = geocodingResult.getJSONArray("place_id").toString();
+
+            } catch (JSONException e) {
+                Log.e(TAG, "Could not read Geocoding JSON result");
+                Log.i(TAG, e.getMessage());
+            }
+
+            if (geocodingResult != null) {
+                // TODO: Call helper to send data back to fragment
+                DirectionsFragment.storeHomeInfo(lat, lng, placeID);
+            }
+        }
+    }
+
+    /**
+     * Private class for connecting to Google Places API
      */
     private class GooglePlacesCallApi extends CallAPI {
         /**
@@ -772,16 +860,16 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
          */
         @Override
         protected void onPostExecute(String result) {
-            Log.i(TAG, "starting onPostExecute");
+            Log.i(TAG, "starting Places onPostExecute");
 
             JSONArray placesResults = null;
             try {
                 JSONObject jObject = new JSONObject(result);
                 Log.i(TAG, result);
-                placesResults = jObject.getJSONArray("restaurants");
+                placesResults = jObject.getJSONArray("results");
 
             } catch (JSONException e) {
-                Log.e(TAG, "Could not find restaurants entry in JSON result");
+                Log.e(TAG, "Could not read Places JSON result");
                 Log.i(TAG, e.getMessage());
             }
 

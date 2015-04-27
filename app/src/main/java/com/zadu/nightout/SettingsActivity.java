@@ -302,4 +302,8 @@ public class SettingsActivity extends PreferenceActivity {
             bindPreferenceSummaryToValue(findPreference("Contact5"));
         }
     }
+
+    public String getHomeAddress() {
+        return preferences.getString("home_address", null);
+    }
 }
