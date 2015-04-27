@@ -268,23 +268,25 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
     @Override
     public void onActivityResult(int reqCode, int resultCode, Intent data) {
         super.onActivityResult(reqCode, resultCode, data);
-        Uri contactData = data.getData();
-        String contactNumber = null;
-        String contactName = null;
+        if (data != null) {
+            Uri contactData = data.getData();
+            String contactNumber = null;
+            String contactName = null;
 
-        if (resultCode == getActivity().RESULT_OK) {
-            Cursor cursor = getActivity().getContentResolver().query(contactData, null, null, null, null);
-            if (cursor.moveToFirst()) {
-                contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-                contactNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            if (resultCode == getActivity().RESULT_OK) {
+                Cursor cursor = getActivity().getContentResolver().query(contactData, null, null, null, null);
+                if (cursor.moveToFirst()) {
+                    contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                    contactNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                }
+                cursor.close();
             }
-            cursor.close();
-        }
 
-        if (reqCode == 0) {
-            //TODO add name, number to list view
-            mOtherContactButton.setEnabled(false);
-            mOtherContactButton.setVisibility(View.GONE);
+            if (reqCode == 0) {
+                //TODO add name, number to list view
+                mOtherContactButton.setEnabled(false);
+                mOtherContactButton.setVisibility(View.GONE);
+            }
         }
 
     }

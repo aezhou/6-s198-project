@@ -124,59 +124,61 @@ public class SettingsActivity extends PreferenceActivity {
     @Override
     public void onActivityResult(int reqCode, int resultCode, Intent data) {
         super.onActivityResult(reqCode, resultCode, data);
-        Uri contactData = data.getData();
-        String contactNumber = null;
-        String contactName = null;
+        if (data != null) {
+            Uri contactData = data.getData();
+            String contactNumber = null;
+            String contactName = null;
 
-        if (resultCode == RESULT_OK) {
-            Cursor cursor = getContentResolver().query(contactData, null, null, null, null);
-            if (cursor.moveToFirst()) {
-                contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-                contactNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            if (resultCode == RESULT_OK) {
+                Cursor cursor = getContentResolver().query(contactData, null, null, null, null);
+                if (cursor.moveToFirst()) {
+                    contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                    contactNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                }
+                cursor.close();
             }
-            cursor.close();
-        }
 
-        Set<String> set = new HashSet<>();
-        set.add(contactName);
-        set.add(contactNumber);
+            Set<String> set = new HashSet<>();
+            set.add(contactName);
+            set.add(contactNumber);
 
-        switch (reqCode) {
-            case (PICK_CONTACT_1):
-                if (contactName != null && contactNumber != null) {
-                    contact1.setTitle(contactName);
-                    contact1.setSummary(contactNumber);
-                    //TODO: save contactName, contactNumber
-                }
-                break;
-            case (PICK_CONTACT_2):
-                if (contactName != null && contactNumber != null) {
-                    contact2.setTitle(contactName);
-                    contact2.setSummary(contactNumber);
-                    //TODO: save contactName, contactNumber
-                }
-                break;
-            case (PICK_CONTACT_3):
-                if (contactName != null && contactNumber != null) {
-                    contact3.setTitle(contactName);
-                    contact3.setSummary(contactNumber);
-                    //TODO: save contactName, contactNumber
-                }
-                break;
-            case (PICK_CONTACT_4):
-                if (contactName != null && contactNumber != null) {
-                    contact4.setTitle(contactName);
-                    contact4.setSummary(contactNumber);
-                    //TODO: save contactName, contactNumber
-                }
-                break;
-            case (PICK_CONTACT_5):
-                if (contactName != null && contactNumber != null) {
-                    contact5.setTitle(contactName);
-                    contact5.setSummary(contactNumber);
-                    //TODO: save contactName, contactNumber
-                }
-                break;
+            switch (reqCode) {
+                case (PICK_CONTACT_1):
+                    if (contactName != null && contactNumber != null) {
+                        contact1.setTitle(contactName);
+                        contact1.setSummary(contactNumber);
+                        //TODO: save contactName, contactNumber
+                    }
+                    break;
+                case (PICK_CONTACT_2):
+                    if (contactName != null && contactNumber != null) {
+                        contact2.setTitle(contactName);
+                        contact2.setSummary(contactNumber);
+                        //TODO: save contactName, contactNumber
+                    }
+                    break;
+                case (PICK_CONTACT_3):
+                    if (contactName != null && contactNumber != null) {
+                        contact3.setTitle(contactName);
+                        contact3.setSummary(contactNumber);
+                        //TODO: save contactName, contactNumber
+                    }
+                    break;
+                case (PICK_CONTACT_4):
+                    if (contactName != null && contactNumber != null) {
+                        contact4.setTitle(contactName);
+                        contact4.setSummary(contactNumber);
+                        //TODO: save contactName, contactNumber
+                    }
+                    break;
+                case (PICK_CONTACT_5):
+                    if (contactName != null && contactNumber != null) {
+                        contact5.setTitle(contactName);
+                        contact5.setSummary(contactNumber);
+                        //TODO: save contactName, contactNumber
+                    }
+                    break;
+            }
         }
 
     }
