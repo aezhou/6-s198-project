@@ -2,6 +2,7 @@ package com.zadu.nightout;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -12,6 +13,10 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
+import android.util.Log;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class SettingsActivity extends PreferenceActivity {
     Preference contact1;
@@ -19,12 +24,19 @@ public class SettingsActivity extends PreferenceActivity {
     Preference contact3;
     Preference contact4;
     Preference contact5;
+    SharedPreferences preferences;
 
     static final int PICK_CONTACT_1 = 1;
     static final int PICK_CONTACT_2 = 2;
     static final int PICK_CONTACT_3 = 3;
     static final int PICK_CONTACT_4 = 4;
     static final int PICK_CONTACT_5 = 5;
+
+    static final String KEY_PREF_CONTACT_1 = "Contact1";
+    static final String KEY_PREF_CONTACT_2 = "Contact2";
+    static final String KEY_PREF_CONTACT_3 = "Contact3";
+    static final String KEY_PREF_CONTACT_4 = "Contact4";
+    static final String KEY_PREF_CONTACT_5 = "Contact5";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -37,6 +49,8 @@ public class SettingsActivity extends PreferenceActivity {
         contact4 = findPreference("Contact4");
         contact5 = findPreference("Contact5");
 
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
         contact1.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -45,6 +59,8 @@ public class SettingsActivity extends PreferenceActivity {
                 return false;
             }
         });
+        contact1.setSummary(preferences.getString(KEY_PREF_CONTACT_1, ""));
+
         contact2.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -53,6 +69,8 @@ public class SettingsActivity extends PreferenceActivity {
                 return false;
             }
         });
+        contact2.setSummary(preferences.getString(KEY_PREF_CONTACT_2, ""));
+
         contact3.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -61,6 +79,8 @@ public class SettingsActivity extends PreferenceActivity {
                 return false;
             }
         });
+        contact3.setSummary(preferences.getString(KEY_PREF_CONTACT_3, ""));
+
         contact4.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -69,6 +89,8 @@ public class SettingsActivity extends PreferenceActivity {
                 return false;
             }
         });
+        contact4.setSummary(preferences.getString(KEY_PREF_CONTACT_4, ""));
+
         contact5.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -77,14 +99,46 @@ public class SettingsActivity extends PreferenceActivity {
                 return false;
             }
         });
+        contact5.setSummary(preferences.getString(KEY_PREF_CONTACT_5, ""));
+        Log.e("f", preferences.getAll().toString());
 
         bindPreferenceSummaryToValue(findPreference("home_address"));
         bindPreferenceSummaryToValue(findPreference("phone_number"));
-        bindPreferenceSummaryToValue(findPreference("Contact1"));
-        bindPreferenceSummaryToValue(findPreference("Contact2"));
-        bindPreferenceSummaryToValue(findPreference("Contact3"));
-        bindPreferenceSummaryToValue(findPreference("Contact4"));
-        bindPreferenceSummaryToValue(findPreference("Contact5"));
+        bindPreferenceSummaryToValue(findPreference(KEY_PREF_CONTACT_1));
+        bindPreferenceSummaryToValue(findPreference(KEY_PREF_CONTACT_2));
+        bindPreferenceSummaryToValue(findPreference(KEY_PREF_CONTACT_3));
+        bindPreferenceSummaryToValue(findPreference(KEY_PREF_CONTACT_4));
+        bindPreferenceSummaryToValue(findPreference(KEY_PREF_CONTACT_5));
+
+        SharedPreferences.OnSharedPreferenceChangeListener listener =
+                new SharedPreferences.OnSharedPreferenceChangeListener() {
+                    public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+                        String content = prefs.getString(key, "");
+                        // listener implementation
+                        switch(key) {
+                            case KEY_PREF_CONTACT_1:
+                                contact1.setSummary(content);
+                                break;
+                            case KEY_PREF_CONTACT_2:
+                                contact2.setSummary(content);
+                                break;
+                            case KEY_PREF_CONTACT_3:
+                                contact3.setSummary(content);
+                                break;
+                            case KEY_PREF_CONTACT_4:
+                                contact4.setSummary(content);
+                                break;
+                            case KEY_PREF_CONTACT_5:
+                                Log.e("find me", "yay5");
+                                contact5.setSummary(content);
+                                break;
+                            case "phone_number":
+                                Log.e("find me", "yay");
+                        }
+                    }
+                };
+
+        preferences.registerOnSharedPreferenceChangeListener(listener);
 
     }
 
@@ -105,35 +159,50 @@ public class SettingsActivity extends PreferenceActivity {
             cursor.close();
         }
 
+        Set<String> set = new HashSet<>();
+        set.add(contactName);
+        set.add(contactNumber);
+
         switch (reqCode) {
             case (PICK_CONTACT_1):
                 if (contactName != null && contactNumber != null) {
                     contact1.setTitle(contactName);
                     contact1.setSummary(contactNumber);
+                    Log.e("find me", "changed contact 1");
+                    preferences.edit().putStringSet(KEY_PREF_CONTACT_1, set).apply();
+                    Log.e("find me", preferences.getAll().toString());
                 }
                 break;
             case (PICK_CONTACT_2):
                 if (contactName != null && contactNumber != null) {
                     contact2.setTitle(contactName);
                     contact2.setSummary(contactNumber);
+                    preferences.edit().putStringSet(KEY_PREF_CONTACT_2, set).apply();
+                    Log.e("find me", preferences.getAll().toString());
                 }
                 break;
             case (PICK_CONTACT_3):
                 if (contactName != null && contactNumber != null) {
                     contact3.setTitle(contactName);
                     contact3.setSummary(contactNumber);
+                    preferences.edit().putStringSet(KEY_PREF_CONTACT_3, set).apply();
+                    Log.e("find me", preferences.getAll().toString());
                 }
                 break;
             case (PICK_CONTACT_4):
                 if (contactName != null && contactNumber != null) {
                     contact4.setTitle(contactName);
                     contact4.setSummary(contactNumber);
+                    preferences.edit().putStringSet(KEY_PREF_CONTACT_4, set).apply();
+                    Log.e("find me", preferences.getAll().toString());
                 }
                 break;
             case (PICK_CONTACT_5):
                 if (contactName != null && contactNumber != null) {
                     contact5.setTitle(contactName);
                     contact5.setSummary(contactNumber);
+                    preferences.edit().putStringSet(KEY_PREF_CONTACT_5, set).apply();
+                    Log.e("find me", preferences.getAll().toString());
                 }
                 break;
         }
@@ -191,17 +260,6 @@ public class SettingsActivity extends PreferenceActivity {
                         .getString(preference.getKey(), ""));
     }
 
-//    @Override
-//    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-//       // if (s.equals(KEY_PREF_PHONE)) {
-//            Preference connectionPref = findPreference(s);
-//        Log.e("findme", s);
-//            connectionPref.setSummary(sharedPreferences.getString(s, ""));
-//      //  }
-//
-//        //TODO: FIX THIS PLS
-//    }
-
     /**
      * This fragment shows general preferences only. It is used when the
      * activity is showing a two-pane settings UI.
@@ -219,11 +277,11 @@ public class SettingsActivity extends PreferenceActivity {
             // guidelines.
             bindPreferenceSummaryToValue(findPreference("home_address"));
             bindPreferenceSummaryToValue(findPreference("phone_number"));
-            bindPreferenceSummaryToValue(findPreference("Contact1"));
-            bindPreferenceSummaryToValue(findPreference("Contact2"));
-            bindPreferenceSummaryToValue(findPreference("Contact3"));
-            bindPreferenceSummaryToValue(findPreference("Contact4"));
-            bindPreferenceSummaryToValue(findPreference("Contact5"));
+            bindPreferenceSummaryToValue(findPreference(KEY_PREF_CONTACT_1));
+            bindPreferenceSummaryToValue(findPreference(KEY_PREF_CONTACT_2));
+            bindPreferenceSummaryToValue(findPreference(KEY_PREF_CONTACT_3));
+            bindPreferenceSummaryToValue(findPreference(KEY_PREF_CONTACT_4));
+            bindPreferenceSummaryToValue(findPreference(KEY_PREF_CONTACT_5));
         }
     }
 }
