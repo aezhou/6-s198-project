@@ -17,10 +17,12 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -93,6 +95,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String first = preferences.getString("first_time", "true");
+        if (!first.equalsIgnoreCase("false")) {
+            Intent intent = new Intent(this, WelcomeActivity.class);
+            startActivity(intent);
+        }
 
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();

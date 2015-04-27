@@ -36,6 +36,20 @@
             android:configChanges="orientation"
             android:parentActivityName=".MainActivity">
         </activity>
+        <activity
+            android:name=".WelcomeActivity"
+            android:label="Welcome"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation"
+            android:parentActivityName=".MainActivity">
+        </activity>
+        <activity
+            android:name=".WalkthroughGeneralSettingsActivity"
+            android:label="Save General Settings"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation"
+            android:parentActivityName=".WelcomeActivity">
+        </activity>
 
         <meta-data
             android:name="com.google.android.gms.version"

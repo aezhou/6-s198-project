@@ -7,7 +7,7 @@
     <EditTextPreference
         android:key="phone_number"
         android:title="Phone Number"
-        android:defaultValue="xxx-xxx-xxxx"
+        android:defaultValue="1234567890"
         android:inputType="number"
         android:selectAllOnFocus="true"
         android:singleLine="true"

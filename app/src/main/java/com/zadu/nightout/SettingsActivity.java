@@ -2,7 +2,6 @@ package com.zadu.nightout;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -23,7 +22,6 @@ public class SettingsActivity extends PreferenceActivity {
     Preference contact3;
     Preference contact4;
     Preference contact5;
-    SharedPreferences preferences;
 
     static final int PICK_CONTACT_1 = 1;
     static final int PICK_CONTACT_2 = 2;
@@ -41,8 +39,6 @@ public class SettingsActivity extends PreferenceActivity {
         contact3 = findPreference("Contact3");
         contact4 = findPreference("Contact4");
         contact5 = findPreference("Contact5");
-
-        preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         contact1.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override

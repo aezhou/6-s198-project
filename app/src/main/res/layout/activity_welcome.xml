@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/welcome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="Welcome to NightOut!"
+        android:textSize="36sp"
+        android:padding="16dp"
+        android:layout_marginTop="60dp"/>
+
+    <TextView
+        android:layout_below="@id/welcome"
+        android:id="@+id/welcome_detail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Let us be your personal concierge - helping you create a plan, share it, determine how to get there, and stay safe while you're out. In order to do that, we need to gather some information first!"
+        android:padding="36dp"
+        android:gravity="center_horizontal"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Powered by Google"
+        android:gravity="center_horizontal"
+        android:layout_below="@id/welcome_detail"/>
+
+    <Button
+        android:id="@+id/start_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Get Started"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="40dp"/>
+
+</RelativeLayout>
