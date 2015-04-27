@@ -1,13 +1,13 @@
 package com.zadu.nightout;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.Button;
 
-public class WelcomeActivity extends ActionBarActivity {
+public class WelcomeActivity extends Activity {
     private Button mButton;
 
     @Override
