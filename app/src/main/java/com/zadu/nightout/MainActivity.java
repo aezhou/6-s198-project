@@ -3,6 +3,7 @@ package com.zadu.nightout;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -366,8 +367,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         TimePickerDialog tpd = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-//                TextView timeView = (TextView)findViewById(R.id.selectedTimeText);
-//                timeView.setText(hourOfDay + " : " + minute);
                 Button timePickerButton = (Button)findViewById(R.id.timePickerButton);
                 timePickerButton.setText(hourOfDay + " : " + minute);
                 updatePlanReservationTime(mHour, mMinute);
@@ -390,8 +389,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     @Override
                     public void onDateSet(DatePicker view, int year,
                                           int monthOfYear, int dayOfMonth) {
-//                        TextView dateView = (TextView)findViewById(R.id.selectedDateText);
-//                        dateView.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
                         Button datePickerButton = (Button) findViewById(R.id.datePickerButton);
                         datePickerButton.setText(dayOfMonth + "/" + (monthOfYear+1) + "/" +year);
                         updatePlanReservationDate(mYear, mMonth, mDay);
@@ -439,31 +436,39 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
-/*    @Override
-    public void findLocation(Object something) {
-        Log.i(TAG, "findLocation() called");
-        EditText searchField = (EditText) findViewById(R.id.searchField);
-        String searchText = searchField.getText().toString();
-        String encodedInput = null;
-        try{
-            encodedInput = URLEncoder.encode(searchText, "UTF-8");
+    public void findOpenTableUrl(Object something) {
+        Log.i(TAG, "findOpenTableUrl() called");
+        TextView searchAddress = (TextView)findViewById(R.id.planAddressText);
+        if(searchAddress != null) {
+            String streetAddress = searchAddress.getText().toString();
+
+            TextView searchCityStateZip = (TextView) findViewById(R.id.destinationCityStateZip);
+            String cityStateZip = searchCityStateZip.getText().toString();
+            String[] cityStateZipInfo = cityStateZip.split(",");
+            String zipCode;
+            String searchText;
+            if(cityStateZipInfo.length > 1) {
+                zipCode = cityStateZipInfo[1].substring(1);
+                searchText = "address=" + streetAddress + ";postal_code=" + zipCode;
+                String encodedInput = null;
+                try {
+                    encodedInput = URLEncoder.encode(searchText, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    Log.e(TAG, "Encoding exception");
+                    e.printStackTrace();
+                }
+                if (encodedInput != null) {
+                    String apiUrl = openTableApiUrl + "restaurants?" + encodedInput;
+                    new OpenTableCallApi().execute(apiUrl);
+                }
+            }
+
         }
-        catch (UnsupportedEncodingException e) {
-            Log.e(TAG, "Encoding exception");
-            e.printStackTrace();
-        }
-        if(encodedInput != null) {
-            String apiUrl = openTableApiUrl + "restaurants?name=" + encodedInput;
-            new CallAPI().execute(apiUrl);
-        }
-    }*/
+    }
 
     @Override
     public void getLastLoc() {
         mGoogleApiClient.connect();
-
-//        Location recentLoc = new Location(mLastLocation); //copy of location
-//        Log.i(TAG, "location: " + String.valueOf(recentLoc.getLatitude()) + ", " + String.valueOf(recentLoc.getLongitude()));
     }
 
 
@@ -666,6 +671,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             try {
                 URL url = new URL(urlString);
                 urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.setDoOutput(false);
                 InputStreamReader reader = new InputStreamReader(urlConnection.getInputStream());
 
                 Log.i(TAG, "got input stream");
@@ -676,6 +683,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 }
             } catch (Exception e) {
                 // if any I/O error occurs
+                Log.e(TAG, "exception when reading input stream reader");
                 e.printStackTrace();
             } finally {
                 if (urlConnection != null) {
@@ -740,7 +748,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             }
 
             if (restaurantEntries != null) {
-                displayRestaurants(restaurantEntries);
+                setReservationInfo(restaurantEntries);
             }
         }
     }
@@ -769,7 +777,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             }
 
             if (placesResults != null) {
-                displayRestaurants(placesResults);
+//                displayRestaurants(placesResults);
             }
         }
     }
@@ -788,7 +796,63 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
      * Filters and displays restaurant options
      * @param restaurants JSONArray of restaurants and their relevant information
      */
-    private void displayRestaurants(final JSONArray restaurants) {
+//    private void displayRestaurants(final JSONArray restaurants) {
+//        final ArrayList<String> restaurantNames = new ArrayList<>();
+//        final ArrayList<String> restaurantAddresses = new ArrayList<>();
+//        ArrayList<Integer> restaurantIDs = new ArrayList<>();
+//        final ArrayList<String> restaurantPhones = new ArrayList<>();
+//
+//        for(int i = 0; i < restaurants.length(); i++) {
+//            try {
+//                JSONObject restInfo = (JSONObject) restaurants.get(i);
+//                restaurantNames.add(restInfo.getString("name"));
+//                String finaAddress = restInfo.getString("address") +  " " + restInfo.getString("city") + ", " + restInfo.getString("state") + " " + restInfo.getString("postal_code");
+//                restaurantAddresses.add(finaAddress);
+//                restaurantIDs.add(restInfo.getInt("id"));
+//                restaurantPhones.add(restInfo.getString("phone"));
+//
+//            }
+//            catch (JSONException e){
+//                Log.e(TAG, e.getMessage());
+//                e.printStackTrace();
+//            }
+//
+//        }
+//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//        builder.setTitle("Select Location");
+//
+//        final ListView modeList = new ListView(this);
+//        locationArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, restaurantNames);
+//        modeList.setAdapter(locationArrayAdapter);
+//
+//        builder.setView(modeList);
+//        modeList.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView parent, View view, int pos, long id) {
+//                String itemName = restaurantNames.get(pos);
+//                String itemAddress = restaurantAddresses.get(pos);
+//                String itemPhone = restaurantPhones.get(pos);
+//
+//                Log.i(TAG, "item clicked" + itemName);
+//                updatePlaceInfo("PLACE_NAME", itemName);
+//                updatePlaceInfo("PLACE_ADDRESS", itemAddress);
+//                updatePlaceInfo("PLACE_NUMBER", itemPhone);
+//
+//
+//                dialog.dismiss();
+//            }
+//        });
+//        dialog = builder.create();
+//
+//        dialog.show();
+//    }
+
+    /**
+     * Method that sets reservation URL when it finds the chosen location via OpenTable API
+     * @param restaurants JSONArray of the found restaurant
+     */
+    private void setReservationInfo(final JSONArray restaurants) {
+        Log.i(TAG, "calling setReservationInfo");
         final ArrayList<String> restaurantNames = new ArrayList<>();
         final ArrayList<String> restaurantAddresses = new ArrayList<>();
         ArrayList<Integer> restaurantIDs = new ArrayList<>();
@@ -810,33 +874,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             }
 
         }
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Select Location");
+        Log.i(TAG, restaurantIDs.get(0).toString());
 
-        final ListView modeList = new ListView(this);
-        locationArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, restaurantNames);
-        modeList.setAdapter(locationArrayAdapter);
-
-        builder.setView(modeList);
-        modeList.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView parent, View view, int pos, long id) {
-                String itemName = restaurantNames.get(pos);
-                String itemAddress = restaurantAddresses.get(pos);
-                String itemPhone = restaurantPhones.get(pos);
-
-                Log.i(TAG, "item clicked" + itemName);
-                updatePlaceInfo("PLACE_NAME", itemName);
-                updatePlaceInfo("PLACE_ADDRESS", itemAddress);
-                updatePlaceInfo("PLACE_NUMBER", itemPhone);
-
-
-                dialog.dismiss();
-            }
-        });
-        dialog = builder.create();
-
-        dialog.show();
     }
 
     public void updatePlaceInfo(String infoType, String infoVal) {
@@ -859,10 +898,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         return mSpinner.getSelectedItem().toString();
     }
 
-    private class RunCheckInTimer extends AsyncTask {
+    private class RunCheckInTimer extends AsyncTask <Void, Integer, String>{
+
+        protected void onPreExecute() {
+            Log.i(TAG, "pre execute");
+        }
 
         @Override
-        protected Object doInBackground(Object[] params) {
+        protected String doInBackground(Void... strs) {
             //the Date and time at which you want to execute
             int year = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_YEAR");
             int month = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_MONTH");
@@ -874,8 +917,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Date date = null;
             try {
-//                date = dateFormatter.parse("2012-07-06 13:05:45");
-                date = dateFormatter.parse(year+ "-" + month + "-" + day + " " + hour + ":" + min);
+                date = dateFormatter.parse("2015-04-27 05:01:00");
+//                date = dateFormatter.parse(year+ "-" + month + "-" + day + " " + hour + ":" + min);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -883,13 +926,17 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             //Now create the time and schedule it
             Timer timer = new Timer();
 
-            //Use this if you want to execute it once
-            timer.schedule(new MyTimeTask(), date);
-
-            //Use this if you want to execute it repeatedly
-            int period = 60000 * intervalTime;//60secs * interval(in minutes)
+//            int period = 60000 * intervalTime;//60secs * interval(in minutes)
+            int period = 10000;
             timer.schedule(new MyTimeTask(), date, period );
-            return null;
+            return "from doInBackground";
+        }
+        protected void onProgressUpdate(Integer... strs) {
+            Log.i(TAG, "calling onProgressUpdate");
+        }
+
+        protected void onPostExecute(String result) {
+            Log.i(TAG, "calling onPostExecute");
         }
     }
 
@@ -899,6 +946,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             Log.i("timer task", "derp");
         }
     }
+
+//    new RunCheckInTimer().execute();
+
+//    MyThread thr = new MyThread();
 
     public LocationManager getLocationManager() {
         return mLocationManager;

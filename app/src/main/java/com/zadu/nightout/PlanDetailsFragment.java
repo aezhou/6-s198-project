@@ -291,12 +291,6 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
                 String placeStreetAddress = placeAddressParts[0];
                 String placeCityStateZip = placeAddressParts[1];
 
-//                Log.i(TAG, "place address from thing");
-//                Log.i(TAG, "msg: " + placeAddress);
-//                Log.i(TAG, "part1: " + placeStreetAddress);
-//                Log.i(TAG, "art2: " + placeCityStateZip);
-
-
                 placeStreetView.setText(placeStreetAddress);
                 placeCityStateZipView.setText(placeCityStateZip);
             }
@@ -334,6 +328,10 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
             }
             else {
                 timeButton.setText("Select a time");
+            }
+
+            if(mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_URL") == null) {
+                ((MainActivity) getActivity()).findOpenTableUrl(null);
             }
 
         }
