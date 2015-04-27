@@ -7,12 +7,14 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -35,6 +37,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
  */
 public class DirectionsFragment extends Fragment implements PlanChangedListener, OnMapReadyCallback,
         SharedPreferences.OnSharedPreferenceChangeListener {
+    private static String TAG = "DirectionsFragment";
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -54,6 +57,11 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
 
     private MyOpenHelper mSqlHelper;
     private SharedPreferences mSharedPrefs;
+
+    private static String homeLat = null;
+    private static String homeLng = null;
+    private static String homePlaceID = null;
+    private static String tempETA = null;
 
     /**
      * Use this factory method to create a new instance of
@@ -97,10 +105,22 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
 
         map = ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map))
                 .getMap();
-        LatLng coordsMIT = new LatLng(42.3598, -71.0921);
-        Marker MIT = map.addMarker(new MarkerOptions().position(coordsMIT)
-                .title("MIT"));
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(coordsMIT, 15));
+        // TODO: Check if null; if so, use home instead (else use current loc?)
+        // TODO: Listener for changed place
+        try {
+            String destName = mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_NAME");
+            Double destLat = mSqlHelper.getPlanLatLong((MainActivity) getActivity(), "PLACE_LAT");
+            Double destLng = mSqlHelper.getPlanLatLong((MainActivity) getActivity(), "PLACE_LONG");
+            LatLng destCoords = new LatLng(destLat, destLng);
+            Marker dest = map.addMarker(new MarkerOptions().position(destCoords).title(destName));
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(destCoords, 15));
+    /*        LatLng coordsMIT = new LatLng(42.3598, -71.0921);
+            Marker MIT = map.addMarker(new MarkerOptions().position(coordsMIT)
+                    .title("MIT"));
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(coordsMIT, 15));*/
+        } catch (NullPointerException e) {
+            Log.e(TAG, "No place coords yet.", e);
+        }
 
         // Populate the destination spinner
         destSpinner = (Spinner) v.findViewById(R.id.dest_spinner);
@@ -177,18 +197,66 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
 
     @Override
     public void onPlanChanged() {
-        // TODO: when plan changes, update destination and ETAs
         if (getView() != null) {
-            // get view to update with getView().findViewById
-
-            mSqlHelper.getPlanDetail((MainActivity) getActivity(), mSqlHelper.PLACE_ADDRESS); //returns address
-            // ACTUALLY USE mSqlHelper.getPlanAddressNoPipe((MainActivity) getActivity()) - ask Kristin about this
-            // TODO: update UI with all details
+            String destName = mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_NAME");
+            String destAddress = mSqlHelper.getPlanAddressNoPipe((MainActivity) getActivity());
+            refreshDirectionFragmentView(getView(), destName, destAddress);
         }
     }
 
     public void onDestinationChanged(String destName, String destAddress) {
-        // TODO: update UI and such
+        if (getView() != null) {
+            refreshDirectionFragmentView(getView(), destName, destAddress);
+        }
+    }
+
+    private void refreshDirectionFragmentView(View v, String destName, String destAddress) {
+        Log.i(TAG, "refreshing directions fragment");
+        // TODO: when plan changes, update destination and ETAs
+        TextView destAddressView = (TextView) getView().findViewById(R.id.dest_address);
+        destAddressView.setText(destAddress);
+        // TODO: update spinner text with destName
+        // TODO: update current location, just for good measure
+        // TODO: update ETA
+
+        Double destLat = mSqlHelper.getPlanLatLong((MainActivity) getActivity(), "PLACE_LAT");
+        Double destLng = mSqlHelper.getPlanLatLong((MainActivity) getActivity(), "PLACE_LONG");
+        if (destLat != null && destLng != null) {
+            map.clear();
+            LatLng destCoords = new LatLng(destLat, destLng);
+            Marker dest = map.addMarker(new MarkerOptions().position(destCoords).title(destName));
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(destCoords, 15));
+        }
+        else {
+            // TODO: Get home coords
+            Double homeLat = null;
+            Double homeLng = null;
+            if (homeLat != null && homeLng != null) {
+                map.clear();
+                LatLng homeCoords = new LatLng(homeLat, homeLng);
+                Marker home = map.addMarker(new MarkerOptions().position(homeCoords).title("Home"));
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeCoords, 15));
+            }
+            else {
+                // TODO: use current location?
+            }
+        }
+    }
+
+    public void updateETAs() {
+
+    }
+
+    public static void setTempETA(String tempETA) {
+        tempETA = tempETA;
+        Log.i(TAG, "stored the temp ETA");
+    }
+
+    public static void storeHomeInfo(String lat, String lng, String placeID) {
+        homeLat = lat;
+        homeLng = lng;
+        homePlaceID = placeID;
+        Log.i(TAG, "stored the home stuff");
     }
 
     public void onHomeChanged(String homeAddress) {
