@@ -1,6 +1,7 @@
 package com.zadu.nightout;
 
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -8,14 +9,28 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.view.View;
+import android.widget.Button;
 
 public class WalkthroughGeneralSettingsActivity extends PreferenceActivity {
+    private Button mButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences_general);
         setContentView(R.layout.activity_welcome_general_settings);
+
+        mButton = (Button) findViewById(R.id.next_button);
+        mButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent intent = new Intent(WalkthroughGeneralSettingsActivity.this,
+                        WalkthroughContactsSettingsActivity.class);
+                startActivity(intent);
+            }
+        });
 
         bindPreferenceSummaryToValue(findPreference("home_address"));
         bindPreferenceSummaryToValue(findPreference("phone_number"));

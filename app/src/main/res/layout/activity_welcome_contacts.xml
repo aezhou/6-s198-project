@@ -7,16 +7,16 @@
         android:id="@+id/helper_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Please enter your cell phone number and home address."
+        android:text="Please select your default emergency contacts."
         android:textSize="20sp"
         android:padding="32dp"/>
-    
+
     <TextView
         android:layout_below="@id/helper_text"
         android:id="@+id/description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Your phone number will be used if you ever want to spoof a call to yourself. Your address will be used to calculate navigation."
+        android:text="You can customize who is listed as an emergency contact for each plan you create."
         android:textSize="16sp"
         android:paddingLeft="32dp"
         android:paddingRight="32dp"/>
@@ -27,7 +27,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_margin="30dp"
+        android:layout_marginBottom="30dp"
         android:layout_alignParentBottom="true"/>
 
     <ListView android:id="@android:id/list"
