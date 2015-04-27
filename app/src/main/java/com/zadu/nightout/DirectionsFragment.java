@@ -58,6 +58,11 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     private MyOpenHelper mSqlHelper;
     private SharedPreferences mSharedPrefs;
 
+    private static String homeLat = null;
+    private static String homeLng = null;
+    private static String homePlaceID = null;
+    private static String tempETA = null;
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -236,6 +241,22 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
                 // TODO: use current location?
             }
         }
+    }
+
+    public void updateETAs() {
+
+    }
+
+    public static void setTempETA(String tempETA) {
+        tempETA = tempETA;
+        Log.i(TAG, "stored the temp ETA");
+    }
+
+    public static void storeHomeInfo(String lat, String lng, String placeID) {
+        homeLat = lat;
+        homeLng = lng;
+        homePlaceID = placeID;
+        Log.i(TAG, "stored the home stuff");
     }
 
     public void onHomeChanged(String homeAddress) {
