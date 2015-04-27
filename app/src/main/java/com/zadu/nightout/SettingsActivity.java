@@ -79,6 +79,7 @@ public class SettingsActivity extends PreferenceActivity {
         });
 
         bindPreferenceSummaryToValue(findPreference("home_address"));
+        bindPreferenceSummaryToValue(findPreference("phone_number"));
         bindPreferenceSummaryToValue(findPreference("Contact1"));
         bindPreferenceSummaryToValue(findPreference("Contact2"));
         bindPreferenceSummaryToValue(findPreference("Contact3"));
@@ -190,6 +191,17 @@ public class SettingsActivity extends PreferenceActivity {
                         .getString(preference.getKey(), ""));
     }
 
+//    @Override
+//    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+//       // if (s.equals(KEY_PREF_PHONE)) {
+//            Preference connectionPref = findPreference(s);
+//        Log.e("findme", s);
+//            connectionPref.setSummary(sharedPreferences.getString(s, ""));
+//      //  }
+//
+//        //TODO: FIX THIS PLS
+//    }
+
     /**
      * This fragment shows general preferences only. It is used when the
      * activity is showing a two-pane settings UI.
@@ -206,6 +218,7 @@ public class SettingsActivity extends PreferenceActivity {
             // updated to reflect the new value, per the Android Design
             // guidelines.
             bindPreferenceSummaryToValue(findPreference("home_address"));
+            bindPreferenceSummaryToValue(findPreference("phone_number"));
             bindPreferenceSummaryToValue(findPreference("Contact1"));
             bindPreferenceSummaryToValue(findPreference("Contact2"));
             bindPreferenceSummaryToValue(findPreference("Contact3"));
@@ -213,5 +226,4 @@ public class SettingsActivity extends PreferenceActivity {
             bindPreferenceSummaryToValue(findPreference("Contact5"));
         }
     }
-
 }
