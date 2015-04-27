@@ -7,10 +7,16 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -38,6 +44,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -333,10 +340,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         String destination = destinationName.getText().toString();
         String address = planAddressText.getText().toString() + destinationCityStateZip.getText().toString();
         boolean isReserved = reservationMade.isChecked();
-        TextView dateView = (TextView)findViewById(R.id.selectedDateText);
-        String date = dateView.getText().toString();
-        TextView timeView = (TextView)findViewById(R.id.selectedTimeText);
-        String time = timeView.getText().toString();
+        Button dateButton = (Button)findViewById(R.id.datePickerButton);
+        String date = dateButton.getText().toString();
+        Button timeButton = (Button)findViewById(R.id.timePickerButton);
+        String time = timeButton.getText().toString();
         String reservationMessage = "";
         if(isReserved) {
             reservationMessage = "A reservation has already been made.";
@@ -360,8 +367,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         TimePickerDialog tpd = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                TextView timeView = (TextView)findViewById(R.id.selectedTimeText);
-                timeView.setText(hourOfDay + " : " + minute);
+//                TextView timeView = (TextView)findViewById(R.id.selectedTimeText);
+//                timeView.setText(hourOfDay + " : " + minute);
+                Button timePickerButton = (Button)findViewById(R.id.timePickerButton);
+                timePickerButton.setText(hourOfDay + " : " + minute);
                 updatePlanReservationTime(mHour, mMinute);
             }
         }, mHour, mMinute, false);
@@ -382,8 +391,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     @Override
                     public void onDateSet(DatePicker view, int year,
                                           int monthOfYear, int dayOfMonth) {
-                        TextView dateView = (TextView)findViewById(R.id.selectedDateText);
-                        dateView.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
+//                        TextView dateView = (TextView)findViewById(R.id.selectedDateText);
+//                        dateView.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
+                        Button datePickerButton = (Button) findViewById(R.id.datePickerButton);
+                        datePickerButton.setText(dayOfMonth + "/" + (monthOfYear+1) + "/" +year);
                         updatePlanReservationDate(mYear, mMonth, mDay);
                     }
                 }, mYear, mMonth, mDay);
@@ -451,7 +462,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public void getLastLoc() {
         mGoogleApiClient.connect();
-//        mGoogleApiClient.disconnect();
+
+//        Location recentLoc = new Location(mLastLocation); //copy of location
+//        Log.i(TAG, "location: " + String.valueOf(recentLoc.getLatitude()) + ", " + String.valueOf(recentLoc.getLongitude()));
     }
 
 
@@ -474,6 +487,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     EditText intervalEdit = (EditText) pingIntervalView.findViewById(R.id.pingIntervalEditText);
                     String interval = intervalEdit.getText().toString();
                     mSqlHelper.updatePingInterval(MainActivity.this, Integer.parseInt(interval));
+                    //TODO: reset timer interval [CRISTHIAN]
                     v.setText(interval);
                 }
             }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -518,6 +532,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         EditText allowanceEdit = (EditText) pingAllowanceView.findViewById(R.id.pingAllowanceEditText);
                         String allowance = allowanceEdit.getText().toString();
                         mSqlHelper.updatePingAllowance(MainActivity.this, Integer.parseInt(allowance));
+                        //TODO: reset timer for checkin [Cristhian]
                         v.setText(allowance);
                     }
                 }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -813,4 +828,49 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public String getCurrentPlanName() {
         return mSpinner.getSelectedItem().toString();
     }
+
+    private class RunCheckInTimer extends AsyncTask {
+
+        @Override
+        protected Object doInBackground(Object[] params) {
+            //the Date and time at which you want to execute
+            int year = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_YEAR");
+            int month = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_MONTH");
+            int day = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_DATE");
+            int hour = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_HOUR");
+            int min = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_MINUTE");
+            int intervalTime = mSqlHelper.getReservationInfo(MainActivity.this,"PING_INTERVAL");
+
+            DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date date = null;
+            try {
+//                date = dateFormatter.parse("2012-07-06 13:05:45");
+                date = dateFormatter.parse(year+ "-" + month + "-" + day + " " + hour + ":" + min);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            //Now create the time and schedule it
+            Timer timer = new Timer();
+
+            //Use this if you want to execute it once
+            timer.schedule(new MyTimeTask(), date);
+
+            //Use this if you want to execute it repeatedly
+            int period = 60000 * intervalTime;//60secs * interval(in minutes)
+            timer.schedule(new MyTimeTask(), date, period );
+            return null;
+        }
+    }
+
+    private static class MyTimeTask extends TimerTask
+    {
+        public void run()
+        {
+            //TODO: send notification here
+            Log.i("timer task","derp");
+        }
+    }
+
 }
+

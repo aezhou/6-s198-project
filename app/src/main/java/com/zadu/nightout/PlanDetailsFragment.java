@@ -140,12 +140,12 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
         });
 
         openMapImage = (ImageView) v.findViewById(R.id.planAddressMap);
-        openMapImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openDirections(view);
-            }
-        });
+//        openMapImage.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                openDirections(view);
+//            }
+//        });
 
         sharePlanButton = (Button) v.findViewById(R.id.planShareButton);
         sharePlanButton.setOnClickListener(new View.OnClickListener() {

@@ -119,7 +119,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:orientation="vertical"
+                android:orientation="horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/planDateTimeLayout"
@@ -132,33 +132,11 @@
                     android:text="@string/datePickerTextLabel"
                     android:id="@+id/datePickerButton" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="You've selected: "
-                    android:id="@+id/datePickerText" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/selectedDateText" />
-
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/timePickerLabelText"
                     android:id="@+id/timePickerButton" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="You've selected: "
-                    android:id="@+id/timePickerText" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/selectedTimeText"/>
 
 
             </LinearLayout>
