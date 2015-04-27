@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <PreferenceCategory
-        android:title="@string/pref_header_general">
-
     <EditTextPreference
         android:key="phone_number"
         android:title="@string/pref_title_phone"
@@ -24,30 +20,4 @@
         android:singleLine="false"
         android:maxLines="3"
         />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        android:title="@string/pref_header_emergency">
-
-        <Preference
-            android:key="Contact1"
-            android:title="Emergency Contact 1"/>
-
-        <Preference
-            android:key="Contact2"
-            android:title="Emergency Contact 2"/>
-
-        <Preference
-            android:key="Contact3"
-            android:title="Emergency Contact 3"/>
-
-        <Preference
-            android:key="Contact4"
-            android:title="Emergency Contact 4"/>
-
-        <Preference
-            android:key="Contact5"
-            android:title="Emergency Contact 5"/>
-    </PreferenceCategory>
 </PreferenceScreen>
