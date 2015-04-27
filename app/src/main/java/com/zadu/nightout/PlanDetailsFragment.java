@@ -1,13 +1,9 @@
 package com.zadu.nightout;
 
 import android.app.Activity;
-import android.app.DialogFragment;
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,12 +18,11 @@ import android.widget.CheckBox;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
@@ -35,6 +30,7 @@ import com.google.android.gms.location.places.Places;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -43,7 +39,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Objects;
 
 
 /**
@@ -77,6 +72,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
     private Button datePickerButton;
 //    private Button findButton;
     private CheckBox reservationMadeBox;
+    private MyOpenHelper mSqlHelper;
 
     /**
      * Use this factory method to create a new instance of
@@ -112,6 +108,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        refreshDetailFragmentView();
 
         // Hide the keyboard until the user clicks the text input
         getActivity().getWindow().setSoftInputMode(
@@ -122,6 +119,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
         View v = inflater.inflate(R.layout.fragment_plan_details, container, false);
 
         destinationInput = (AutoCompleteTextView) v.findViewById(R.id.searchField);
+        destinationInput.clearFocus();
 
         reserveOnlineButton = (Button) v.findViewById(R.id.reservationOnlineButton);
         reserveOnlineButton.setOnClickListener(new View.OnClickListener() {
@@ -250,6 +248,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        mSqlHelper = new MyOpenHelper(getActivity());
         try {
             mListener = (OnPlanDetailsListener) activity;
         } catch (ClassCastException e) {
@@ -267,6 +266,37 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
     @Override
     public void onPlanChanged() {
         // TODO: update ui with info from database for place info and reservation info
+        refreshDetailFragmentView();
+    }
+
+    public void refreshDetailFragmentView() {
+        Log.i(TAG, "calling refreshDetailFramentView");
+        if(getView() != null) {
+            String placeName = mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NAME");
+            String placeAddress = mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_ADDRESS");
+            String placeNumber = mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NUMBER");
+
+            TextView placeNameText = (TextView)getActivity().findViewById(R.id.destinationName);
+            placeNameText.setText(placeName);
+            Log.i(TAG, "place address from thing");
+            Log.i(TAG, "msg: " + placeAddress);
+            TextView placeStreet = (TextView)getActivity().findViewById(R.id.planAddressText);
+            TextView placeCityStateZip = (TextView)getActivity().findViewById(R.id.destinationCityStateZip);
+            TextView placePhoneNumber = (TextView)getActivity().findViewById(R.id.destinationNumber);
+
+            placeStreet.setText(placeAddress);
+            placePhoneNumber.setText(placeNumber);
+
+            int planYear = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_YEAR");
+            int planMonth = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MONTH");
+            int planDay = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_DATE");
+            int planHour = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_HOUR");
+            int planMin = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MINUTE");
+            Button dateButton = (Button)getActivity().findViewById(R.id.datePickerButton);
+            Button timeButton = (Button)getActivity().findViewById(R.id.timePickerButton);
+            dateButton.setText(planDay + "/" + planMonth + "/" + planYear);
+            timeButton.setText(planHour + ":" + planMin);
+        }
     }
 
     /**
@@ -303,13 +333,48 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
     private static final String API_KEY = "AIzaSyD3xH-kCCFsSPonGRRi7isV-O5ejZWIts8";
     private static JSONArray predictions = new JSONArray();
 
+    private String name = "";
+    private String streetAddress = "";
+    private String city = "";
+    private String state = "";
+    private String zipCode = "";
+    private String country = "";
+    private String phoneNumber = "unknown";
+
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
         String choice = (String) adapterView.getItemAtPosition(position);
-        Log.i(TAG, "clicked: " + choice);
-
-        // [name, street, city, state, country]
-        // TODO: Use Places API to get street address and phone number, and update those in UI
+        // [name, street, city, state, country]; may not have all elements, start from right
         String[] splitChoice = choice.split(", ");
+        switch (splitChoice.length) {
+            case 1:
+                country = splitChoice[0];
+                break;
+            case 2:
+                country = splitChoice[1];
+                state = splitChoice[0];
+                break;
+            case 3:
+                country = splitChoice[2];
+                state = splitChoice[1];
+                city = splitChoice[0];
+                break;
+            case 4:
+                country = splitChoice[3];
+                state = splitChoice[2];
+                city = splitChoice[1];
+                streetAddress = splitChoice[0];
+                break;
+            case 5:
+                country = splitChoice[4];
+                state = splitChoice[3];
+                city = splitChoice[2];
+                streetAddress = splitChoice[1];
+                name = splitChoice[0];
+                break;
+        }
+
+        // TODO: Use Places API to get street address and phone number, and update those in UI
+        ((MainActivity) getActivity()).notifyDirFragOfDestChange(splitChoice[0], splitChoice[1]);
         // Remove text input focus and hide the keyboard
         destinationInput.clearFocus();
         InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(
@@ -318,19 +383,52 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
 
         try {
             String placeID = predictions.getJSONObject(((int) id)).getString("place_id");
-            Log.i(TAG, "placeID: " + placeID);
-            // Probably get rid of this and use CallAPI
-/*            Places.GeoDataApi.getPlaceById(mGoogleApiClient, placeID)
+            GoogleApiClient googleAPIClient = new GoogleApiClient.Builder(this.getActivity())
+                    .addConnectionCallbacks((MainActivity) this.getActivity())
+                    .addOnConnectionFailedListener((MainActivity) this.getActivity())
+                    .addApi(LocationServices.API)
+                    .addApi(Places.GEO_DATA_API)
+                    .build();
+            Places.GeoDataApi.getPlaceById(googleAPIClient, placeID)
                 .setResultCallback(new ResultCallback<PlaceBuffer>() {
                     @Override
                     public void onResult(PlaceBuffer places) {
                         if (places.getStatus().isSuccess()) {
                             final Place myPlace = places.get(0);
-                            Log.i(TAG, "Place found: " + myPlace.getName());
+                            // TODO: Do we need to format out the plus sign?
+                            Log.i(TAG, myPlace.getAddress().toString());
+                            String[] addressSplit = myPlace.getAddress().toString().split(", ");
+                            if (myPlace.getAddress().toString().length() > 0) {
+                                streetAddress = addressSplit[0];
+                            }
+                            if (myPlace.getPhoneNumber().toString().length() > 0) {
+                                phoneNumber = myPlace.getPhoneNumber().toString();
+                            }
+                            try {
+                                zipCode = addressSplit[addressSplit.length - 2].split(" ")[1];
+                                Log.i(TAG, "zip code: " + zipCode);
+
+                            } catch (ArrayIndexOutOfBoundsException e) {
+                                // TODO: Maybe add a toast to tell them they clicked a dumb option
+                                Log.e(TAG, "Can't find zip code.", e);
+                            }
                         }
                         places.release();
+                        mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_NAME", name);
+                        mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_ADDRESS", streetAddress + " " + city + " " + state + ", " + zipCode + ", " + country);
+                        mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_NUMBER", phoneNumber);
+                        TextView placeName = (TextView)getActivity().findViewById(R.id.destinationName);
+                        TextView placeAddress = (TextView)getActivity().findViewById(R.id.planAddressText);
+                        TextView placeCityStateZip = (TextView)getActivity().findViewById(R.id.destinationCityStateZip);
+                        TextView placeNumber = (TextView)getActivity().findViewById(R.id.destinationNumber);
+
+                        placeName.setText(name);
+                        placeAddress.setText(streetAddress);
+                        placeCityStateZip.setText(city + ", " + state + " " + zipCode);
+                        placeNumber.setText(phoneNumber);
                     }
-                });*/
+                });
+            googleAPIClient.connect();
         } catch (JSONException e) {
             Log.e(TAG, "Cannot process JSON results", e);
         }

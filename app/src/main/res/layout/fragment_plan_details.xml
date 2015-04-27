@@ -65,25 +65,21 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:text="@string/sampleDestinationName"
                         android:id="@+id/destinationName" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="800 Boylston St. "
                         android:id="@+id/planAddressText" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Boston, MA 02199"
                         android:id="@+id/destinationCityStateZip" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/sampleDestinationPhonenumber"
                         android:id="@+id/destinationNumber"/>
                 </LinearLayout>
 

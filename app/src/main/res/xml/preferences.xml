@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="@string/pref_header_general">
+
+    <EditTextPreference
+        android:key="home_address"
+        android:title="Home Address"
+        android:defaultValue="@string/pref_default_display_address"
+        android:gravity="left|top"
+        android:inputType="textMultiLine"
+        android:selectAllOnFocus="true"
+        android:capitalize="words"
+        android:singleLine="false"
+        android:maxLines="3"
+        />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/pref_header_emergency">
+
+        <Preference
+            android:key="Contact1"
+            android:title="Emergency Contact 1"/>
+
+        <Preference
+            android:key="Contact2"
+            android:title="Emergency Contact 2"/>
+
+        <Preference
+            android:key="Contact3"
+            android:title="Emergency Contact 3"/>
+
+        <Preference
+            android:key="Contact4"
+            android:title="Emergency Contact 4"/>
+
+        <Preference
+            android:key="Contact5"
+            android:title="Emergency Contact 5"/>
+    </PreferenceCategory>
+</PreferenceScreen>

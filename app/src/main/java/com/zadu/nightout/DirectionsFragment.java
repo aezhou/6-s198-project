@@ -12,7 +12,6 @@ import android.widget.Button;
 import android.widget.Spinner;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -41,6 +40,8 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     private OnDirectionsFragmentInteractionListener mListener;
     private Button getDirectionsButton;
     private Button callRideButton;
+
+    private MyOpenHelper mSqlHelper;
 
     /**
      * Use this factory method to create a new instance of
@@ -141,6 +142,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        mSqlHelper = new MyOpenHelper(getActivity());
         try {
             mListener = (OnDirectionsFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
@@ -158,7 +160,22 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     @Override
     public void onPlanChanged() {
         // TODO: when plan changes, update destination and ETAs
+        if (getView() != null) {
+            // get view to update with getView().findViewById
+
+            mSqlHelper.getPlanDetail((MainActivity) getActivity(), mSqlHelper.PLACE_ADDRESS); //returns address
+            // TODO: update UI with all details
+        }
     }
+
+    public void onDestinationChanged(String destName, String destAddress) {
+        // TODO: update UI and such
+    }
+
+    public void onHomeChanged(String homeAddress) {
+        //TODO: react to change in shared prefs (ask Amanda) SharedPreferences listener?
+    }
+
 
     /**
      * This interface must be implemented by activities that contain this
