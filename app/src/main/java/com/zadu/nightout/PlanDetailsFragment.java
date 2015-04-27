@@ -108,7 +108,6 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        refreshDetailFragmentView();
 
         // Hide the keyboard until the user clicks the text input
         getActivity().getWindow().setSoftInputMode(
@@ -190,6 +189,8 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
         autoCompView.setAdapter(new GooglePlacesAutocompleteAdapter(v.getContext(), R.layout.list_item_places));
         autoCompView.setOnItemClickListener(this);
 
+        refreshDetailFragmentView(v);
+
         return v;
     }
 
@@ -266,23 +267,24 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
     @Override
     public void onPlanChanged() {
         // TODO: update ui with info from database for place info and reservation info
-        refreshDetailFragmentView();
+        refreshDetailFragmentView(getView());
     }
 
-    public void refreshDetailFragmentView() {
+    public void refreshDetailFragmentView(View v) {
         Log.i(TAG, "calling refreshDetailFramentView");
-        if(getView() != null) {
+        Log.i(TAG, "getView(): " + v);
+        if(v != null) {
             String placeName = mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NAME");
             String placeAddress = mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_ADDRESS");
             String placeNumber = mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NUMBER");
 
-            TextView placeNameText = (TextView)getActivity().findViewById(R.id.destinationName);
+            TextView placeNameText = (TextView)v.findViewById(R.id.destinationName);
             placeNameText.setText(placeName);
             Log.i(TAG, "place address from thing");
             Log.i(TAG, "msg: " + placeAddress);
-            TextView placeStreet = (TextView)getActivity().findViewById(R.id.planAddressText);
-            TextView placeCityStateZip = (TextView)getActivity().findViewById(R.id.destinationCityStateZip);
-            TextView placePhoneNumber = (TextView)getActivity().findViewById(R.id.destinationNumber);
+            TextView placeStreet = (TextView)v.findViewById(R.id.planAddressText);
+            TextView placeCityStateZip = (TextView)v.findViewById(R.id.destinationCityStateZip);
+            TextView placePhoneNumber = (TextView)v.findViewById(R.id.destinationNumber);
 
             placeStreet.setText(placeAddress);
             placePhoneNumber.setText(placeNumber);
@@ -292,8 +294,8 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
             int planDay = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_DATE");
             int planHour = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_HOUR");
             int planMin = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MINUTE");
-            Button dateButton = (Button)getActivity().findViewById(R.id.datePickerButton);
-            Button timeButton = (Button)getActivity().findViewById(R.id.timePickerButton);
+            Button dateButton = (Button)v.findViewById(R.id.datePickerButton);
+            Button timeButton = (Button)v.findViewById(R.id.timePickerButton);
             dateButton.setText(planDay + "/" + planMonth + "/" + planYear);
             timeButton.setText(planHour + ":" + planMin);
         }
