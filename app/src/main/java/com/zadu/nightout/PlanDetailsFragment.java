@@ -115,6 +115,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
         View v = inflater.inflate(R.layout.fragment_plan_details, container, false);
 
         destinationInput = (AutoCompleteTextView) v.findViewById(R.id.searchField);
+        destinationInput.clearFocus();
 
         reserveOnlineButton = (Button) v.findViewById(R.id.reservationOnlineButton);
         reserveOnlineButton.setOnClickListener(new View.OnClickListener() {
@@ -300,6 +301,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
     private String streetAddress = "";
     private String city = "";
     private String state = "";
+    private String zipCode = "";
     private String country = "";
     private String phoneNumber = "unknown";
 
@@ -358,11 +360,20 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
                         if (places.getStatus().isSuccess()) {
                             final Place myPlace = places.get(0);
                             // TODO: Do we need to format out the plus sign?
+                            Log.i(TAG, myPlace.getAddress().toString());
+                            String[] addressSplit = myPlace.getAddress().toString().split(", ");
                             if (myPlace.getAddress().toString().length() > 0) {
-                                streetAddress = myPlace.getAddress().toString().split(",")[0];
+                                streetAddress = addressSplit[0];
                             }
                             if (myPlace.getPhoneNumber().toString().length() > 0) {
                                 phoneNumber = myPlace.getPhoneNumber().toString();
+                            }
+                            try {
+                                zipCode = addressSplit[addressSplit.length - 2].split(" ")[1];
+                                Log.i(TAG, "zip code: " + zipCode);
+                            } catch (ArrayIndexOutOfBoundsException e) {
+                                // TODO: Maybe add a toast to tell them they clicked a dumb option
+                                Log.e(TAG, "Can't find zip code.", e);
                             }
                         }
                         places.release();
