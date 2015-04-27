@@ -198,6 +198,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         // TODO: reselect tab, reselect plan, repopulate tab from plan db
     }
 
+    public SectionsPagerAdapter getSectionsPagerAdapter() {
+        return mSectionsPagerAdapter;
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -624,6 +628,18 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             super(fm);
         }
 
+        public PlanDetailsFragment getPlanDetailsFrag() {
+            return mPlanDetailsFrag;
+        }
+
+        public DirectionsFragment getDirectionsFrag() {
+            return mDirectionsFrag;
+        }
+
+        public AlertsFragment getAlertsFrag() {
+            return mAlertsFrag;
+        }
+
         @Override
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
@@ -806,7 +822,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             if (distanceResult != null) {
                 // TODO: Call helper to update ETAs in directions fragment
                 Log.i(TAG, getFragmentManager().toString());
-                //((DirectionsFragment)getFragmentManager().findFragmentById(0x7f0b0044)).setTempETA(durationResultText);
+                //getSectionsPagerAdapter().getDirectionsFrag().setTempETA(durationResultText);
             }
         }
     }
