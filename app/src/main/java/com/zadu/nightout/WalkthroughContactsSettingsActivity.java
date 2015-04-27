@@ -12,11 +12,13 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
+import android.view.View;
+import android.widget.Button;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class SettingsActivity extends PreferenceActivity {
+public class WalkthroughContactsSettingsActivity extends PreferenceActivity{
     Preference contact1;
     Preference contact2;
     Preference contact3;
@@ -29,10 +31,23 @@ public class SettingsActivity extends PreferenceActivity {
     static final int PICK_CONTACT_4 = 4;
     static final int PICK_CONTACT_5 = 5;
 
+    private Button mButton;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.preferences);
+        addPreferencesFromResource(R.xml.preferences_contacts);
+        setContentView(R.layout.activity_welcome_contacts);
+
+        mButton = (Button) findViewById(R.id.next_button);
+        mButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(WalkthroughContactsSettingsActivity.this,
+                        WalkthroughNamePlanActivity.class);
+                startActivity(intent);
+            }
+        });
 
         contact1 = findPreference("Contact1");
         contact2 = findPreference("Contact2");
@@ -105,17 +120,13 @@ public class SettingsActivity extends PreferenceActivity {
         contact5.setTitle("something");
         contact5.setSummary("something");
 
-        bindPreferenceSummaryToValue(findPreference("home_address"));
-        bindPreferenceSummaryToValue(findPreference("phone_number"));
+
         bindPreferenceSummaryToValue(findPreference("Contact1"));
         bindPreferenceSummaryToValue(findPreference("Contact2"));
         bindPreferenceSummaryToValue(findPreference("Contact3"));
         bindPreferenceSummaryToValue(findPreference("Contact4"));
         bindPreferenceSummaryToValue(findPreference("Contact5"));
-
-
     }
-
 
     @Override
     public void onActivityResult(int reqCode, int resultCode, Intent data) {
@@ -245,8 +256,6 @@ public class SettingsActivity extends PreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            bindPreferenceSummaryToValue(findPreference("home_address"));
-            bindPreferenceSummaryToValue(findPreference("phone_number"));
             bindPreferenceSummaryToValue(findPreference("Contact1"));
             bindPreferenceSummaryToValue(findPreference("Contact2"));
             bindPreferenceSummaryToValue(findPreference("Contact3"));

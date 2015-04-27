@@ -13,7 +13,7 @@ import java.util.ArrayList;
  */
 public class MyOpenHelper extends SQLiteOpenHelper{
 
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
     public static final String DATABASE_NAME = "nightOut";
     public static final String DEFAULT_CONTACTS_TABLE_NAME = "contacts";
     public static final String CONTACT_NAME = "contact_name";
@@ -30,6 +30,9 @@ public class MyOpenHelper extends SQLiteOpenHelper{
     public static final String PLACE_ADDRESS = "place_address";
     public static final String PLACE_NUMBER = "place_number";
     public static final String PLACE_URL = "place_url";
+    public static final String PLACE_ID = "place_id";
+    public static final String PLACE_LAT = "place_lat";
+    public static final String PLACE_LONG = "place_long";
     public static final String RESERVATION_YEAR = "reservation_year";
     public static final String RESERVATION_MONTH = "reservation_month";
     public static final String RESERVATION_DATE = "reservation_date";
@@ -47,6 +50,9 @@ public class MyOpenHelper extends SQLiteOpenHelper{
                     PLACE_ADDRESS + " TEXT, "+
                     PLACE_NUMBER + " TEXT, "+
                     PLACE_URL + " TEXT, "+
+                    PLACE_ID + " TEXT, "+
+                    PLACE_LAT + " REAL, "+
+                    PLACE_LONG + " REAL, "+
                     RESERVATION_YEAR + " INTEGER, "+
                     RESERVATION_MONTH + " INTEGER, "+
                     RESERVATION_DATE + " INTEGER, "+
@@ -130,11 +136,23 @@ public class MyOpenHelper extends SQLiteOpenHelper{
         return info;
     }
 
-    public boolean hasReservation(MainActivity activity) {
+    public Double getPlanLatLong(MainActivity activity, String param) {
+        String planName = activity.getCurrentPlanName();
+        Cursor c = getReadableDatabase().rawQuery("select "+param+" from " + PLAN_TABLE_NAME +
+                " where " + PLAN_NAME + " == '" + planName + "'", null);
+        c.moveToFirst();
+        if (c.isNull(0)) return null;
+        Double info = c.getDouble(0);
+        c.close();
+        return info;
+    }
+
+    public Boolean hasReservation(MainActivity activity) {
         String planName = activity.getCurrentPlanName();
         Cursor c = getReadableDatabase().rawQuery("select "+HAS_RESERVATION+" from " + PLAN_TABLE_NAME +
                 " where " + PLAN_NAME + " == '" + planName + "'", null);
         c.moveToFirst();
+        if (c.isNull(0)) return null;
         int reserved = c.getInt(0);
         c.close();
         if (reserved==0) {
@@ -144,21 +162,23 @@ public class MyOpenHelper extends SQLiteOpenHelper{
         }
     }
 
-    public int getReservationInfo(MainActivity activity, String param) {
+    public Integer getReservationInfo(MainActivity activity, String param) {
         String planName = activity.getCurrentPlanName();
         Cursor c = getReadableDatabase().rawQuery("select "+param+" from " + PLAN_TABLE_NAME +
                 " where " + PLAN_NAME + " == '" + planName + "'", null);
         c.moveToFirst();
+        if (c.isNull(0)) return null;
         int info = c.getInt(0);
         c.close();
         return info;
     }
 
-    public boolean arePingsOn(MainActivity activity) {
+    public Boolean arePingsOn(MainActivity activity) {
         String planName = activity.getCurrentPlanName();
         Cursor c = getReadableDatabase().rawQuery("select "+PINGS_ON+" from " + PLAN_TABLE_NAME +
                 " where " + PLAN_NAME + " == '" + planName + "'", null);
         c.moveToFirst();
+        if (c.isNull(0)) return null;
         int ping = c.getInt(0);
         c.close();
         if (ping==0) {
@@ -168,21 +188,23 @@ public class MyOpenHelper extends SQLiteOpenHelper{
         }
     }
 
-    public int getPingInterval(MainActivity activity) {
+    public Integer getPingInterval(MainActivity activity) {
         String planName = activity.getCurrentPlanName();
         Cursor c = getReadableDatabase().rawQuery("select "+PING_INTERVAL+" from " + PLAN_TABLE_NAME +
                 " where " + PLAN_NAME + " == '" + planName + "'", null);
         c.moveToFirst();
+        if (c.isNull(0)) return null;
         int interval = c.getInt(0);
         c.close();
         return interval;
     }
 
-    public int getPingAllowance(MainActivity activity) {
+    public Integer getPingAllowance(MainActivity activity) {
         String planName = activity.getCurrentPlanName();
         Cursor c = getReadableDatabase().rawQuery("select "+PING_ALLOWANCE+" from " + PLAN_TABLE_NAME +
                 " where " + PLAN_NAME + " == '" + planName + "'", null);
         c.moveToFirst();
+        if (c.isNull(0)) return null;
         int allowance = c.getInt(0);
         c.close();
         return allowance;
@@ -278,7 +300,7 @@ public class MyOpenHelper extends SQLiteOpenHelper{
                 IS_ON+" == 1", null);
         boolean hasNum = c.moveToFirst();
         while (c.isAfterLast() == false) {
-            nums.add(c.getString(1));
+            nums.add(c.getString(0));
             c.moveToNext();
         }
         c.close();

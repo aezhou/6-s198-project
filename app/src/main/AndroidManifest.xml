@@ -20,7 +20,9 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -30,7 +32,37 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".MainActivity" >
+            android:screenOrientation="portrait"
+            android:configChanges="orientation"
+            android:parentActivityName=".MainActivity">
+        </activity>
+        <activity
+            android:name=".WelcomeActivity"
+            android:label="Welcome"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation"
+            android:parentActivityName=".MainActivity">
+        </activity>
+        <activity
+            android:name=".WalkthroughGeneralSettingsActivity"
+            android:label="Save General Settings"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation"
+            android:parentActivityName=".WelcomeActivity">
+        </activity>
+        <activity
+            android:name=".WalkthroughContactsSettingsActivity"
+            android:label="Save Emergency Contact Settings"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation"
+            android:parentActivityName=".WalkthroughGeneralSettingsActivity">
+        </activity>
+        <activity
+            android:name=".WalkthroughNamePlanActivity"
+            android:label="Name the First Plan"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation"
+            android:parentActivityName=".WalkthroughContactsSettingsActivity">
         </activity>
 
         <meta-data

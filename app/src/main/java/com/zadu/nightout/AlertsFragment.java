@@ -3,8 +3,12 @@ package com.zadu.nightout;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.TimerTask;
 
 
 /**
@@ -43,6 +48,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
     private SimpleCursorAdapter mContactsAdapter;
     private MyOpenHelper mSqlHelper;
     private View mView;
+    private Button mOtherContactButton;
 
     private OnAlertsFragmentInteractionListener mListener;
 
@@ -125,7 +131,8 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
             }
         });
 
-        // TODO: set up "other" contacts list view
+
+
         // TODO: set up listeners for checkboxes on either view
 
         LinearLayout contactsListHeader = (LinearLayout) v.findViewById(R.id.contactsListHeader);
@@ -154,8 +161,6 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
 
         // set button and switch listeners
 
-        // TODO: pull contacts on/off out of database on create
-        // TODO: pull others out of database on create
         Switch pingSwitch = (Switch) v.findViewById(R.id.pingSwitch);
         boolean pingsOn = mSqlHelper.arePingsOn((MainActivity) getActivity());
         pingSwitch.setOnClickListener(new View.OnClickListener() {
@@ -197,13 +202,23 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
             }
         });
 
+        mOtherContactButton = (Button) v.findViewById(R.id.otherContactButton);
+        mOtherContactButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("ALERT FRAG", "other button clicked");
+                Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
+                startActivityForResult(intent, 0);
+            }
+        });
+
         // set texting button listeners
 
         Button ThereSafeButton = (Button) v.findViewById(R.id.ThereSafeButton);
         ThereSafeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onMessageButton("I made it there safe!");
+                onMessageButton("I made it there safe!", false);
             }
         });
 
@@ -211,7 +226,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
         HomeSafeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onMessageButton("I made it home safe!");
+                onMessageButton("I made it home safe!", false);
             }
         });
 
@@ -219,7 +234,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
         AllClearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onMessageButton("I'm safe! You can ignore my previous messages.");
+                onMessageButton("I'm safe! You can ignore my previous messages.", false);
             }
         });
 
@@ -227,8 +242,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
         GetMeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onMessageButton("Come get me ASAP.");
-                openLastKnownLocation();
+                onMessageButton("Come get me ASAP.", true);
             }
         });
 
@@ -244,12 +258,38 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
         PanicButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onMessageButton("I'm in danger! HELP!");
+                onMessageButton("I'm in danger! HELP!", true);
             }
         });
 
         mView = v;
         return v;
+    }
+
+    @Override
+    public void onActivityResult(int reqCode, int resultCode, Intent data) {
+        super.onActivityResult(reqCode, resultCode, data);
+        if (data != null) {
+            Uri contactData = data.getData();
+            String contactNumber = null;
+            String contactName = null;
+
+            if (resultCode == getActivity().RESULT_OK) {
+                Cursor cursor = getActivity().getContentResolver().query(contactData, null, null, null, null);
+                if (cursor.moveToFirst()) {
+                    contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                    contactNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                }
+                cursor.close();
+            }
+
+            if (reqCode == 0) {
+                //TODO add name, number to list view
+                mOtherContactButton.setEnabled(false);
+                mOtherContactButton.setVisibility(View.GONE);
+            }
+        }
+
     }
 
     @Override
@@ -300,12 +340,15 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
     public void onTogglePings(View toggleView, View masterView) {
         Switch toggle = (Switch) toggleView;
         View detailView = masterView.findViewById(R.id.pingDetailsLayout);
+        View offView = masterView.findViewById(R.id.pingOffLayout);
         if (toggle.isChecked()) {
             detailView.setVisibility(View.VISIBLE);
+            offView.setVisibility(View.GONE);
             mSqlHelper.updatePingsOnOff((MainActivity) getActivity(), true);
             // TODO: turn on ping functionality
         } else {
-            detailView.setVisibility(View.INVISIBLE);
+            detailView.setVisibility(View.GONE);
+            offView.setVisibility(View.VISIBLE);
             mSqlHelper.updatePingsOnOff((MainActivity) getActivity(), false);
             // TODO: turn off ping functionality
         }
@@ -320,13 +363,25 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
         return mSqlHelper.getContactNumbers((MainActivity) getActivity());
     }
 
-    public void onMessageButton(String message) {
-        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-
+    public void onMessageButton(String message, boolean sendGPS) {
         if (getSetContactNumbers().size() == 0) {
             Toast.makeText(getActivity(), "No contact numbers to send to!", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        if (sendGPS) {
+            String locationProvider = LocationManager.NETWORK_PROVIDER;
+            LocationManager locationManager = ((MainActivity) getActivity()).getLocationManager();
+            Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
+            if (lastKnownLocation != null) {
+                double latitude = lastKnownLocation.getLatitude();
+                double longitude = lastKnownLocation.getLongitude();
+                String locationMsg = " My last known GPS coordinates were: " +
+                    latitude + ", " + longitude;
+                message = message + locationMsg;
+            }
+        }
+
         String smsto = "";
         for (String phoneNumber : getSetContactNumbers()) {
             smsto = smsto + phoneNumber + ";";
@@ -347,14 +402,16 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
     }
 
     public void fakeCall() {
-        // TODO: use API to make a fake call
         Toast.makeText(getActivity(), "Fake Call!", Toast.LENGTH_SHORT).show();
+        String fromNum = "(123) 456-7890";
+        String toNum = "(540) 446-4776";
+        new FakeCallTask().execute(fromNum, toNum);
     }
 
     private boolean isDummyContactSet = false;
 
     public void setDummyContact() {
-        mSqlHelper.insertDefaultContact("Kristin", "15404464776");
+        mSqlHelper.insertDefaultContact("Kristin", "5404464776");
     }
 
     @Override
@@ -373,14 +430,13 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
             int savedAllowance = mSqlHelper.getPingAllowance((MainActivity) getActivity());
             pingAllowanceText.setText(String.valueOf(savedAllowance));
 
-            // TODO: update the cursor adapter for the contacts list view
             mContactsAdapter.changeCursor(mSqlHelper.getContactsToDisplay((MainActivity) getActivity()));
             ListView list = (ListView) mView.findViewById(R.id.contactsListView);
             list.setAdapter(mContactsAdapter);
         }
     }
 
-    public void openLastKnownLocation() {
+    public void getLastKnownLocation() {
         mListener.getLastLoc();
     }
 
@@ -401,5 +457,16 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
         // send things in fragment to listener, which MainActivity extends
         public void OnAlertFragmentInteraction(Object object);
         public void getLastLoc();
+    }
+
+    private class FakeCallTask extends AsyncTask<String, Integer, String> {
+        protected String doInBackground(String... strings) {
+            // TODO: make it do the thing
+            return null;
+        }
+
+        protected void onProgressUpdate(Integer... progress) {}
+
+        protected void onPostExecute(String result) {}
     }
 }

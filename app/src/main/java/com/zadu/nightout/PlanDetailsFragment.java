@@ -18,6 +18,7 @@ import android.widget.CheckBox;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -29,6 +30,7 @@ import com.google.android.gms.location.places.Places;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -70,6 +72,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
     private Button datePickerButton;
 //    private Button findButton;
     private CheckBox reservationMadeBox;
+    private MyOpenHelper mSqlHelper;
 
     /**
      * Use this factory method to create a new instance of
@@ -134,12 +137,12 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
         });
 
         openMapImage = (ImageView) v.findViewById(R.id.planAddressMap);
-        openMapImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openDirections(view);
-            }
-        });
+//        openMapImage.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                openDirections(view);
+//            }
+//        });
 
         sharePlanButton = (Button) v.findViewById(R.id.planShareButton);
         sharePlanButton.setOnClickListener(new View.OnClickListener() {
@@ -185,6 +188,8 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
 
         autoCompView.setAdapter(new GooglePlacesAutocompleteAdapter(v.getContext(), R.layout.list_item_places));
         autoCompView.setOnItemClickListener(this);
+
+        refreshDetailFragmentView(v);
 
         return v;
     }
@@ -244,6 +249,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        mSqlHelper = new MyOpenHelper(getActivity());
         try {
             mListener = (OnPlanDetailsListener) activity;
         } catch (ClassCastException e) {
@@ -261,6 +267,76 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
     @Override
     public void onPlanChanged() {
         // TODO: update ui with info from database for place info and reservation info
+        refreshDetailFragmentView(getView());
+    }
+
+    public void refreshDetailFragmentView(View v) {
+        Log.i(TAG, "calling refreshDetailFramentView");
+        Log.i(TAG, "getView(): " + v);
+        if(v != null) {
+            TextView placeNameText = (TextView)v.findViewById(R.id.destinationName);
+            if(mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NAME") != null) {
+                String placeName = mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NAME");
+                placeNameText.setText(placeName);
+            }
+            else {
+                placeNameText.setText("");
+            }
+
+            TextView placeStreetView = (TextView)v.findViewById(R.id.planAddressText);
+            TextView placeCityStateZipView = (TextView)v.findViewById(R.id.destinationCityStateZip);
+            if(mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_ADDRESS") != null) {
+                String placeAddress = mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_ADDRESS");
+                String [] placeAddressParts = placeAddress.split("\\|");
+                String placeStreetAddress = placeAddressParts[0];
+                String placeCityStateZip = placeAddressParts[1];
+
+//                Log.i(TAG, "place address from thing");
+//                Log.i(TAG, "msg: " + placeAddress);
+//                Log.i(TAG, "part1: " + placeStreetAddress);
+//                Log.i(TAG, "art2: " + placeCityStateZip);
+
+
+                placeStreetView.setText(placeStreetAddress);
+                placeCityStateZipView.setText(placeCityStateZip);
+            }
+            else {
+                placeStreetView.setText("");
+                placeCityStateZipView.setText("");
+            }
+
+            TextView placePhoneNumber = (TextView) v.findViewById(R.id.destinationNumber);
+            if(mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NUMBER") != null) {
+                String placeNumber = mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_NUMBER");
+                placePhoneNumber.setText(placeNumber);
+            }
+            else {
+                placePhoneNumber.setText("");
+            }
+
+            Button dateButton = (Button)v.findViewById(R.id.datePickerButton);
+            if(mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_YEAR") != null && mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MONTH") != null &&
+                    mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_DATE") != null) {
+                int planYear = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_YEAR");
+                int planMonth = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MONTH");
+                int planDay = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_DATE");
+                dateButton.setText(planDay + "/" + planMonth + "/" + planYear);
+            }
+            else {
+                dateButton.setText("Select a date");
+            }
+
+            Button timeButton = (Button)v.findViewById(R.id.timePickerButton);
+            if(mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_HOUR") != null && mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MINUTE") != null) {
+                int planHour = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_HOUR");
+                int planMin = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MINUTE");
+                timeButton.setText(planHour + ":" + planMin);
+            }
+            else {
+                timeButton.setText("Select a time");
+            }
+
+        }
     }
 
     /**
@@ -371,12 +447,25 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
                             try {
                                 zipCode = addressSplit[addressSplit.length - 2].split(" ")[1];
                                 Log.i(TAG, "zip code: " + zipCode);
+
                             } catch (ArrayIndexOutOfBoundsException e) {
                                 // TODO: Maybe add a toast to tell them they clicked a dumb option
                                 Log.e(TAG, "Can't find zip code.", e);
                             }
                         }
                         places.release();
+                        mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_NAME", name);
+                        mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_ADDRESS", streetAddress + "|" + city + " " + state + ", " + zipCode);
+                        mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_NUMBER", phoneNumber);
+                        TextView placeName = (TextView)getActivity().findViewById(R.id.destinationName);
+                        TextView placeAddress = (TextView)getActivity().findViewById(R.id.planAddressText);
+                        TextView placeCityStateZip = (TextView)getActivity().findViewById(R.id.destinationCityStateZip);
+                        TextView placeNumber = (TextView)getActivity().findViewById(R.id.destinationNumber);
+
+                        placeName.setText(name);
+                        placeAddress.setText(streetAddress);
+                        placeCityStateZip.setText(city + ", " + state + " " + zipCode);
+                        placeNumber.setText(phoneNumber);
                     }
                 });
             googleAPIClient.connect();

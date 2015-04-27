@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <Preference
+        android:key="Contact1"
+        android:title="Emergency Contact 1"/>
+
+    <Preference
+        android:key="Contact2"
+        android:title="Emergency Contact 2"/>
+
+    <Preference
+        android:key="Contact3"
+        android:title="Emergency Contact 3"/>
+
+    <Preference
+        android:key="Contact4"
+        android:title="Emergency Contact 4"/>
+
+    <Preference
+        android:key="Contact5"
+        android:title="Emergency Contact 5"/>
+</PreferenceScreen>
