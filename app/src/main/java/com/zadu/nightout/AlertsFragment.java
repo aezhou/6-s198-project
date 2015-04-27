@@ -8,6 +8,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -47,6 +48,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
     private SimpleCursorAdapter mContactsAdapter;
     private MyOpenHelper mSqlHelper;
     private View mView;
+    private Button mOtherContactButton;
 
     private OnAlertsFragmentInteractionListener mListener;
 
@@ -129,6 +131,10 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
             }
         });
 
+
+
+        // TODO: set up listeners for checkboxes on either view
+
         LinearLayout contactsListHeader = (LinearLayout) v.findViewById(R.id.contactsListHeader);
         contactsListHeader.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -196,6 +202,16 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
             }
         });
 
+        mOtherContactButton = (Button) v.findViewById(R.id.otherContactButton);
+        mOtherContactButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("ALERT FRAG", "other button clicked");
+                Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
+                startActivityForResult(intent, 0);
+            }
+        });
+
         // set texting button listeners
 
         Button ThereSafeButton = (Button) v.findViewById(R.id.ThereSafeButton);
@@ -248,6 +264,32 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
 
         mView = v;
         return v;
+    }
+
+    @Override
+    public void onActivityResult(int reqCode, int resultCode, Intent data) {
+        super.onActivityResult(reqCode, resultCode, data);
+        if (data != null) {
+            Uri contactData = data.getData();
+            String contactNumber = null;
+            String contactName = null;
+
+            if (resultCode == getActivity().RESULT_OK) {
+                Cursor cursor = getActivity().getContentResolver().query(contactData, null, null, null, null);
+                if (cursor.moveToFirst()) {
+                    contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                    contactNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                }
+                cursor.close();
+            }
+
+            if (reqCode == 0) {
+                //TODO add name, number to list view
+                mOtherContactButton.setEnabled(false);
+                mOtherContactButton.setVisibility(View.GONE);
+            }
+        }
+
     }
 
     @Override

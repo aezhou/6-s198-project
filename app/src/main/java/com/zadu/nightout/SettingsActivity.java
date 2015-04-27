@@ -2,6 +2,7 @@ package com.zadu.nightout;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -13,12 +14,16 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class SettingsActivity extends PreferenceActivity {
     Preference contact1;
     Preference contact2;
     Preference contact3;
     Preference contact4;
     Preference contact5;
+    SharedPreferences preferences;
 
     static final int PICK_CONTACT_1 = 1;
     static final int PICK_CONTACT_2 = 2;
@@ -37,6 +42,8 @@ public class SettingsActivity extends PreferenceActivity {
         contact4 = findPreference("Contact4");
         contact5 = findPreference("Contact5");
 
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
         contact1.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -45,6 +52,11 @@ public class SettingsActivity extends PreferenceActivity {
                 return false;
             }
         });
+
+        //TODO: set contactName as title, contactNumber as summary
+        contact1.setTitle("something");
+        contact1.setSummary("something");
+
         contact2.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -53,6 +65,11 @@ public class SettingsActivity extends PreferenceActivity {
                 return false;
             }
         });
+
+        //TODO: set contactName as title, contactNumber as summary
+        contact2.setTitle("something");
+        contact2.setSummary("something");
+
         contact3.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -61,6 +78,11 @@ public class SettingsActivity extends PreferenceActivity {
                 return false;
             }
         });
+
+        //TODO: set contactName as title, contactNumber as summary
+        contact3.setTitle("something");
+        contact3.setSummary("something");
+
         contact4.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -69,6 +91,11 @@ public class SettingsActivity extends PreferenceActivity {
                 return false;
             }
         });
+
+        //TODO: set contactName as title, contactNumber as summary
+        contact4.setTitle("something");
+        contact4.setSummary("something");
+
         contact5.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -78,6 +105,10 @@ public class SettingsActivity extends PreferenceActivity {
             }
         });
 
+        //TODO: set contactName as title, contactNumber as summary
+        contact5.setTitle("something");
+        contact5.setSummary("something");
+
         bindPreferenceSummaryToValue(findPreference("home_address"));
         bindPreferenceSummaryToValue(findPreference("phone_number"));
         bindPreferenceSummaryToValue(findPreference("Contact1"));
@@ -86,56 +117,68 @@ public class SettingsActivity extends PreferenceActivity {
         bindPreferenceSummaryToValue(findPreference("Contact4"));
         bindPreferenceSummaryToValue(findPreference("Contact5"));
 
+
     }
 
 
     @Override
     public void onActivityResult(int reqCode, int resultCode, Intent data) {
         super.onActivityResult(reqCode, resultCode, data);
-        Uri contactData = data.getData();
-        String contactNumber = null;
-        String contactName = null;
+        if (data != null) {
+            Uri contactData = data.getData();
+            String contactNumber = null;
+            String contactName = null;
 
-        if (resultCode == RESULT_OK) {
-            Cursor cursor = getContentResolver().query(contactData, null, null, null, null);
-            if (cursor.moveToFirst()) {
-                contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-                contactNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            if (resultCode == RESULT_OK) {
+                Cursor cursor = getContentResolver().query(contactData, null, null, null, null);
+                if (cursor.moveToFirst()) {
+                    contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                    contactNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                }
+                cursor.close();
             }
-            cursor.close();
-        }
 
-        switch (reqCode) {
-            case (PICK_CONTACT_1):
-                if (contactName != null && contactNumber != null) {
-                    contact1.setTitle(contactName);
-                    contact1.setSummary(contactNumber);
-                }
-                break;
-            case (PICK_CONTACT_2):
-                if (contactName != null && contactNumber != null) {
-                    contact2.setTitle(contactName);
-                    contact2.setSummary(contactNumber);
-                }
-                break;
-            case (PICK_CONTACT_3):
-                if (contactName != null && contactNumber != null) {
-                    contact3.setTitle(contactName);
-                    contact3.setSummary(contactNumber);
-                }
-                break;
-            case (PICK_CONTACT_4):
-                if (contactName != null && contactNumber != null) {
-                    contact4.setTitle(contactName);
-                    contact4.setSummary(contactNumber);
-                }
-                break;
-            case (PICK_CONTACT_5):
-                if (contactName != null && contactNumber != null) {
-                    contact5.setTitle(contactName);
-                    contact5.setSummary(contactNumber);
-                }
-                break;
+            Set<String> set = new HashSet<>();
+            set.add(contactName);
+            set.add(contactNumber);
+
+            switch (reqCode) {
+                case (PICK_CONTACT_1):
+                    if (contactName != null && contactNumber != null) {
+                        contact1.setTitle(contactName);
+                        contact1.setSummary(contactNumber);
+                        //TODO: save contactName, contactNumber
+                    }
+                    break;
+                case (PICK_CONTACT_2):
+                    if (contactName != null && contactNumber != null) {
+                        contact2.setTitle(contactName);
+                        contact2.setSummary(contactNumber);
+                        //TODO: save contactName, contactNumber
+                    }
+                    break;
+                case (PICK_CONTACT_3):
+                    if (contactName != null && contactNumber != null) {
+                        contact3.setTitle(contactName);
+                        contact3.setSummary(contactNumber);
+                        //TODO: save contactName, contactNumber
+                    }
+                    break;
+                case (PICK_CONTACT_4):
+                    if (contactName != null && contactNumber != null) {
+                        contact4.setTitle(contactName);
+                        contact4.setSummary(contactNumber);
+                        //TODO: save contactName, contactNumber
+                    }
+                    break;
+                case (PICK_CONTACT_5):
+                    if (contactName != null && contactNumber != null) {
+                        contact5.setTitle(contactName);
+                        contact5.setSummary(contactNumber);
+                        //TODO: save contactName, contactNumber
+                    }
+                    break;
+            }
         }
 
     }
@@ -190,17 +233,6 @@ public class SettingsActivity extends PreferenceActivity {
                         .getDefaultSharedPreferences(preference.getContext())
                         .getString(preference.getKey(), ""));
     }
-
-//    @Override
-//    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-//       // if (s.equals(KEY_PREF_PHONE)) {
-//            Preference connectionPref = findPreference(s);
-//        Log.e("findme", s);
-//            connectionPref.setSummary(sharedPreferences.getString(s, ""));
-//      //  }
-//
-//        //TODO: FIX THIS PLS
-//    }
 
     /**
      * This fragment shows general preferences only. It is used when the
