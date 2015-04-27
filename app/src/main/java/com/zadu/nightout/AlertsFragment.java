@@ -341,18 +341,23 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
         Switch toggle = (Switch) toggleView;
         View detailView = masterView.findViewById(R.id.pingDetailsLayout);
         View offView = masterView.findViewById(R.id.pingOffLayout);
+
+        mSqlHelper.updatePingsOnOff((MainActivity) getActivity(), true);
+        // TODO: turn on ping functionality
+        Log.i("togglePings", "toggle is checked");
+        MyThread mt = new MyThread( mSqlHelper.getPingInterval((MainActivity)getActivity()));
+
         if (toggle.isChecked()) {
             detailView.setVisibility(View.VISIBLE);
             offView.setVisibility(View.GONE);
-            mSqlHelper.updatePingsOnOff((MainActivity) getActivity(), true);
-            // TODO: turn on ping functionality
-
+            mt.start();
 
         } else {
             detailView.setVisibility(View.GONE);
             offView.setVisibility(View.VISIBLE);
             mSqlHelper.updatePingsOnOff((MainActivity) getActivity(), false);
             // TODO: turn off ping functionality
+            mt.interrupt();
         }
     }
 

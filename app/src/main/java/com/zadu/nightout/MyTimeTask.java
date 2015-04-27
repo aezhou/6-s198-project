@@ -10,6 +10,6 @@ import java.util.TimerTask;
 public class MyTimeTask extends TimerTask {
     public void run() {
         //TODO: send notification here
-        Log.i("timer task", "derp");
+        Log.i("timer task", "You need to check it!");
     }
 }

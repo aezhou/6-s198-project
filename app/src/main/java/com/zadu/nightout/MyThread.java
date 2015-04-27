@@ -20,18 +20,22 @@ public class MyThread extends Thread {
     private int day;
     private int hour;
     private int minute;
-    private int interval;
+    private Integer interval;
 
-    public MyThread(int year, int month, int day, int hour, int minute, int interval){
-        this.year = year;
-        this.month = month;
-        this.day = day;
-        this.hour = hour;
-        this.minute = minute;
+    public MyThread( Integer interval){
+//        this.year = year;
+//        this.month = month;
+//        this.day = day;
+//        this.hour = hour;
+//        this.minute = minute;
         this.interval = interval;
     }
 
     public void run() {
+        if(this.interval == null) {
+            Log.i("MyThread", "interval is null");
+            return;
+        }
 //        int year = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_YEAR");
 //        int month = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_MONTH");
 //        int day = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_DATE");
@@ -51,8 +55,8 @@ public class MyThread extends Thread {
         //Now create the time and schedule it
         Timer timer = new Timer();
 
-//        int period = 60000 * this.interval;//60secs * interval(in minutes)
-        int period = 10000; //sample time period
+        int period = 60000 * this.interval;//60secs * interval(in minutes)
+//        int period = 10000; //sample time period
         timer.schedule(new MyTimeTask(), date, period);
     };
 }

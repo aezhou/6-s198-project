@@ -907,54 +907,54 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         return mSpinner.getSelectedItem().toString();
     }
 
-    private class RunCheckInTimer extends AsyncTask <Void, Integer, String>{
-
-        protected void onPreExecute() {
-            Log.i(TAG, "pre execute");
-        }
-
-        @Override
-        protected String doInBackground(Void... strs) {
-            //the Date and time at which you want to execute
-            int year = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_YEAR");
-            int month = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_MONTH");
-            int day = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_DATE");
-            int hour = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_HOUR");
-            int min = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_MINUTE");
-            int intervalTime = mSqlHelper.getReservationInfo(MainActivity.this,"PING_INTERVAL");
-
-            DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date date = null;
-            try {
-                date = dateFormatter.parse("2015-04-27 05:01:00");
-//                date = dateFormatter.parse(year+ "-" + month + "-" + day + " " + hour + ":" + min);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-
-            //Now create the time and schedule it
-            Timer timer = new Timer();
-
-//            int period = 60000 * intervalTime;//60secs * interval(in minutes)
-            int period = 10000;
-            timer.schedule(new MyTimeTask(), date, period );
-            return "from doInBackground";
-        }
-        protected void onProgressUpdate(Integer... strs) {
-            Log.i(TAG, "calling onProgressUpdate");
-        }
-
-        protected void onPostExecute(String result) {
-            Log.i(TAG, "calling onPostExecute");
-        }
-    }
-
-    private static class MyTimeTask extends TimerTask {
-        public void run() {
-            //TODO: send notification here
-            Log.i("timer task", "derp");
-        }
-    }
+//    private class RunCheckInTimer extends AsyncTask <Void, Integer, String>{
+//
+//        protected void onPreExecute() {
+//            Log.i(TAG, "pre execute");
+//        }
+//
+//        @Override
+//        protected String doInBackground(Void... strs) {
+//            //the Date and time at which you want to execute
+//            int year = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_YEAR");
+//            int month = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_MONTH");
+//            int day = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_DATE");
+//            int hour = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_HOUR");
+//            int min = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_MINUTE");
+//            int intervalTime = mSqlHelper.getReservationInfo(MainActivity.this,"PING_INTERVAL");
+//
+//            DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            Date date = null;
+//            try {
+//                date = dateFormatter.parse("2015-04-27 05:01:00");
+////                date = dateFormatter.parse(year+ "-" + month + "-" + day + " " + hour + ":" + min);
+//            } catch (ParseException e) {
+//                e.printStackTrace();
+//            }
+//
+//            //Now create the time and schedule it
+//            Timer timer = new Timer();
+//
+////            int period = 60000 * intervalTime;//60secs * interval(in minutes)
+//            int period = 10000;
+//            timer.schedule(new MyTimeTask(), date, period );
+//            return "from doInBackground";
+//        }
+//        protected void onProgressUpdate(Integer... strs) {
+//            Log.i(TAG, "calling onProgressUpdate");
+//        }
+//
+//        protected void onPostExecute(String result) {
+//            Log.i(TAG, "calling onPostExecute");
+//        }
+//    }
+//
+//    private static class MyTimeTask extends TimerTask {
+//        public void run() {
+//            //TODO: send notification here
+//            Log.i("timer task", "derp");
+//        }
+//    }
 
 //    new RunCheckInTimer().execute();
 
