@@ -41,6 +41,8 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     private Button getDirectionsButton;
     private Button callRideButton;
 
+    private MyOpenHelper mSqlHelper;
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -140,6 +142,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        mSqlHelper = new MyOpenHelper(getActivity());
         try {
             mListener = (OnDirectionsFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
@@ -157,6 +160,12 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     @Override
     public void onPlanChanged() {
         // TODO: when plan changes, update destination and ETAs
+        if (getView() != null) {
+            // get view to update with getView().findViewById
+
+            mSqlHelper.getPlanDetail((MainActivity) getActivity(), mSqlHelper.PLACE_ADDRESS); //returns address
+            // TODO: update UI with all details
+        }
     }
 
     public void onDestinationChanged(String destName, String destAddress) {
@@ -164,7 +173,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     }
 
     public void onHomeChanged(String homeAddress) {
-        //TODO: react to change in shared prefs (ask Amanda)
+        //TODO: react to change in shared prefs (ask Amanda) SharedPreferences listener?
     }
 
 
