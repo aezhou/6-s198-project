@@ -1,8 +1,10 @@
 package com.zadu.nightout;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
@@ -31,7 +33,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
  * Use the {@link DirectionsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class DirectionsFragment extends Fragment implements PlanChangedListener, OnMapReadyCallback {
+public class DirectionsFragment extends Fragment implements PlanChangedListener, OnMapReadyCallback,
+        SharedPreferences.OnSharedPreferenceChangeListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -50,6 +53,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     private Button callRideButton;
 
     private MyOpenHelper mSqlHelper;
+    private SharedPreferences mSharedPrefs;
 
     /**
      * Use this factory method to create a new instance of
@@ -80,6 +84,9 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        mSharedPrefs.registerOnSharedPreferenceChangeListener(this);
+        // TODO: add code to fill in initial values for home address if null and put them in sharedprefs (HELPER WEEEEEE!!!!!)
     }
 
     @Override
@@ -186,6 +193,14 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
 
     public void onHomeChanged(String homeAddress) {
         //TODO: react to change in shared prefs (ask Amanda) SharedPreferences listener?
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if(key == "home_address") {
+            // TODO: update my fragment UI
+            // TODO: find new ID and latlong and store those in sharedprefs
+        }
     }
 
 

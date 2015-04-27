@@ -184,32 +184,49 @@
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:layout_below="@id/eta_layout"
-                android:layout_centerHorizontal="true"
-                android:id="@+id/button_outer_layout">
+                android:id="@+id/eta_refresh_layout"
+                android:gravity="center_horizontal">
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Refresh ETA Data"
+                    android:id="@+id/eta_refresh_button" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="fill_parent"
+                android:layout_gravity="center_horizontal"
+                android:id="@+id/button_outer_layout"
+                android:gravity="bottom">
 
                 <RelativeLayout
                     android:layout_width="0dip"
                     android:layout_height="fill_parent"
                     android:layout_centerHorizontal="true"
                     android:layout_weight=".25"
-                    android:id="@+id/button_left_inner_layout">
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="0dip"
-                    android:layout_height="fill_parent"
-                    android:layout_centerHorizontal="true"
-                    android:layout_weight=".5"
-                    android:id="@+id/button_main_inner_layout"
-                    android:gravity="center_horizontal|bottom">
+                    android:id="@+id/button_left_inner_layout"
+                    android:gravity="center_horizontal">
 
                     <Button
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:text="Get Directions"
                         android:id="@+id/directions_button"
-                        android:layout_gravity="center_horizontal" />
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="5dp" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="0dip"
+                    android:layout_height="fill_parent"
+                    android:layout_centerHorizontal="true"
+                    android:layout_weight=".25"
+                    android:id="@+id/button_right_inner_layout"
+                    android:gravity="center_horizontal">
 
                     <Button
                         android:layout_width="fill_parent"
@@ -217,17 +234,12 @@
                         android:text="Call a Ride"
                         android:id="@+id/call_ride_button"
                         android:layout_gravity="center_horizontal"
-                        android:layout_below="@+id/directions_button"/>
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="10dp" />
                 </RelativeLayout>
 
-                <RelativeLayout
-                    android:layout_width="0dip"
-                    android:layout_height="fill_parent"
-                    android:layout_centerHorizontal="true"
-                    android:layout_weight=".25"
-                    android:id="@+id/button_right_inner_layout">
-                </RelativeLayout>
             </LinearLayout>
+
         </LinearLayout>
     </ScrollView>
 

@@ -333,6 +333,8 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
             offView.setVisibility(View.GONE);
             mSqlHelper.updatePingsOnOff((MainActivity) getActivity(), true);
             // TODO: turn on ping functionality
+
+
         } else {
             detailView.setVisibility(View.GONE);
             offView.setVisibility(View.VISIBLE);
