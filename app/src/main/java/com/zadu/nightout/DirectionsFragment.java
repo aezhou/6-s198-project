@@ -159,6 +159,15 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         // TODO: when plan changes, update destination and ETAs
     }
 
+    public void onDestinationChanged(String destName, String destAddress) {
+        // TODO: update UI and such
+    }
+
+    public void onHomeChanged(String homeAddress) {
+        //TODO: react to change in shared prefs (ask Amanda)
+    }
+
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated

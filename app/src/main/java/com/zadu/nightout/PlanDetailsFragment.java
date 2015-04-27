@@ -19,6 +19,13 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceBuffer;
+import com.google.android.gms.location.places.Places;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -289,13 +296,47 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
     private static final String API_KEY = "AIzaSyD3xH-kCCFsSPonGRRi7isV-O5ejZWIts8";
     private static JSONArray predictions = new JSONArray();
 
+    private String name = "";
+    private String streetAddress = "";
+    private String city = "";
+    private String state = "";
+    private String country = "";
+    private String phoneNumber = "unknown";
+
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
         String choice = (String) adapterView.getItemAtPosition(position);
-        Log.i(TAG, "clicked: " + choice);
-
-        // [name, street, city, state, country]
-        // TODO: Use Places API to get street address and phone number, and update those in UI
+        // [name, street, city, state, country]; may not have all elements, start from right
         String[] splitChoice = choice.split(", ");
+        switch (splitChoice.length) {
+            case 1:
+                country = splitChoice[0];
+                break;
+            case 2:
+                country = splitChoice[1];
+                state = splitChoice[0];
+                break;
+            case 3:
+                country = splitChoice[2];
+                state = splitChoice[1];
+                city = splitChoice[0];
+                break;
+            case 4:
+                country = splitChoice[3];
+                state = splitChoice[2];
+                city = splitChoice[1];
+                streetAddress = splitChoice[0];
+                break;
+            case 5:
+                country = splitChoice[4];
+                state = splitChoice[3];
+                city = splitChoice[2];
+                streetAddress = splitChoice[1];
+                name = splitChoice[0];
+                break;
+        }
+
+        // TODO: Use Places API to get street address and phone number, and update those in UI
+        ((MainActivity) getActivity()).notifyDirFragOfDestChange(splitChoice[0], splitChoice[1]);
         // Remove text input focus and hide the keyboard
         destinationInput.clearFocus();
         InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(
@@ -304,19 +345,30 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
 
         try {
             String placeID = predictions.getJSONObject(((int) id)).getString("place_id");
-            Log.i(TAG, "placeID: " + placeID);
-            // Probably get rid of this and use CallAPI
-/*            Places.GeoDataApi.getPlaceById(mGoogleApiClient, placeID)
+            GoogleApiClient googleAPIClient = new GoogleApiClient.Builder(this.getActivity())
+                    .addConnectionCallbacks((MainActivity) this.getActivity())
+                    .addOnConnectionFailedListener((MainActivity) this.getActivity())
+                    .addApi(LocationServices.API)
+                    .addApi(Places.GEO_DATA_API)
+                    .build();
+            Places.GeoDataApi.getPlaceById(googleAPIClient, placeID)
                 .setResultCallback(new ResultCallback<PlaceBuffer>() {
                     @Override
                     public void onResult(PlaceBuffer places) {
                         if (places.getStatus().isSuccess()) {
                             final Place myPlace = places.get(0);
-                            Log.i(TAG, "Place found: " + myPlace.getName());
+                            // TODO: Do we need to format out the plus sign?
+                            if (myPlace.getAddress().toString().length() > 0) {
+                                streetAddress = myPlace.getAddress().toString().split(",")[0];
+                            }
+                            if (myPlace.getPhoneNumber().toString().length() > 0) {
+                                phoneNumber = myPlace.getPhoneNumber().toString();
+                            }
                         }
                         places.release();
                     }
-                });*/
+                });
+            googleAPIClient.connect();
         } catch (JSONException e) {
             Log.e(TAG, "Cannot process JSON results", e);
         }

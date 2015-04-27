@@ -47,6 +47,7 @@ import com.google.android.gms.actions.ReserveIntents;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Places;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -702,6 +703,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
          * Method ran after receiving response from API
          * @param result string result returned from API
          */
+        @Override
         protected void onPostExecute(String result) {
             Log.i(TAG, "starting onPostExecute");
 
@@ -723,11 +725,41 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
+    /**
+     * Private class for connecting to OpenTable API
+     */
+    private class GooglePlacesCallApi extends CallAPI {
+        /**
+         * Method ran after receiving response from API
+         * @param result string result returned from API
+         */
+        @Override
+        protected void onPostExecute(String result) {
+            Log.i(TAG, "starting onPostExecute");
+
+            JSONArray placesResults = null;
+            try {
+                JSONObject jObject = new JSONObject(result);
+                Log.i(TAG, result);
+                placesResults = jObject.getJSONArray("restaurants");
+
+            } catch (JSONException e) {
+                Log.e(TAG, "Could not find restaurants entry in JSON result");
+                Log.i(TAG, e.getMessage());
+            }
+
+            if (placesResults != null) {
+                displayRestaurants(placesResults);
+            }
+        }
+    }
+
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
+                .addApi(Places.GEO_DATA_API)
                 .build();
     }
 
@@ -805,5 +837,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public String getCurrentPlanName() {
         return mSpinner.getSelectedItem().toString();
+    }
+
+    public void notifyDirFragOfDestChange(String destName, String destAddress) {
+        DirectionsFragment f = (DirectionsFragment) mSectionsPagerAdapter.getItem(1);
+        f.onDestinationChanged(destName, destAddress);
     }
 }
