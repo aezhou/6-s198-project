@@ -15,33 +15,26 @@ import java.util.TimerTask;
 public class MyThread extends Thread {
     private MyOpenHelper mSqlHelper;
 //    mSqlHelper = new MyOpenHelper(this);
-    private int year;
-    private int month;
-    private int day;
-    private int hour;
-    private int minute;
     private Integer interval;
-
+    private Timer t;
+    private MyTimeTask tt;
     public MyThread( Integer interval){
-//        this.year = year;
-//        this.month = month;
-//        this.day = day;
-//        this.hour = hour;
-//        this.minute = minute;
         this.interval = interval;
+        this.tt = new MyTimeTask();
+        this.t = new Timer();
+    }
+
+    public void stopTimerAndTask() {
+        this.tt.cancel();
+        this.t.cancel();
+        this.t.purge();
     }
 
     public void run() {
-        if(this.interval == null) {
+        if (this.interval == null) {
             Log.i("MyThread", "interval is null");
             return;
         }
-//        int year = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_YEAR");
-//        int month = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_MONTH");
-//        int day = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_DATE");
-//        int hour = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_HOUR");
-//        int min = mSqlHelper.getReservationInfo(MainActivity.this, "RESERVATION_MINUTE");
-//        int intervalTime = mSqlHelper.getReservationInfo(MainActivity.this, "PING_INTERVAL");
 
         DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = null;
@@ -53,11 +46,11 @@ public class MyThread extends Thread {
         }
 
         //Now create the time and schedule it
-        Timer timer = new Timer();
 
-        int period = 60000 * this.interval;//60secs * interval(in minutes)
-//        int period = 10000; //sample time period
-        timer.schedule(new MyTimeTask(), date, period);
+//        int period = 60000 * this.interval;//60secs * interval(in minutes)
+        int period = 5000; //sample time period of 5 sec
+
+        this.t.schedule(this.tt, date, period);
     };
 }
 

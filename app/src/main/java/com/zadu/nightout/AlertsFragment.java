@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -330,21 +331,31 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         View offView = masterView.findViewById(R.id.pingOffLayout);
 
         mSqlHelper.updatePingsOnOff((MainActivity) getActivity(), true);
-        // TODO: turn on ping functionality
-        Log.i("togglePings", "toggle is checked");
+
         MyThread mt = new MyThread( mSqlHelper.getPingInterval((MainActivity)getActivity()));
 
         if (toggle.isChecked()) {
+            // TODO: turn on ping functionality
+            Log.i("togglePings", "toggle is checked");
             detailView.setVisibility(View.VISIBLE);
             offView.setVisibility(View.GONE);
-            mt.start();
+//            mt.start();
+//            mt.notify();
 
         } else {
+            Log.i("tooglePings", "toggle off");
             detailView.setVisibility(View.GONE);
             offView.setVisibility(View.VISIBLE);
             mSqlHelper.updatePingsOnOff((MainActivity) getActivity(), false);
             // TODO: turn off ping functionality
+            mt.stopTimerAndTask();
             mt.interrupt();
+//            try {
+////                mt.wait();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            mt.stop();
         }
     }
 
