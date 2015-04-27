@@ -130,14 +130,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
             }
         });
 
-        mOtherContactButton = (Button) v.findViewById(R.id.otherContactButton);
-        mOtherContactButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
-                startActivityForResult(intent, 0);
-            }
-        });
+
 
         // TODO: set up listeners for checkboxes on either view
 
@@ -205,6 +198,16 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
             @Override
             public void onClick(View v) {
                 onCheckIn();
+            }
+        });
+
+        mOtherContactButton = (Button) v.findViewById(R.id.otherContactButton);
+        mOtherContactButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("ALERT FRAG", "other button clicked");
+                Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
+                startActivityForResult(intent, 0);
             }
         });
 
