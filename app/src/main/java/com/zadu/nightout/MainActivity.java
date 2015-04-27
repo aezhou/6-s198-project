@@ -124,10 +124,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             mSqlHelper.insertNewPlan("My First Plan");
             dropdown = mSqlHelper.getPlans();
         }
-        mArrayAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, dropdown);
+        mArrayAdapter = new ArrayAdapter(this, R.layout.custom_textview, dropdown);
 //                ArrayAdapter.createFromResource(this,
 //                R.array.temporary_array, android.R.layout.simple_spinner_item);
-        mArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mArrayAdapter.setDropDownViewResource(R.layout.custom_textview);
         mSpinner.setAdapter(mArrayAdapter);
 
 

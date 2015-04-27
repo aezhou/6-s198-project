@@ -16,12 +16,7 @@
     </style>
  
    <style name="AppTheme" parent="AppBaseTheme">
-       <item name="android:spinnerItemStyle">@style/spinnerItemStyle</item>
-       <item name="android:spinnerDropDownItemStyle">@style/spinnerItemStyle</item>
    </style>
- 
-   <style name="ActionBarSpinnerStyle" parent="@style/Widget.AppCompat.Spinner.DropDown.ActionBar">            
-   </style>
      
      
 </resources>
