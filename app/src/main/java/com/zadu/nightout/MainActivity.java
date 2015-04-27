@@ -21,8 +21,10 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -72,6 +74,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private ArrayAdapter mArrayAdapter;
     private ArrayAdapter locationArrayAdapter;
     private MyOpenHelper mSqlHelper;
+    private LocationManager mLocationManager;
     private Dialog dialog;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
@@ -97,6 +100,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
@@ -889,13 +893,15 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
-    private static class MyTimeTask extends TimerTask
-    {
-        public void run()
-        {
+    private static class MyTimeTask extends TimerTask {
+        public void run() {
             //TODO: send notification here
-            Log.i("timer task","derp");
+            Log.i("timer task", "derp");
         }
+    }
+
+    public LocationManager getLocationManager() {
+        return mLocationManager;
     }
 
     public void notifyDirFragOfDestChange(String destName, String destAddress) {

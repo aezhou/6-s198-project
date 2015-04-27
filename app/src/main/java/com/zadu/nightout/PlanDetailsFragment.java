@@ -274,30 +274,68 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
         Log.i(TAG, "calling refreshDetailFramentView");
         Log.i(TAG, "getView(): " + v);
         if(v != null) {
-            String placeName = mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NAME");
-            String placeAddress = mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_ADDRESS");
-            String placeNumber = mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NUMBER");
-
             TextView placeNameText = (TextView)v.findViewById(R.id.destinationName);
-            placeNameText.setText(placeName);
-            Log.i(TAG, "place address from thing");
-            Log.i(TAG, "msg: " + placeAddress);
-            TextView placeStreet = (TextView)v.findViewById(R.id.planAddressText);
-            TextView placeCityStateZip = (TextView)v.findViewById(R.id.destinationCityStateZip);
-            TextView placePhoneNumber = (TextView)v.findViewById(R.id.destinationNumber);
+            if(mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NAME") != null) {
+                String placeName = mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NAME");
+                placeNameText.setText(placeName);
+            }
+            else {
+                placeNameText.setText("");
+            }
 
-            placeStreet.setText(placeAddress);
-            placePhoneNumber.setText(placeNumber);
+            TextView placeStreetView = (TextView)v.findViewById(R.id.planAddressText);
+            TextView placeCityStateZipView = (TextView)v.findViewById(R.id.destinationCityStateZip);
+            if(mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_ADDRESS") != null) {
+                String placeAddress = mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_ADDRESS");
+                String [] placeAddressParts = placeAddress.split("\\|");
+                String placeStreetAddress = placeAddressParts[0];
+                String placeCityStateZip = placeAddressParts[1];
 
-            int planYear = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_YEAR");
-            int planMonth = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MONTH");
-            int planDay = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_DATE");
-            int planHour = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_HOUR");
-            int planMin = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MINUTE");
+//                Log.i(TAG, "place address from thing");
+//                Log.i(TAG, "msg: " + placeAddress);
+//                Log.i(TAG, "part1: " + placeStreetAddress);
+//                Log.i(TAG, "art2: " + placeCityStateZip);
+
+
+                placeStreetView.setText(placeStreetAddress);
+                placeCityStateZipView.setText(placeCityStateZip);
+            }
+            else {
+                placeStreetView.setText("");
+                placeCityStateZipView.setText("");
+            }
+
+            TextView placePhoneNumber = (TextView) v.findViewById(R.id.destinationNumber);
+            if(mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NUMBER") != null) {
+                String placeNumber = mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_NUMBER");
+                placePhoneNumber.setText(placeNumber);
+            }
+            else {
+                placePhoneNumber.setText("");
+            }
+
             Button dateButton = (Button)v.findViewById(R.id.datePickerButton);
+            if(mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_YEAR") != null && mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MONTH") != null &&
+                    mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_DATE") != null) {
+                int planYear = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_YEAR");
+                int planMonth = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MONTH");
+                int planDay = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_DATE");
+                dateButton.setText(planDay + "/" + planMonth + "/" + planYear);
+            }
+            else {
+                dateButton.setText("Select a date");
+            }
+
             Button timeButton = (Button)v.findViewById(R.id.timePickerButton);
-            dateButton.setText(planDay + "/" + planMonth + "/" + planYear);
-            timeButton.setText(planHour + ":" + planMin);
+            if(mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_HOUR") != null && mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MINUTE") != null) {
+                int planHour = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_HOUR");
+                int planMin = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MINUTE");
+                timeButton.setText(planHour + ":" + planMin);
+            }
+            else {
+                timeButton.setText("Select a time");
+            }
+
         }
     }
 
@@ -417,7 +455,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
                         }
                         places.release();
                         mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_NAME", name);
-                        mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_ADDRESS", streetAddress + " " + city + " " + state + ", " + zipCode + ", " + country);
+                        mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_ADDRESS", streetAddress + "|" + city + " " + state + ", " + zipCode);
                         mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_NUMBER", phoneNumber);
                         TextView placeName = (TextView)getActivity().findViewById(R.id.destinationName);
                         TextView placeAddress = (TextView)getActivity().findViewById(R.id.planAddressText);
