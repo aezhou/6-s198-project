@@ -364,7 +364,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
     }
 
     // Places Autocomplete Stuff Starts Here
-    // Places interactions based on tutorial at http://examples.javacodegeeks.com/android/android-google-places-autocomplete-api-example/
+    // Places Autocomplete interactions based on tutorial at http://examples.javacodegeeks.com/android/android-google-places-autocomplete-api-example/
     private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
     private static final String TYPE_AUTOCOMPLETE = "/autocomplete";
     private static final String OUT_JSON = "/json";
@@ -378,6 +378,9 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
     private String zipCode = "";
     private String country = "";
     private String phoneNumber = "unknown";
+    private String placeID = null;
+    private String lat = null;
+    private String lng = null;
 
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
         String choice = (String) adapterView.getItemAtPosition(position);
@@ -420,7 +423,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
         imm.hideSoftInputFromWindow(destinationInput.getWindowToken(), 0);
 
         try {
-            String placeID = predictions.getJSONObject(((int) id)).getString("place_id");
+            placeID = predictions.getJSONObject(((int) id)).getString("place_id");
             GoogleApiClient googleAPIClient = new GoogleApiClient.Builder(this.getActivity())
                     .addConnectionCallbacks((MainActivity) this.getActivity())
                     .addOnConnectionFailedListener((MainActivity) this.getActivity())
@@ -450,11 +453,17 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
                                 // TODO: Maybe add a toast to tell them they clicked a dumb option
                                 Log.e(TAG, "Can't find zip code.", e);
                             }
+                            lat = String.valueOf(myPlace.getLatLng().latitude);
+                            lng = String.valueOf(myPlace.getLatLng().longitude);
                         }
                         places.release();
                         mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_NAME", name);
                         mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_ADDRESS", streetAddress + "|" + city + " " + state + ", " + zipCode);
                         mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_NUMBER", phoneNumber);
+                        // TODO: Do we need to worry about stale values here, in case the Places call failed or something?
+                        mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_ID", placeID);
+                        mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_LAT", lat);
+                        mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_LONG", lng);
                         TextView placeName = (TextView)getActivity().findViewById(R.id.destinationName);
                         TextView placeAddress = (TextView)getActivity().findViewById(R.id.planAddressText);
                         TextView placeCityStateZip = (TextView)getActivity().findViewById(R.id.destinationCityStateZip);
@@ -464,6 +473,11 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
                         placeAddress.setText(streetAddress);
                         placeCityStateZip.setText(city + ", " + state + " " + zipCode);
                         placeNumber.setText(phoneNumber);
+
+                        // Find the directions fragment and notify it of the changes
+                        Log.i(TAG, "changed destination");
+                        ((DirectionsFragment)getFragmentManager().findFragmentById(0x7f0b0044)).
+                                onDestinationChanged(name, streetAddress + ", " + city + ", " + state + " " + zipCode);
                     }
                 });
             googleAPIClient.connect();
