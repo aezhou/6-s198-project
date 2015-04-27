@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,9 +12,14 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
@@ -32,6 +38,8 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     private static final String ARG_PARAM2 = "param2";
     // Create a place to store the destination spinner
     private Spinner destSpinner;
+    private MapFragment mMapFragment;
+    private GoogleMap map;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -80,9 +88,12 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_directions, container, false);
 
-/*        MapFragment mapFragment = (MapFragment) getChildFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);*/
+        map = ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map))
+                .getMap();
+        LatLng coordsMIT = new LatLng(42.3598, -71.0921);
+        Marker MIT = map.addMarker(new MarkerOptions().position(coordsMIT)
+                .title("MIT"));
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(coordsMIT, 15));
 
         // Populate the destination spinner
         destSpinner = (Spinner) v.findViewById(R.id.dest_spinner);
@@ -117,7 +128,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         // TODO: Make use actual coordinates and name of destination
         map.addMarker(new MarkerOptions()
                 .position(new LatLng(42, -71))
-                .title("Marker"));
+                .title("MIT"));
     }
 
     // TODO: Rename method, update argument and hook method into UI event
