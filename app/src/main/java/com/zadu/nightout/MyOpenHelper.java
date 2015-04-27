@@ -13,7 +13,9 @@ import java.util.ArrayList;
  */
 public class MyOpenHelper extends SQLiteOpenHelper{
 
-    private static final int DATABASE_VERSION = 4;
+    private static MyOpenHelper sInstance;
+
+    private static final int DATABASE_VERSION = 5;
     public static final String DATABASE_NAME = "nightOut";
     public static final String DEFAULT_CONTACTS_TABLE_NAME = "contacts";
     public static final String CONTACT_NAME = "contact_name";
@@ -78,8 +80,19 @@ public class MyOpenHelper extends SQLiteOpenHelper{
                     "CONSTRAINT unq UNIQUE ("+PLAN_NAME+", "+CONTACT_NUMBER+")"+");";
 
 
-    MyOpenHelper(Context context) {
+    private MyOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    public static synchronized MyOpenHelper getInstance(Context context) {
+
+        // Use the application context, which will ensure that you
+        // don't accidentally leak an Activity's context.
+        // See this article for more information: http://bit.ly/6LRzfx
+        if (sInstance == null) {
+            sInstance = new MyOpenHelper(context.getApplicationContext());
+        }
+        return sInstance;
     }
 
     @Override
@@ -100,7 +113,7 @@ public class MyOpenHelper extends SQLiteOpenHelper{
     public Cursor getContactsToDisplay(MainActivity activity) {
         String planName = activity.getCurrentPlanName();
         return getReadableDatabase().rawQuery("SELECT * FROM "+PLAN_CONTACTS_TABLE_NAME+
-            " WHERE "+PLAN_NAME+" == '"+planName+"' ORDER BY "+IS_DEFAULT, null);
+            " WHERE "+PLAN_NAME+" == '"+planName+"' ORDER BY "+IS_DEFAULT+" DESC", null);
     }
 
     public void insertDefaultContact(String name, String number) {
@@ -115,8 +128,10 @@ public class MyOpenHelper extends SQLiteOpenHelper{
         }
     }
 
+
     public void deleteDefaultContact(String number) {
         getWritableDatabase().delete(DEFAULT_CONTACTS_TABLE_NAME, CONTACT_NUMBER+" == ?", new String[] {number});
+        getWritableDatabase().delete(PLAN_CONTACTS_TABLE_NAME, CONTACT_NUMBER+" == ?", new String[] {number});
     }
 
     public Cursor getPlanInfo(MainActivity activity) {
@@ -134,6 +149,19 @@ public class MyOpenHelper extends SQLiteOpenHelper{
         String info = c.getString(0);
         c.close();
         return info;
+    }
+
+    public String getPlanAddressNoPipe(MainActivity activity) {
+        String planName = activity.getCurrentPlanName();
+        Cursor c = getReadableDatabase().rawQuery("select "+PLACE_ADDRESS+" from " + PLAN_TABLE_NAME +
+                " where " + PLAN_NAME + " == '" + planName + "'", null);
+        c.moveToFirst();
+        if (c.isNull(0)) return null;
+        String info = c.getString(0);
+        c.close();
+        int index = info.indexOf("|"); // index of |
+        if (index == -1) return info;
+        return info.substring(0, index) + info.substring(index+1);
     }
 
     public Double getPlanLatLong(MainActivity activity, String param) {
@@ -281,8 +309,8 @@ public class MyOpenHelper extends SQLiteOpenHelper{
     public void insertNewPlan(String planName) {
         ContentValues cv = new ContentValues();
         cv.put(PLAN_NAME, planName);
-        cv.put(HAS_RESERVATION, false);
-        cv.put(PINGS_ON, false);
+        cv.put(HAS_RESERVATION, 0);
+        cv.put(PINGS_ON, 0);
         cv.put(PING_INTERVAL, 30);
         cv.put(PING_ALLOWANCE, 2);
         getWritableDatabase().insert(PLAN_TABLE_NAME, null, cv);

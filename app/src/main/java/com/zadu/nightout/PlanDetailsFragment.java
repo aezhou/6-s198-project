@@ -249,7 +249,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mSqlHelper = new MyOpenHelper(getActivity());
+        mSqlHelper = ((MainActivity) getActivity()).getSqlHelper();
         try {
             mListener = (OnPlanDetailsListener) activity;
         } catch (ClassCastException e) {

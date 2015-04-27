@@ -114,7 +114,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        mSqlHelper = new MyOpenHelper(this);
+        mSqlHelper = MyOpenHelper.getInstance(this);
 
         actionBar.setCustomView(R.layout.custom_actionbar);
         actionBar.setDisplayShowCustomEnabled(true);
@@ -214,7 +214,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, 222);
             return true;
         }
 
@@ -911,6 +911,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public LocationManager getLocationManager() {
         return mLocationManager;
+    }
+
+    public MyOpenHelper getSqlHelper() {
+        return mSqlHelper;
     }
 
     public void notifyDirFragOfDestChange(String destName, String destAddress) {
