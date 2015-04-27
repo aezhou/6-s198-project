@@ -4,12 +4,23 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 
 /**
@@ -20,13 +31,15 @@ import android.widget.Spinner;
  * Use the {@link DirectionsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class DirectionsFragment extends Fragment implements PlanChangedListener {
+public class DirectionsFragment extends Fragment implements PlanChangedListener, OnMapReadyCallback {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     // Create a place to store the destination spinner
     private Spinner destSpinner;
+    private MapFragment mMapFragment;
+    private GoogleMap map;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -35,6 +48,8 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener 
     private OnDirectionsFragmentInteractionListener mListener;
     private Button getDirectionsButton;
     private Button callRideButton;
+
+    private MyOpenHelper mSqlHelper;
 
     /**
      * Use this factory method to create a new instance of
@@ -73,6 +88,13 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener 
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_directions, container, false);
 
+        map = ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map))
+                .getMap();
+        LatLng coordsMIT = new LatLng(42.3598, -71.0921);
+        Marker MIT = map.addMarker(new MarkerOptions().position(coordsMIT)
+                .title("MIT"));
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(coordsMIT, 15));
+
         // Populate the destination spinner
         destSpinner = (Spinner) v.findViewById(R.id.dest_spinner);
         ArrayAdapter adapter = ArrayAdapter.createFromResource(getActivity(),
@@ -101,6 +123,14 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener 
         return v;
     }
 
+    @Override
+    public void onMapReady(GoogleMap map) {
+        // TODO: Make use actual coordinates and name of destination
+        map.addMarker(new MarkerOptions()
+                .position(new LatLng(42, -71))
+                .title("MIT"));
+    }
+
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
@@ -123,6 +153,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        mSqlHelper = new MyOpenHelper(getActivity());
         try {
             mListener = (OnDirectionsFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
@@ -140,7 +171,22 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener 
     @Override
     public void onPlanChanged() {
         // TODO: when plan changes, update destination and ETAs
+        if (getView() != null) {
+            // get view to update with getView().findViewById
+
+            mSqlHelper.getPlanDetail((MainActivity) getActivity(), mSqlHelper.PLACE_ADDRESS); //returns address
+            // TODO: update UI with all details
+        }
     }
+
+    public void onDestinationChanged(String destName, String destAddress) {
+        // TODO: update UI and such
+    }
+
+    public void onHomeChanged(String homeAddress) {
+        //TODO: react to change in shared prefs (ask Amanda) SharedPreferences listener?
+    }
+
 
     /**
      * This interface must be implemented by activities that contain this
