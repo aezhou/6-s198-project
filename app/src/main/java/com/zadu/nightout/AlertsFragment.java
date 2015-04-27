@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.TimerTask;
 
 
 /**
@@ -435,7 +436,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
         }
     }
 
-    public void openLastKnownLocation() {
+    public void getLastKnownLocation() {
         mListener.getLastLoc();
     }
 
