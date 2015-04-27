@@ -2,12 +2,14 @@ package com.zadu.nightout;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -25,6 +27,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.TimerTask;
+import java.util.prefs.PreferenceChangeListener;
 
 
 /**
@@ -35,7 +38,8 @@ import java.util.TimerTask;
  * Use the {@link AlertsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AlertsFragment extends Fragment implements PlanChangedListener {
+public class AlertsFragment extends Fragment implements PlanChangedListener,
+            SharedPreferences.OnSharedPreferenceChangeListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -48,7 +52,6 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
     private SimpleCursorAdapter mContactsAdapter;
     private MyOpenHelper mSqlHelper;
     private View mView;
-    private Button mOtherContactButton;
 
     private OnAlertsFragmentInteractionListener mListener;
 
@@ -81,6 +84,8 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        sharedPrefs.registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -131,10 +136,6 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
             }
         });
 
-
-
-        // TODO: set up listeners for checkboxes on either view
-
         LinearLayout contactsListHeader = (LinearLayout) v.findViewById(R.id.contactsListHeader);
         contactsListHeader.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -148,14 +149,6 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
             @Override
             public void onClick(View toggleView) {
                 onCollapseContacts(true);
-            }
-        });
-
-        Button otherContactButton = (Button) v.findViewById(R.id.otherContactButton);
-        otherContactButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addOtherContact();
             }
         });
 
@@ -202,11 +195,10 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
             }
         });
 
-        mOtherContactButton = (Button) v.findViewById(R.id.otherContactButton);
-        mOtherContactButton.setOnClickListener(new View.OnClickListener() {
+        Button otherContactButton = (Button) v.findViewById(R.id.otherContactButton);
+        otherContactButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("ALERT FRAG", "other button clicked");
                 Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
                 startActivityForResult(intent, 0);
             }
@@ -283,19 +275,20 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
                 cursor.close();
             }
 
-            if (reqCode == 0) {
-                //TODO add name, number to list view
-                mOtherContactButton.setEnabled(false);
-                mOtherContactButton.setVisibility(View.GONE);
+
+            if (reqCode == 0 && contactName != null && contactNumber != null) {
+                mSqlHelper.addPlanContactNumber((MainActivity) getActivity(), contactName, contactNumber);
+                mContactsAdapter.changeCursor(mSqlHelper.getContactsToDisplay((MainActivity) getActivity()));
+                ListView list = (ListView) mView.findViewById(R.id.contactsListView);
+                list.setAdapter(mContactsAdapter);
             }
         }
-
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mSqlHelper = new MyOpenHelper(getActivity());
+        mSqlHelper = ((MainActivity) getActivity()).getSqlHelper();
         try {
             mListener = (OnAlertsFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
@@ -320,12 +313,6 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
             contactsView.setVisibility(View.GONE);
             if (!wasToggleClicked) {toggle.setChecked(false);}
         }
-    }
-
-    public void addOtherContact() {
-        // TODO: open contacts to select one
-        // TODO: add result to plan_contacts db as non-default
-        // TODO: update list view
     }
 
     public void onContactChecked(CheckBox v, boolean isDefault) {
@@ -445,6 +432,15 @@ public class AlertsFragment extends Fragment implements PlanChangedListener {
 
     public void getLastKnownLocation() {
         mListener.getLastLoc();
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (mView != null) {
+            mContactsAdapter.changeCursor(mSqlHelper.getContactsToDisplay((MainActivity) getActivity()));
+            ListView list = (ListView) mView.findViewById(R.id.contactsListView);
+            list.setAdapter(mContactsAdapter);
+        }
     }
 
 

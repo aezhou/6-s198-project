@@ -64,9 +64,8 @@ public class WalkthroughContactsSettingsActivity extends PreferenceActivity{
             }
         });
 
-        //TODO: set contactName as title, contactNumber as summary
-        contact1.setTitle("something");
-        contact1.setSummary("something");
+        contact1.setTitle("Contact Not Set");
+        contact1.setSummary("Click to Add Default Contact");
 
         contact2.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -77,9 +76,8 @@ public class WalkthroughContactsSettingsActivity extends PreferenceActivity{
             }
         });
 
-        //TODO: set contactName as title, contactNumber as summary
-        contact2.setTitle("something");
-        contact2.setSummary("something");
+        contact2.setTitle("Contact Not Set");
+        contact2.setSummary("Click to Add Default Contact");
 
         contact3.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -90,9 +88,8 @@ public class WalkthroughContactsSettingsActivity extends PreferenceActivity{
             }
         });
 
-        //TODO: set contactName as title, contactNumber as summary
-        contact3.setTitle("something");
-        contact3.setSummary("something");
+        contact3.setTitle("Contact Not Set");
+        contact3.setSummary("Click to Add Default Contact");
 
         contact4.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -103,9 +100,8 @@ public class WalkthroughContactsSettingsActivity extends PreferenceActivity{
             }
         });
 
-        //TODO: set contactName as title, contactNumber as summary
-        contact4.setTitle("something");
-        contact4.setSummary("something");
+        contact4.setTitle("Contact Not Set");
+        contact4.setSummary("Click to Add Default Contact");
 
         contact5.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -116,9 +112,8 @@ public class WalkthroughContactsSettingsActivity extends PreferenceActivity{
             }
         });
 
-        //TODO: set contactName as title, contactNumber as summary
-        contact5.setTitle("something");
-        contact5.setSummary("something");
+        contact5.setTitle("Contact Not Set");
+        contact5.setSummary("Click to Add Default Contact");
 
 
         bindPreferenceSummaryToValue(findPreference("Contact1"));
@@ -145,6 +140,8 @@ public class WalkthroughContactsSettingsActivity extends PreferenceActivity{
                 cursor.close();
             }
 
+            MyOpenHelper sqlHelper = MyOpenHelper.getInstance(getApplication());
+
             Set<String> set = new HashSet<>();
             set.add(contactName);
             set.add(contactNumber);
@@ -152,37 +149,52 @@ public class WalkthroughContactsSettingsActivity extends PreferenceActivity{
             switch (reqCode) {
                 case (PICK_CONTACT_1):
                     if (contactName != null && contactNumber != null) {
+                        if (!contact1.getSummary().equals("Click to Add Default Contact")) {
+                            sqlHelper.deleteDefaultContact(contact1.getSummary().toString());
+                        }
                         contact1.setTitle(contactName);
                         contact1.setSummary(contactNumber);
-                        //TODO: save contactName, contactNumber
+                        sqlHelper.insertDefaultContact(contactName, contactNumber);
                     }
                     break;
                 case (PICK_CONTACT_2):
                     if (contactName != null && contactNumber != null) {
+                        if (!contact2.getSummary().equals("Click to Add Default Contact")) {
+                            sqlHelper.deleteDefaultContact(contact2.getSummary().toString());
+                        }
                         contact2.setTitle(contactName);
                         contact2.setSummary(contactNumber);
-                        //TODO: save contactName, contactNumber
+                        sqlHelper.insertDefaultContact(contactName, contactNumber);
                     }
                     break;
                 case (PICK_CONTACT_3):
                     if (contactName != null && contactNumber != null) {
+                        if (!contact3.getSummary().equals("Click to Add Default Contact")) {
+                            sqlHelper.deleteDefaultContact(contact3.getSummary().toString());
+                        }
                         contact3.setTitle(contactName);
                         contact3.setSummary(contactNumber);
-                        //TODO: save contactName, contactNumber
+                        sqlHelper.insertDefaultContact(contactName, contactNumber);
                     }
                     break;
                 case (PICK_CONTACT_4):
                     if (contactName != null && contactNumber != null) {
+                        if (!contact4.getSummary().equals("Click to Add Default Contact")) {
+                            sqlHelper.deleteDefaultContact(contact4.getSummary().toString());
+                        }
                         contact4.setTitle(contactName);
                         contact4.setSummary(contactNumber);
-                        //TODO: save contactName, contactNumber
+                        sqlHelper.insertDefaultContact(contactName, contactNumber);
                     }
                     break;
                 case (PICK_CONTACT_5):
                     if (contactName != null && contactNumber != null) {
+                        if (!contact5.getSummary().equals("Click to Add Default Contact")) {
+                            sqlHelper.deleteDefaultContact(contact5.getSummary().toString());
+                        }
                         contact5.setTitle(contactName);
                         contact5.setSummary(contactNumber);
-                        //TODO: save contactName, contactNumber
+                        sqlHelper.insertDefaultContact(contactName, contactNumber);
                     }
                     break;
             }

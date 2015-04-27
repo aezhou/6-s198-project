@@ -1,7 +1,9 @@
 package com.zadu.nightout;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -12,6 +14,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
+import android.util.Log;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,6 +25,8 @@ public class SettingsActivity extends PreferenceActivity {
     Preference contact3;
     Preference contact4;
     Preference contact5;
+    SharedPreferences preferences;
+    private MyOpenHelper mSqlHelper;
 
     static final int PICK_CONTACT_1 = 1;
     static final int PICK_CONTACT_2 = 2;
@@ -33,6 +38,7 @@ public class SettingsActivity extends PreferenceActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
+        mSqlHelper = MyOpenHelper.getInstance(this);
 
         contact1 = findPreference("Contact1");
         contact2 = findPreference("Contact2");
@@ -49,9 +55,15 @@ public class SettingsActivity extends PreferenceActivity {
             }
         });
 
-        //TODO: set contactName as title, contactNumber as summary
-        contact1.setTitle("something");
-        contact1.setSummary("something");
+        Cursor defaultContactsCursor = mSqlHelper.getDefaultContacts();
+        boolean cursorHasNext = defaultContactsCursor.moveToFirst();
+        if (cursorHasNext) {
+            contact1.setTitle(defaultContactsCursor.getString(0));
+            contact1.setSummary(defaultContactsCursor.getString(1));
+        } else {
+            contact1.setTitle("Contact Not Set");
+            contact1.setSummary("Click to Add Default Contact");
+        }
 
         contact2.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -62,9 +74,14 @@ public class SettingsActivity extends PreferenceActivity {
             }
         });
 
-        //TODO: set contactName as title, contactNumber as summary
-        contact2.setTitle("something");
-        contact2.setSummary("something");
+        cursorHasNext = defaultContactsCursor.moveToNext();
+        if (cursorHasNext) {
+            contact2.setTitle(defaultContactsCursor.getString(0));
+            contact2.setSummary(defaultContactsCursor.getString(1));
+        } else {
+            contact2.setTitle("Contact Not Set");
+            contact2.setSummary("Click to Add Default Contact");
+        }
 
         contact3.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -75,9 +92,14 @@ public class SettingsActivity extends PreferenceActivity {
             }
         });
 
-        //TODO: set contactName as title, contactNumber as summary
-        contact3.setTitle("something");
-        contact3.setSummary("something");
+        cursorHasNext = defaultContactsCursor.moveToNext();
+        if (cursorHasNext) {
+            contact3.setTitle(defaultContactsCursor.getString(0));
+            contact3.setSummary(defaultContactsCursor.getString(1));
+        } else {
+            contact3.setTitle("Contact Not Set");
+            contact3.setSummary("Click to Add Default Contact");
+        }
 
         contact4.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -88,9 +110,14 @@ public class SettingsActivity extends PreferenceActivity {
             }
         });
 
-        //TODO: set contactName as title, contactNumber as summary
-        contact4.setTitle("something");
-        contact4.setSummary("something");
+        cursorHasNext = defaultContactsCursor.moveToNext();
+        if (cursorHasNext) {
+            contact4.setTitle(defaultContactsCursor.getString(0));
+            contact4.setSummary(defaultContactsCursor.getString(1));
+        } else {
+            contact4.setTitle("Contact Not Set");
+            contact4.setSummary("Click to Add Default Contact");
+        }
 
         contact5.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -101,9 +128,15 @@ public class SettingsActivity extends PreferenceActivity {
             }
         });
 
-        //TODO: set contactName as title, contactNumber as summary
-        contact5.setTitle("something");
-        contact5.setSummary("something");
+        cursorHasNext = defaultContactsCursor.moveToNext();
+        if (cursorHasNext) {
+            contact5.setTitle(defaultContactsCursor.getString(0));
+            contact5.setSummary(defaultContactsCursor.getString(1));
+        } else {
+            contact5.setTitle("Contact Not Set");
+            contact5.setSummary("Click to Add Default Contact");
+        }
+        defaultContactsCursor.close();
 
         bindPreferenceSummaryToValue(findPreference("home_address"));
         bindPreferenceSummaryToValue(findPreference("phone_number"));
@@ -134,46 +167,61 @@ public class SettingsActivity extends PreferenceActivity {
                 cursor.close();
             }
 
-            Set<String> set = new HashSet<>();
-            set.add(contactName);
-            set.add(contactNumber);
+        Set<String> set = new HashSet<>();
+        set.add(contactName);
+        set.add(contactNumber);
 
-            switch (reqCode) {
-                case (PICK_CONTACT_1):
-                    if (contactName != null && contactNumber != null) {
-                        contact1.setTitle(contactName);
-                        contact1.setSummary(contactNumber);
-                        //TODO: save contactName, contactNumber
+        switch (reqCode) {
+            case (PICK_CONTACT_1):
+                if (contactName != null && contactNumber != null) {
+                    if (!contact1.getSummary().equals("Click to Add Default Contact")) {
+                        mSqlHelper.deleteDefaultContact(contact1.getSummary().toString());
                     }
-                    break;
-                case (PICK_CONTACT_2):
-                    if (contactName != null && contactNumber != null) {
-                        contact2.setTitle(contactName);
-                        contact2.setSummary(contactNumber);
-                        //TODO: save contactName, contactNumber
+                    contact1.setTitle(contactName);
+                    contact1.setSummary(contactNumber);
+                    mSqlHelper.insertDefaultContact(contactName, contactNumber);
+                }
+                break;
+            case (PICK_CONTACT_2):
+                if (contactName != null && contactNumber != null) {
+                    if (!contact2.getSummary().equals("Click to Add Default Contact")) {
+                        mSqlHelper.deleteDefaultContact(contact2.getSummary().toString());
                     }
-                    break;
-                case (PICK_CONTACT_3):
-                    if (contactName != null && contactNumber != null) {
-                        contact3.setTitle(contactName);
-                        contact3.setSummary(contactNumber);
-                        //TODO: save contactName, contactNumber
+                    contact2.setTitle(contactName);
+                    contact2.setSummary(contactNumber);
+                    mSqlHelper.insertDefaultContact(contactName, contactNumber);
+                }
+                break;
+            case (PICK_CONTACT_3):
+                if (contactName != null && contactNumber != null) {
+                    if (!contact3.getSummary().equals("Click to Add Default Contact")) {
+                        mSqlHelper.deleteDefaultContact(contact3.getSummary().toString());
                     }
-                    break;
-                case (PICK_CONTACT_4):
-                    if (contactName != null && contactNumber != null) {
-                        contact4.setTitle(contactName);
-                        contact4.setSummary(contactNumber);
-                        //TODO: save contactName, contactNumber
+                    contact3.setTitle(contactName);
+                    contact3.setSummary(contactNumber);
+                    mSqlHelper.insertDefaultContact(contactName, contactNumber);
+                }
+                break;
+            case (PICK_CONTACT_4):
+                if (contactName != null && contactNumber != null) {
+                    if (!contact4.getSummary().equals("Click to Add Default Contact")) {
+                        mSqlHelper.deleteDefaultContact(contact4.getSummary().toString());
                     }
-                    break;
-                case (PICK_CONTACT_5):
-                    if (contactName != null && contactNumber != null) {
-                        contact5.setTitle(contactName);
-                        contact5.setSummary(contactNumber);
-                        //TODO: save contactName, contactNumber
+                    contact4.setTitle(contactName);
+                    contact4.setSummary(contactNumber);
+                    mSqlHelper.insertDefaultContact(contactName, contactNumber);
+                }
+                break;
+            case (PICK_CONTACT_5):
+                if (contactName != null && contactNumber != null) {
+                    if (!contact5.getSummary().equals("Click to Add Default Contact")) {
+                        mSqlHelper.deleteDefaultContact(contact5.getSummary().toString());
                     }
-                    break;
+                    contact5.setTitle(contactName);
+                    contact5.setSummary(contactNumber);
+                    mSqlHelper.insertDefaultContact(contactName, contactNumber);
+                }
+                break;
             }
         }
 

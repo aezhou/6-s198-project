@@ -160,7 +160,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mSqlHelper = new MyOpenHelper(getActivity());
+        mSqlHelper = ((MainActivity) getActivity()).getSqlHelper();
         try {
             mListener = (OnDirectionsFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
@@ -182,6 +182,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
             // get view to update with getView().findViewById
 
             mSqlHelper.getPlanDetail((MainActivity) getActivity(), mSqlHelper.PLACE_ADDRESS); //returns address
+            // ACTUALLY USE mSqlHelper.getPlanAddressNoPipe((MainActivity) getActivity()) - ask Kristin about this
             // TODO: update UI with all details
         }
     }

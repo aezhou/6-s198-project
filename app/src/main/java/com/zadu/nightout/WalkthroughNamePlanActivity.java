@@ -23,12 +23,15 @@ public class WalkthroughNamePlanActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome_new_plan);
 
+        mEditText = (EditText) findViewById(R.id.new_name);
+
         mButton = (Button) findViewById(R.id.finish_button);
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                //TODO: save editText content to be first plan name
+                MyOpenHelper sqlHelper = MyOpenHelper.getInstance(getApplication());
+                sqlHelper.insertNewPlan(mEditText.getText().toString());
 
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(WalkthroughNamePlanActivity.this);
                 preferences.edit().putString("first_time", "false").apply();
@@ -37,7 +40,6 @@ public class WalkthroughNamePlanActivity extends Activity {
             }
         });
 
-        mEditText = (EditText) findViewById(R.id.new_name);
         mEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
