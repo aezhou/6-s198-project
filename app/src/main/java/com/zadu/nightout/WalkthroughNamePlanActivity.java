@@ -19,7 +19,7 @@ public class WalkthroughNamePlanActivity extends Activity {
     private EditText mEditText;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome_new_plan);
 
@@ -32,6 +32,7 @@ public class WalkthroughNamePlanActivity extends Activity {
 
                 MyOpenHelper sqlHelper = MyOpenHelper.getInstance(getApplication());
                 sqlHelper.insertNewPlan(mEditText.getText().toString());
+                sqlHelper.deletePlan("My First Plan");
 
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(WalkthroughNamePlanActivity.this);
                 preferences.edit().putString("first_time", "false").apply();
