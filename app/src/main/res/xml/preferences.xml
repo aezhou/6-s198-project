@@ -6,8 +6,8 @@
 
     <EditTextPreference
         android:key="phone_number"
-        android:title="Phone Number"
-        android:defaultValue="1234567890"
+        android:title="@string/pref_title_phone"
+        android:defaultValue="@string/pref_default_display_phone"
         android:inputType="number"
         android:selectAllOnFocus="true"
         android:singleLine="true"
@@ -15,7 +15,7 @@
 
     <EditTextPreference
         android:key="home_address"
-        android:title="Home Address"
+        android:title="@string/pref_title_address"
         android:defaultValue="@string/pref_default_display_address"
         android:gravity="left|top"
         android:inputType="textMultiLine"
