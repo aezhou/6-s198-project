@@ -168,14 +168,6 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
             }
         });
 
-/*        findButton = (Button) v.findViewById(R.id.findButton);
-        findButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                findLocationInfo(view);
-            }
-        });*/
-
         reservationMadeBox = (CheckBox) v.findViewById(R.id.checkReservationCheckBox);
         reservationMadeBox.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -272,7 +264,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
 
     public void refreshDetailFragmentView(View v) {
         Log.i(TAG, "calling refreshDetailFramentView");
-        Log.i(TAG, "getView(): " + v);
+//        Log.i(TAG, "getView(): " + v);
         if(v != null) {
             TextView placeNameText = (TextView)v.findViewById(R.id.destinationName);
             if(mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NAME") != null) {
@@ -331,6 +323,8 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
             }
 
             if(mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_URL") == null) {
+                Log.i(TAG, "In plandetails calling findopentableurl");
+                Log.i(TAG, "current url is: " + mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_URL"));
                 ((MainActivity) getActivity()).findOpenTableUrl(null);
             }
 
@@ -464,6 +458,10 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
                         mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_ID", placeID);
                         mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_LAT", lat);
                         mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_LONG", lng);
+
+                        //TODO: Cristhian's work here
+                        ((MainActivity) getActivity()).findOpenTableUrl("");
+
                         TextView placeName = (TextView)getActivity().findViewById(R.id.destinationName);
                         TextView placeAddress = (TextView)getActivity().findViewById(R.id.planAddressText);
                         TextView placeCityStateZip = (TextView)getActivity().findViewById(R.id.destinationCityStateZip);
