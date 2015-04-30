@@ -264,7 +264,6 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
 
     public void refreshDetailFragmentView(View v) {
         Log.i(TAG, "calling refreshDetailFramentView");
-//        Log.i(TAG, "getView(): " + v);
         if(v != null) {
             TextView placeNameText = (TextView)v.findViewById(R.id.destinationName);
             if(mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NAME") != null) {
@@ -321,11 +320,13 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
             else {
                 timeButton.setText("Select a time");
             }
-
             if(mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_URL") == null) {
-                Log.i(TAG, "In plandetails calling findopentableurl");
-                Log.i(TAG, "current url is: " + mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_URL"));
                 ((MainActivity) getActivity()).findOpenTableUrl(null);
+            }
+            else {
+                //Place url is not null therefore make sure to set visibility to true
+                Button reserveOnlineButton = (Button)v.findViewById(R.id.reservationOnlineButton);
+                reserveOnlineButton.setVisibility(View.VISIBLE);
             }
 
         }

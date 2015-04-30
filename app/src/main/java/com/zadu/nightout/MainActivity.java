@@ -925,18 +925,26 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         final ArrayList<String> restaurantPhones = new ArrayList<>();
         String reservationUrl = null;
 
-        if(restaurants.length() > 1) {
+        Button reserveOnlineButton = (Button)findViewById(R.id.reservationOnlineButton);
+        if(restaurants.length() == 0) {
+            //There is no entry for this restaurant on OpenTable
+            //Set button to not visible
+
+            reserveOnlineButton.setVisibility(View.INVISIBLE);
+        }
+        else if(restaurants.length() > 1) {
             Log.i(TAG, "OH NO! More than one place matches that description!");
+            reserveOnlineButton.setVisibility(View.VISIBLE);
         }
 
         for(int i = 0; i < restaurants.length(); i++) {
             try {
                 JSONObject restInfo = (JSONObject) restaurants.get(i);
-                restaurantNames.add(restInfo.getString("name"));
-                String finaAddress = restInfo.getString("address") +  " " + restInfo.getString("city") + ", " + restInfo.getString("state") + " " + restInfo.getString("postal_code");
-                restaurantAddresses.add(finaAddress);
-                restaurantIDs.add(restInfo.getInt("id"));
-                restaurantPhones.add(restInfo.getString("phone"));
+//                restaurantNames.add(restInfo.getString("name"));
+//                String finaAddress = restInfo.getString("address") +  " " + restInfo.getString("city") + ", " + restInfo.getString("state") + " " + restInfo.getString("postal_code");
+//                restaurantAddresses.add(finaAddress);
+//                restaurantIDs.add(restInfo.getInt("id"));
+//                restaurantPhones.add(restInfo.getString("phone"));
                 reservationUrl = restInfo.getString("mobile_reserve_url");
                 if(reservationUrl != null) {
                     mSqlHelper.updatePlanPlaceInfo(this, "PLACE_URL", reservationUrl);
@@ -952,7 +960,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             }
 
         }
-//        Log.i(TAG, restaurantIDs.get(0).toString());
 
     }
 
