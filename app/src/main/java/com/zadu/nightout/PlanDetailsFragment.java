@@ -63,7 +63,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
     private String mParam2;
 
     private OnPlanDetailsListener mListener;
-    private AutoCompleteTextView destinationInput;
+    private AutoCompleteTextView autoCompView;
     private Button reserveOnlineButton;
     private Button reserveCallButton;
     private ImageView openMapImage;
@@ -116,9 +116,6 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
 
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_plan_details, container, false);
-
-        destinationInput = (AutoCompleteTextView) v.findViewById(R.id.searchField);
-        destinationInput.clearFocus();
 
         reserveOnlineButton = (Button) v.findViewById(R.id.reservationOnlineButton);
         reserveOnlineButton.setOnClickListener(new View.OnClickListener() {
@@ -176,7 +173,9 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
             }
         });
 
-        AutoCompleteTextView autoCompView = (AutoCompleteTextView) v.findViewById(R.id.searchField);
+        autoCompView = (AutoCompleteTextView) v.findViewById(R.id.searchField);
+
+        autoCompView.clearFocus();
 
         autoCompView.setAdapter(new GooglePlacesAutocompleteAdapter(v.getContext(), R.layout.list_item_places));
         autoCompView.setOnItemClickListener(this);
@@ -412,10 +411,12 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
         // TODO: Use Places API to get street address and phone number, and update those in UI
         ((MainActivity) getActivity()).notifyDirFragOfDestChange(splitChoice[0], splitChoice[1]);
         // Remove text input focus and hide the keyboard
-        destinationInput.clearFocus();
+        autoCompView.clearFocus();
+//        TODO: CRISTHIAN
+        autoCompView.setText("");
         InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(
                 Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(destinationInput.getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(autoCompView.getWindowToken(), 0);
 
         try {
             placeID = predictions.getJSONObject(((int) id)).getString("place_id");
