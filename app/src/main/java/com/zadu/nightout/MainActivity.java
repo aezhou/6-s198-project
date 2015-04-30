@@ -475,6 +475,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             String cityStateZipDB = addressSplit[1];
 
             String [] cityZipSplit = cityStateZipDB.split(",");
+
             String zipCode;
             String searchText;
             if(cityZipSplit.length > 1) {
@@ -483,8 +484,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 String encodedAddress = null;
                 String encodedZip = null;
                 try {
-                    Log.i(TAG, "SEARCH TEXT: " + searchText);
-
                     encodedAddress = URLEncoder.encode(streetAddress, "UTF-8");
                     encodedZip = URLEncoder.encode(zipCode, "UTF-8");
                     searchText = "address=" + encodedAddress + ";postal_code=" + encodedZip;
