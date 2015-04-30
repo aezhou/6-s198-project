@@ -37,4 +37,5 @@
         <item name="home_address">Home</item>
         <item name="other">Other</item>
     </array>
+    <string name="title_activity_settings_activity_two">SettingsActivityTwo</string>
 </resources>

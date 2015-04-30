@@ -12,7 +12,9 @@
     <string name="pref_default_display_phone">1234567890</string>
 
 
+
     <!-- Example settings for Emergency Contacts -->
     <string name="pref_header_emergency">Emergency Contacts</string>
 
+    <string name="pref_add_contacts">Add Emergency Contact</string>
 </resources>

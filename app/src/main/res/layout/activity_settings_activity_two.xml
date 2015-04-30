@@ -1,0 +1,85 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.zadu.nightout.SettingsActivityTwo"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/header_general"
+        android:text="@string/pref_header_general"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"/>
+
+    <LinearLayout
+        android:padding="4dp"
+        android:id="@+id/phone_number_wrapper"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:paddingLeft="4dp"
+        android:paddingTop="1dp"
+        android:paddingBottom="1dp"
+        android:text="@string/pref_title_phone"/>
+    <TextView
+        android:id="@+id/own_phone_number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="4dp"
+        android:paddingTop="1dp"
+        android:paddingBottom="1dp"
+        android:textSize="14sp"
+        android:text="@string/pref_default_display_phone"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:padding="4dp"
+        android:id="@+id/home_address_wrapper"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:paddingLeft="4dp"
+            android:paddingTop="1dp"
+            android:paddingBottom="1dp"
+            android:text="@string/pref_title_address"/>
+        <TextView
+            android:id="@+id/own_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="4dp"
+            android:paddingTop="1dp"
+            android:paddingBottom="1dp"
+            android:textSize="14sp"
+            android:text="@string/pref_default_display_address"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/header_emergency"
+        android:text="@string/pref_header_emergency"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"/>
+    <ListView
+        android:id="@+id/emergency_contacts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <Button
+        android:id="@+id/add_new_contact"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/pref_add_contacts"/>
+
+
+
+</LinearLayout>
