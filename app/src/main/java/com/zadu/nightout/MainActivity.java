@@ -301,18 +301,19 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public void makeOnlineReservation(Object something ) {
         Log.i(TAG, "makeOnlineReservation() called");
-        String initialUrl = "https://www.opentable.com/";
-        TextView destination = (TextView) findViewById(R.id.destinationName);
-        String dest = destination.getText().toString();
-
-        String url = initialUrl + dest.replace(' ', '-');
-
-        Uri webpage = Uri.parse(url);
-        Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
-        if(intent.resolveActivity(getPackageManager()) != null) {
-            Log.i(TAG, "Webb browser intent about to be called");
-            startActivity(intent);
+        String url = mSqlHelper.getPlanDetail(this, "PLACE_URL");
+        if(url != null) {
+            Uri webpage = Uri.parse(url);
+            Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
+            if(intent.resolveActivity(getPackageManager()) != null) {
+                Log.i(TAG, "Web browser intent about to be called");
+                startActivity(intent);
+            }
         }
+        else {
+            Log.i(TAG, "Whoops! you don't have a URL saved!");
+        }
+
     }
 
     @Override
@@ -466,30 +467,38 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void findOpenTableUrl(Object something) {
         Log.i(TAG, "findOpenTableUrl() called");
         TextView searchAddress = (TextView)findViewById(R.id.planAddressText);
-        if(searchAddress != null) {
-            String streetAddress = searchAddress.getText().toString();
+        String address = mSqlHelper.getPlanDetail(this, "PLACE_ADDRESS");
+        if(searchAddress != null && address != null && !address.equals("")) {
+            Log.i(TAG, "search addresss not null");
+            String [] addressSplit = address.split("\\|");
+            String streetAddress = addressSplit[0];
+            String cityStateZipDB = addressSplit[1];
 
-            TextView searchCityStateZip = (TextView) findViewById(R.id.destinationCityStateZip);
-            String cityStateZip = searchCityStateZip.getText().toString();
-            String[] cityStateZipInfo = cityStateZip.split(",");
+            String [] cityZipSplit = cityStateZipDB.split(",");
+
             String zipCode;
             String searchText;
-            if(cityStateZipInfo.length > 1) {
-                zipCode = cityStateZipInfo[1].substring(1);
+            if(cityZipSplit.length > 1) {
+                zipCode = cityZipSplit[1].substring(1);
                 searchText = "address=" + streetAddress + ";postal_code=" + zipCode;
-                String encodedInput = null;
+                String encodedAddress = null;
+                String encodedZip = null;
                 try {
-                    encodedInput = URLEncoder.encode(searchText, "UTF-8");
+                    encodedAddress = URLEncoder.encode(streetAddress, "UTF-8");
+                    encodedZip = URLEncoder.encode(zipCode, "UTF-8");
+                    searchText = "address=" + encodedAddress + ";postal_code=" + encodedZip;
                 } catch (UnsupportedEncodingException e) {
                     Log.e(TAG, "Encoding exception");
                     e.printStackTrace();
                 }
-                if (encodedInput != null) {
-                    String apiUrl = openTableApiUrl + "restaurants?" + encodedInput;
+                if (encodedAddress != null && encodedZip != null) {
+                    String apiUrl = openTableApiUrl + "restaurants?" + searchText;
                     new OpenTableCallApi().execute(apiUrl);
                 }
             }
-
+        }
+        else {
+            Log.i(TAG, "search address is null!");
         }
     }
 
@@ -745,7 +754,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
          * @param result string result returned from API
          */
         protected void onPostExecute(String result) {
-            Log.i(TAG, "starting onPostExecute");
+            Log.i(TAG, "starting onPostExecute CallAPI");
 
             JSONArray resultEntries = null;
             //TODO: Filter based upon the API used
@@ -772,7 +781,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
          */
         @Override
         protected void onPostExecute(String result) {
-            Log.i(TAG, "starting onPostExecute");
+            Log.i(TAG, "starting onPostExecute OpenTableCallApi");
 
             JSONArray restaurantEntries = null;
             // separate this out so people can work on it.
@@ -904,62 +913,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 .build();
     }
 
-//    TODO: Finish the function below
-    /**
-     * Filters and displays restaurant options
-     * @param restaurants JSONArray of restaurants and their relevant information
-     */
-//    private void displayRestaurants(final JSONArray restaurants) {
-//        final ArrayList<String> restaurantNames = new ArrayList<>();
-//        final ArrayList<String> restaurantAddresses = new ArrayList<>();
-//        ArrayList<Integer> restaurantIDs = new ArrayList<>();
-//        final ArrayList<String> restaurantPhones = new ArrayList<>();
-//
-//        for(int i = 0; i < restaurants.length(); i++) {
-//            try {
-//                JSONObject restInfo = (JSONObject) restaurants.get(i);
-//                restaurantNames.add(restInfo.getString("name"));
-//                String finaAddress = restInfo.getString("address") +  " " + restInfo.getString("city") + ", " + restInfo.getString("state") + " " + restInfo.getString("postal_code");
-//                restaurantAddresses.add(finaAddress);
-//                restaurantIDs.add(restInfo.getInt("id"));
-//                restaurantPhones.add(restInfo.getString("phone"));
-//
-//            }
-//            catch (JSONException e){
-//                Log.e(TAG, e.getMessage());
-//                e.printStackTrace();
-//            }
-//
-//        }
-//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//        builder.setTitle("Select Location");
-//
-//        final ListView modeList = new ListView(this);
-//        locationArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, restaurantNames);
-//        modeList.setAdapter(locationArrayAdapter);
-//
-//        builder.setView(modeList);
-//        modeList.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView parent, View view, int pos, long id) {
-//                String itemName = restaurantNames.get(pos);
-//                String itemAddress = restaurantAddresses.get(pos);
-//                String itemPhone = restaurantPhones.get(pos);
-//
-//                Log.i(TAG, "item clicked" + itemName);
-//                updatePlaceInfo("PLACE_NAME", itemName);
-//                updatePlaceInfo("PLACE_ADDRESS", itemAddress);
-//                updatePlaceInfo("PLACE_NUMBER", itemPhone);
-//
-//
-//                dialog.dismiss();
-//            }
-//        });
-//        dialog = builder.create();
-//
-//        dialog.show();
-//    }
-
     /**
      * Method that sets reservation URL when it finds the chosen location via OpenTable API
      * @param restaurants JSONArray of the found restaurant
@@ -970,15 +923,35 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         final ArrayList<String> restaurantAddresses = new ArrayList<>();
         ArrayList<Integer> restaurantIDs = new ArrayList<>();
         final ArrayList<String> restaurantPhones = new ArrayList<>();
+        String reservationUrl = null;
+
+        Button reserveOnlineButton = (Button)findViewById(R.id.reservationOnlineButton);
+        if(restaurants.length() == 0) {
+            //There is no entry for this restaurant on OpenTable
+            //Set button to not visible
+
+            reserveOnlineButton.setVisibility(View.INVISIBLE);
+        }
+        else if(restaurants.length() > 1) {
+            Log.i(TAG, "OH NO! More than one place matches that description!");
+            reserveOnlineButton.setVisibility(View.VISIBLE);
+        }
 
         for(int i = 0; i < restaurants.length(); i++) {
             try {
                 JSONObject restInfo = (JSONObject) restaurants.get(i);
-                restaurantNames.add(restInfo.getString("name"));
-                String finaAddress = restInfo.getString("address") +  " " + restInfo.getString("city") + ", " + restInfo.getString("state") + " " + restInfo.getString("postal_code");
-                restaurantAddresses.add(finaAddress);
-                restaurantIDs.add(restInfo.getInt("id"));
-                restaurantPhones.add(restInfo.getString("phone"));
+//                restaurantNames.add(restInfo.getString("name"));
+//                String finaAddress = restInfo.getString("address") +  " " + restInfo.getString("city") + ", " + restInfo.getString("state") + " " + restInfo.getString("postal_code");
+//                restaurantAddresses.add(finaAddress);
+//                restaurantIDs.add(restInfo.getInt("id"));
+//                restaurantPhones.add(restInfo.getString("phone"));
+                reservationUrl = restInfo.getString("mobile_reserve_url");
+                if(reservationUrl != null) {
+                    mSqlHelper.updatePlanPlaceInfo(this, "PLACE_URL", reservationUrl);
+                }
+                else {
+                    Log.i(TAG, "WELP! no reservation URL exists!");
+                }
 
             }
             catch (JSONException e){
@@ -987,7 +960,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             }
 
         }
-        Log.i(TAG, restaurantIDs.get(0).toString());
 
     }
 
