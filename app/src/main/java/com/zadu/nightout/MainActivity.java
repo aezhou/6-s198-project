@@ -84,7 +84,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private Location mLastLocation;
     String TAG = "MainActivity";
     String openTableApiUrl = "http://opentable.herokuapp.com/api/";
-    public GoogleGeocodingCallApi googleGeocodingCallApi;
+    public GoogleGeocodingCallApi googleGeocodingCallApi = new GoogleGeocodingCallApi();
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -776,8 +776,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             Log.i(TAG, "starting onPostExecute CallAPI");
 
             JSONArray resultEntries = null;
-            //TODO: Filter based upon the API used
-            // separate this out so people can work on it.
             try {
                 JSONObject jObject = new JSONObject(result);
 
@@ -883,7 +881,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 placeID = geocodingResult.getJSONArray("place_id").toString();
 
             } catch (JSONException e) {
-                Log.e(TAG, "Could not read Geocoding JSON result");
+                Log.e(TAG, "Could not read Geocoding JSON result", e);
                 Log.i(TAG, e.getMessage());
             }
 
