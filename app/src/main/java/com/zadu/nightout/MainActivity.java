@@ -84,6 +84,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private Location mLastLocation;
     String TAG = "MainActivity";
     String openTableApiUrl = "http://opentable.herokuapp.com/api/";
+    public GoogleGeocodingCallApi googleGeocodingCallApi;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -449,18 +450,36 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     @Override
     public void openGoogleMapsDirections(Object something) {
-        Log.i(TAG, "openGoogleMapsDirections() called");
-        TextView destAddressTextView = (TextView)findViewById(R.id.dest_address);
-        String destAddress = destAddressTextView.getText().toString();
-        String destAddressFormatted = destAddress.replace(" ", "+");
-        Log.i(TAG, destAddressFormatted);
-        Uri gmmIntentUri = Uri.parse("google.navigation:q=" + destAddressFormatted);
-        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-        mapIntent.setPackage("com.google.android.apps.maps");
-        startActivity(mapIntent);
-        if(mapIntent.resolveActivity(getPackageManager()) != null) {
-            Log.i(TAG, "Google Maps Navigation about to be called");
+        Spinner destSpinner = (Spinner) findViewById(R.id.dest_spinner);
+        String selection = destSpinner.getSelectedItem().toString();
+        String address = "";
+        if (selection.equals("Home")) {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            address = preferences.getString("home_address", "");
+        }
+        else if (selection.equals("Other")) {
+            EditText otherAddressInput = (EditText) findViewById(R.id.dest_address_other);
+            address = otherAddressInput.getText().toString();
+        }
+        else {
+            TextView destAddressTextView = (TextView) findViewById(R.id.dest_address);
+            address = destAddressTextView.getText().toString();
+        }
+        String destAddressEncoded = null;
+        try {
+            destAddressEncoded = URLEncoder.encode(address, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            Log.e(TAG, "Encoding exception - unable to parse destination address for use");
+            e.printStackTrace();
+        }
+        if (destAddressEncoded != null) {
+            Uri gmmIntentUri = Uri.parse("google.navigation:q=" + destAddressEncoded);
+            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+            mapIntent.setPackage("com.google.android.apps.maps");
             startActivity(mapIntent);
+            if (mapIntent.resolveActivity(getPackageManager()) != null) {
+                startActivity(mapIntent);
+            }
         }
     }
 
@@ -839,7 +858,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     /**
      * Private class for connecting to Google Geocoding API
      */
-    private class GoogleGeocodingCallApi extends CallAPI {
+    public class GoogleGeocodingCallApi extends CallAPI {
         /**
          * Method ran after receiving response from API
          * @param result string result returned from API
@@ -928,13 +947,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         Button reserveOnlineButton = (Button)findViewById(R.id.reservationOnlineButton);
         if(restaurants.length() == 0) {
             //There is no entry for this restaurant on OpenTable
-            //Set button to not visible
+            //Set button to not usable
 
-            reserveOnlineButton.setVisibility(View.INVISIBLE);
+            reserveOnlineButton.setEnabled(false);
         }
         else if(restaurants.length() > 1) {
             Log.i(TAG, "OH NO! More than one place matches that description!");
-            reserveOnlineButton.setVisibility(View.VISIBLE);
+            reserveOnlineButton.setEnabled(true);
         }
 
         for(int i = 0; i < restaurants.length(); i++) {

@@ -11,8 +11,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -26,6 +28,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -36,7 +41,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
  * create an instance of this fragment.
  */
 public class DirectionsFragment extends Fragment implements PlanChangedListener, OnMapReadyCallback,
-        SharedPreferences.OnSharedPreferenceChangeListener {
+        SharedPreferences.OnSharedPreferenceChangeListener, AdapterView.OnItemSelectedListener {
     private static String TAG = "DirectionsFragment";
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -105,29 +110,20 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
 
         map = ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map))
                 .getMap();
-        // TODO: Check if null; if so, use home instead (else use current loc?)
-        // TODO: Listener for changed place
         try {
-            String destName = mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_NAME");
-            Double destLat = mSqlHelper.getPlanLatLong((MainActivity) getActivity(), "PLACE_LAT");
-            Double destLng = mSqlHelper.getPlanLatLong((MainActivity) getActivity(), "PLACE_LONG");
-            LatLng destCoords = new LatLng(destLat, destLng);
-            Marker dest = map.addMarker(new MarkerOptions().position(destCoords).title(destName));
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(destCoords, 15));
-    /*        LatLng coordsMIT = new LatLng(42.3598, -71.0921);
-            Marker MIT = map.addMarker(new MarkerOptions().position(coordsMIT)
-                    .title("MIT"));
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(coordsMIT, 15));*/
+            setUpMap("Destination");
         } catch (NullPointerException e) {
             Log.e(TAG, "No place coords yet.", e);
         }
 
         // Populate the destination spinner
+        // TODO: Make show actual dest name, Home, and Other
         destSpinner = (Spinner) v.findViewById(R.id.dest_spinner);
         ArrayAdapter adapter = ArrayAdapter.createFromResource(getActivity(),
                 R.array.dest_spinner_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         destSpinner.setAdapter(adapter);
+        destSpinner.setOnItemSelectedListener(this);
 
         // Set listener for the "Get Directions" button
         getDirectionsButton = (Button) v.findViewById(R.id.directions_button);
@@ -152,10 +148,43 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
 
     @Override
     public void onMapReady(GoogleMap map) {
-        // TODO: Make use actual coordinates and name of destination
-        map.addMarker(new MarkerOptions()
-                .position(new LatLng(42, -71))
-                .title("MIT"));
+        setUpMap("Destination");
+    }
+
+    /*
+    Show the correct location on the map, based on the user's spinner selection and what is
+    available.
+    */
+    private void setUpMap(String endpoint) {
+        map.clear();
+        // Show the new destination on the embedded map
+        String destName = mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_NAME");
+        Double destLat = mSqlHelper.getPlanLatLong((MainActivity) getActivity(), "PLACE_LAT");
+        Double destLng = mSqlHelper.getPlanLatLong((MainActivity) getActivity(), "PLACE_LONG");
+        if (!endpoint.equals("Home") && !endpoint.equals("Other") &&
+                destLat != null && destLng != null) {
+            LatLng destCoords = new LatLng(destLat, destLng);
+            map.addMarker(new MarkerOptions().position(destCoords).title(destName));
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(destCoords, 15));
+        }
+        // If the destination coords are null, show home on the map instead
+        else {
+            // TODO: Get home coords, probably need to cast to Double from String
+            Double homeLat = null;
+            Double homeLng = null;
+            if (endpoint.equals("Home") && homeLat != null && homeLng != null) {
+                LatLng homeCoords = new LatLng(homeLat, homeLng);
+                map.addMarker(new MarkerOptions().position(homeCoords).title("Home"));
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeCoords, 15));
+            }
+            else if (endpoint.equals("Other")) {
+                // TODO: get and check coords for other, then show if valid
+            }
+            // If home and other coords are also null, show current location
+            else {
+                // TODO: use current location
+            }
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -212,63 +241,101 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
 
     private void refreshDirectionFragmentView(View v, String destName, String destAddress) {
         Log.i(TAG, "refreshing directions fragment");
-        // TODO: when plan changes, update destination and ETAs
+        setUpMap("Destination");
         TextView destAddressView = (TextView) getView().findViewById(R.id.dest_address);
         destAddressView.setText(destAddress);
         // TODO: update spinner text with destName
         // TODO: update current location, just for good measure
         // TODO: update ETA
-
-        Double destLat = mSqlHelper.getPlanLatLong((MainActivity) getActivity(), "PLACE_LAT");
-        Double destLng = mSqlHelper.getPlanLatLong((MainActivity) getActivity(), "PLACE_LONG");
-        if (destLat != null && destLng != null) {
-            map.clear();
-            LatLng destCoords = new LatLng(destLat, destLng);
-            Marker dest = map.addMarker(new MarkerOptions().position(destCoords).title(destName));
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(destCoords, 15));
-        }
-        else {
-            // TODO: Get home coords
-            Double homeLat = null;
-            Double homeLng = null;
-            if (homeLat != null && homeLng != null) {
-                map.clear();
-                LatLng homeCoords = new LatLng(homeLat, homeLng);
-                Marker home = map.addMarker(new MarkerOptions().position(homeCoords).title("Home"));
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeCoords, 15));
-            }
-            else {
-                // TODO: use current location?
-            }
-        }
     }
 
     public void updateETAs() {
 
     }
 
+    // TODO: Remove this?
     public static void setTempETA(String tempETA) {
         tempETA = tempETA;
-        Log.i(TAG, "stored the temp ETA");
+        Log.i(TAG, "stored the temp ETA: " + tempETA);
+    }
+
+    public void onHomeChanged(String homeAddress) {
+        // TODO: handle null case
+        // TODO: update my fragment UI
+        // TODO: find new ID and latlong and store those in sharedprefs
+            // TODO: build geocoding URL
+            // TODO: call the geocoding API thingy .doInBackground with the URL (will store result)
+        makeGeocodingCall(homeAddress);
+    }
+
+    private void makeGeocodingCall(String address) {
+        // TODO: build up URL for address (used for home address lookup)
+        String baseURL = "https://maps.googleapis.com/maps/api/geocode/json?";
+        String addressParam = "address=";
+        String encodedAddress = null;
+        String keyParam = "&key=AIzaSyD3xH-kCCFsSPonGRRi7isV-O5ejZWIts8";
+        try {
+            encodedAddress = URLEncoder.encode(address, "UTF-8");
+            addressParam = addressParam + encodedAddress;
+        } catch (UnsupportedEncodingException e) {
+            Log.e(TAG, "Encoding exception");
+            e.printStackTrace();
+        }
+        if (encodedAddress != null) {
+            String apiUrl = baseURL + addressParam + keyParam;
+            // TODO: See if this works
+            ((MainActivity) getActivity()).googleGeocodingCallApi.execute(apiUrl);
+        }
+    }
+
+    private String buildReverseGeocodingURL(String lat, String lng) {
+        String baseURL = "https://maps.googleapis.com/maps/api/geocode/json?";
+        String latLngParam = "latlng=" + lat + "," + lng;
+        String keyParam = "&key=AIzaSyD3xH-kCCFsSPonGRRi7isV-O5ejZWIts8";
+        return baseURL + latLngParam + keyParam;
     }
 
     public static void storeHomeInfo(String lat, String lng, String placeID) {
+        // TODO: make this store to the SharedPreferences thing, not variables within this fragment (ask Amanda)
         homeLat = lat;
         homeLng = lng;
         homePlaceID = placeID;
         Log.i(TAG, "stored the home stuff");
     }
 
-    public void onHomeChanged(String homeAddress) {
-        //TODO: react to change in shared prefs (ask Amanda) SharedPreferences listener?
-    }
-
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if(key == "home_address") {
-            // TODO: update my fragment UI
-            // TODO: find new ID and latlong and store those in sharedprefs
+            String homeAddress = sharedPreferences.getString(key, null);
+            onHomeChanged(homeAddress);
         }
+    }
+
+    // Selection listener for destination spinner
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        Object selected = parent.getItemAtPosition(position);
+        String selectionName = selected.toString();
+        // TODO: update map
+        setUpMap(selectionName);
+
+        // Show either the Plan destination or input for a separate destination, based on selection
+        TextView destAddressView = (TextView) getView().findViewById(R.id.dest_address);
+        EditText otherDestInput = (EditText) getView().findViewById(R.id.dest_address_other);
+        if (selectionName.equals("Other")) {
+            destAddressView.setVisibility(View.GONE);
+            otherDestInput.setVisibility(View.VISIBLE);
+        }
+        else {
+            otherDestInput.setVisibility(View.GONE);
+            destAddressView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    // Nothing selected listener for destination spinner
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+        // Do nothing?
     }
 
 
