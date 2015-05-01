@@ -170,10 +170,10 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         // If the destination coords are null, show home on the map instead
         else {
             // TODO: Get home coords, probably need to cast to Double from String
-            Double homeLat = null;
-            Double homeLng = null;
             if (endpoint.equals("Home") && homeLat != null && homeLng != null) {
-                LatLng homeCoords = new LatLng(homeLat, homeLng);
+                Double homeLatDouble = new Double(homeLat);
+                Double homeLngDouble = new Double(homeLng);
+                LatLng homeCoords = new LatLng(homeLatDouble, homeLngDouble);
                 map.addMarker(new MarkerOptions().position(homeCoords).title("Home"));
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeCoords, 15));
             }
