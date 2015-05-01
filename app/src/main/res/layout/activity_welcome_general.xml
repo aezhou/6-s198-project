@@ -59,6 +59,14 @@
             android:text="@string/pref_default_display_phone"/>
     </LinearLayout>
 
+    <View
+        android:id="@+id/divider"
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="#DADADA"
+        android:layout_below="@id/phone_number_wrapper"/>
+
+
     <LinearLayout
         android:paddingLeft="32dp"
         android:paddingRight="32dp"
@@ -67,7 +75,7 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/phone_number_wrapper">
+        android:layout_below="@id/divider">
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -12,7 +12,15 @@
         android:text="@string/pref_header_general"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="24sp"/>
+        android:textAllCaps="true"
+        android:textStyle="bold"
+        android:paddingLeft="4dp"
+        android:textSize="20sp"/>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:background="#C4C4C4"/>
 
     <LinearLayout
         android:padding="4dp"
@@ -38,6 +46,11 @@
         android:textSize="14sp"
         android:text="@string/pref_default_display_phone"/>
     </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="#DADADA"/>
 
     <LinearLayout
         android:padding="4dp"
@@ -69,7 +82,17 @@
         android:text="@string/pref_header_emergency"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="24sp"/>
+        android:textAllCaps="true"
+        android:textStyle="bold"
+        android:paddingTop="8dp"
+        android:paddingLeft="4dp"
+        android:textSize="20sp"/>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:background="#C4C4C4"/>
+
     <ListView
         android:id="@+id/emergency_contacts"
         android:layout_width="match_parent"
