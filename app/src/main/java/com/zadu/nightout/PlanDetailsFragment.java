@@ -439,7 +439,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
                             }
                             Log.i(TAG, myPlace.getAddress().toString());
                             String[] addressSplit = myPlace.getAddress().toString().split(", ");
-                            if (myPlace.getAddress().toString().length() == 4) {
+                            if (addressSplit.length == 4) {
                                 // Overwrite the address info from before - this is more reliable
                                 streetAddress = addressSplit[0];
                                 Log.i(TAG, "street address: " + streetAddress);
@@ -464,6 +464,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
                         }
                         places.release();
                         mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_NAME", name);
+
                         mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_ADDRESS", streetAddress + "|" + formatCityStateZip(city, state, zipCode));
                         mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_NUMBER", phoneNumber);
                         // TODO: Do we need to worry about stale values here, in case the Places call failed or something?

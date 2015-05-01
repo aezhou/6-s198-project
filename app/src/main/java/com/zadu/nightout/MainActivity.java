@@ -487,6 +487,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         Log.i(TAG, "findOpenTableUrl() called");
         TextView searchAddress = (TextView)findViewById(R.id.planAddressText);
         String address = mSqlHelper.getPlanDetail(this, "PLACE_ADDRESS");
+        Log.i(TAG, "address from DB: " + address);
         if(searchAddress != null && address != null && !address.equals("")) {
             Log.i(TAG, "search addresss not null");
             String [] addressSplit = address.split("\\|");
@@ -506,6 +507,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     encodedAddress = URLEncoder.encode(streetAddress, "UTF-8");
                     encodedZip = URLEncoder.encode(zipCode, "UTF-8");
                     searchText = "address=" + encodedAddress + ";postal_code=" + encodedZip;
+                    Log.i(TAG, "search text: " + searchText);
                 } catch (UnsupportedEncodingException e) {
                     Log.e(TAG, "Encoding exception");
                     e.printStackTrace();
