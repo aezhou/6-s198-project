@@ -84,7 +84,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private Location mLastLocation;
     String TAG = "MainActivity";
     String openTableApiUrl = "http://opentable.herokuapp.com/api/";
-    public GoogleGeocodingCallApi googleGeocodingCallApi = new GoogleGeocodingCallApi();
+    public GoogleGeocodingCallApi googleGeocodingCallApi;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -872,13 +872,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
             try {
                 JSONObject jObject = new JSONObject(result);
-                Log.i(TAG, result);
-                geocodingResult = jObject.getJSONObject("results");
+                geocodingResult = jObject.getJSONArray("results").getJSONObject(0);
                 JSONObject geometryResult = geocodingResult.getJSONObject("geometry");
                 JSONObject locationResult = geometryResult.getJSONObject("location");
-                lat = locationResult.getJSONArray("lat").toString();
-                lng = locationResult.getJSONArray("lng").toString();
-                placeID = geocodingResult.getJSONArray("place_id").toString();
+                lat = String.valueOf(locationResult.getDouble("lat"));
+                lng = String.valueOf(locationResult.getDouble("lng"));
+                placeID = geocodingResult.getString("place_id");
 
             } catch (JSONException e) {
                 Log.e(TAG, "Could not read Geocoding JSON result", e);
@@ -890,6 +889,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 DirectionsFragment.storeHomeInfo(lat, lng, placeID);
             }
         }
+    }
+
+    public void resetGeocodingApiCaller() {
+        googleGeocodingCallApi = new GoogleGeocodingCallApi();
     }
 
     /**

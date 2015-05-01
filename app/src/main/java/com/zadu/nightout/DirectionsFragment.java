@@ -285,7 +285,8 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
             String apiUrl = baseURL + addressParam + keyParam;
             // TODO: See if this works
             Log.i(TAG, "API URL: " + apiUrl);
-            //((MainActivity) getActivity()).googleGeocodingCallApi.execute(new String[]{apiUrl});
+            ((MainActivity) getActivity()).resetGeocodingApiCaller();
+            ((MainActivity) getActivity()).googleGeocodingCallApi.execute(apiUrl);
         }
     }
 
