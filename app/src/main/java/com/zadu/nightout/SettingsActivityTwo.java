@@ -47,7 +47,9 @@ public class SettingsActivityTwo extends ActionBarActivity {
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         mOwnAddress = (TextView) findViewById(R.id.own_address);
+        mOwnAddress.setText(preferences.getString("home_address", getString(R.string.pref_default_display_address)));
         mOwnPhone = (TextView) findViewById(R.id.own_phone_number);
+        mOwnPhone.setText(preferences.getString("phone_number", getString(R.string.pref_default_display_phone)));
 
         mPhoneNumber = (LinearLayout) findViewById(R.id.phone_number_wrapper);
         mPhoneNumber.setOnClickListener(new View.OnClickListener() {
