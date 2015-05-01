@@ -4,45 +4,34 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.net.Uri;
-import android.preference.PreferenceManager;
-import android.provider.ContactsContract;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBarActivity;
 import android.telephony.PhoneNumberUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
-import java.util.HashSet;
-import java.util.Set;
-
-
-public class SettingsActivityTwo extends ActionBarActivity {
+public class WalkthroughGeneralActivity extends ActionBarActivity {
     private LinearLayout mPhoneNumber;
     private LinearLayout mAddress;
     private TextView mOwnAddress;
     private TextView mOwnPhone;
-    private SimpleCursorAdapter mAdapter;
-    private ListView mEmergencyListView;
-    private Button mButton;
+    private Button mNextButton;
+
 
     private SharedPreferences preferences;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings_activity_two);
+        setContentView(R.layout.activity_welcome_general);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -55,7 +44,7 @@ public class SettingsActivityTwo extends ActionBarActivity {
             public void onClick(View view) {
                 final View enterPhoneNum = getLayoutInflater().inflate(R.layout.dialog_phone_number, null);
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivityTwo.this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(WalkthroughGeneralActivity.this);
                 builder.setView(enterPhoneNum);
 
                 EditText phone = (EditText) enterPhoneNum.findViewById(R.id.new_phone_num);
@@ -112,7 +101,7 @@ public class SettingsActivityTwo extends ActionBarActivity {
             public void onClick(View view) {
                 final View enterHomeAddress = getLayoutInflater().inflate(R.layout.dialog_home_address, null);
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivityTwo.this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(WalkthroughGeneralActivity.this);
                 builder.setView(enterHomeAddress);
 
                 AutoCompleteTextView address = (AutoCompleteTextView)
@@ -168,54 +157,14 @@ public class SettingsActivityTwo extends ActionBarActivity {
             }
         });
 
-        mEmergencyListView = (ListView) findViewById(R.id.emergency_contacts);
-        //TODO: initialize mAdapter (view is R.layout.list_item_settings_contact)
-        mEmergencyListView.setAdapter(mAdapter);
-        mEmergencyListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                //TODO: delete item from listview and db
-                return false;
-            }
-        });
-
-        mButton = (Button) findViewById(R.id.add_new_contact);
-        mButton.setOnClickListener(new View.OnClickListener() {
+        mNextButton = (Button) findViewById(R.id.next_button);
+        mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
-                startActivityForResult(intent, 0);
+                Intent intent = new Intent(WalkthroughGeneralActivity.this,
+                        WalkthroughContactsActivity.class);
+                startActivity(intent);
             }
         });
-    }
-
-    @Override
-    public void onActivityResult(int reqCode, int resultCode, Intent data) {
-        super.onActivityResult(reqCode, resultCode, data);
-        if (data != null) {
-            Uri contactData = data.getData();
-            String contactNumber = null;
-            String contactName = null;
-
-            if (resultCode == RESULT_OK) {
-                Cursor cursor = getContentResolver().query(contactData, null, null, null, null);
-                if (cursor.moveToFirst()) {
-                    contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-                    contactNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                }
-                cursor.close();
-            }
-
-            Set<String> set = new HashSet<>();
-            set.add(contactName);
-            set.add(contactNumber);
-
-            if (reqCode == 0) {
-                if (contactName != null && contactNumber != null) {
-                    //TODO: add to listview, db
-                }
-            }
-        }
-
     }
 }

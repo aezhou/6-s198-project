@@ -7,9 +7,9 @@
     <string name="pref_header_general">General</string>
 
     <string name="pref_title_address">Home Address</string>
-    <string name="pref_default_display_address">77 Massachusetts Ave\nBoston MA 02139</string>
+    <string name="pref_default_display_address">ex: 77 Massachusetts Ave\nBoston MA 02139</string>
     <string name="pref_title_phone">Phone Number</string>
-    <string name="pref_default_display_phone">1234567890</string>
+    <string name="pref_default_display_phone">ex: 1234567890</string>
 
 
 

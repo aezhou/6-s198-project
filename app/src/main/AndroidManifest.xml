@@ -52,6 +52,20 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
+            android:name=".WalkthroughGeneralActivity"
+            android:configChanges="orientation"
+            android:label="Add Basic Info"
+            android:parentActivityName=".WelcomeActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".WalkthroughContactsActivity"
+            android:configChanges="orientation"
+            android:label="Add Emergency Contacts"
+            android:parentActivityName=".WalkthroughGeneralActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
             android:name=".WalkthroughGeneralSettingsActivity"
             android:configChanges="orientation"
             android:label="Save General Settings"
@@ -61,7 +75,7 @@
         <activity
             android:name=".WalkthroughContactsSettingsActivity"
             android:configChanges="orientation"
-            android:label="Save Emergency Contact Settings"
+            android:label="Add Emergency Contact Settings"
             android:parentActivityName=".WalkthroughGeneralSettingsActivity"
             android:screenOrientation="portrait" >
         </activity>
@@ -69,7 +83,7 @@
             android:name=".WalkthroughNamePlanActivity"
             android:configChanges="orientation"
             android:label="Name the First Plan"
-            android:parentActivityName=".WalkthroughContactsSettingsActivity"
+            android:parentActivityName=".WalkthroughContactsActivity"
             android:screenOrientation="portrait" >
         </activity>
 

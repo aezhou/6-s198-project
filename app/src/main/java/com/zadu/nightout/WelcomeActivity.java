@@ -20,7 +20,7 @@ public class WelcomeActivity extends Activity {
             @Override
             public void onClick(View view) {
 
-                Intent intent = new Intent(WelcomeActivity.this, WalkthroughGeneralSettingsActivity.class);
+                Intent intent = new Intent(WelcomeActivity.this, WalkthroughGeneralActivity.class);
                 startActivity(intent);
             }
         });

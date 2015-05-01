@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/helper_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Please select your default emergency contacts."
+        android:textSize="20sp"
+        android:padding="32dp"/>
+
+    <TextView
+        android:layout_below="@id/helper_text"
+        android:id="@+id/description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="You can customize who is listed as an emergency contact for each plan you create."
+        android:textSize="16sp"
+        android:paddingLeft="32dp"
+        android:paddingRight="32dp"/>
+
+    <Button
+        android:id="@+id/next_button"
+        android:text="Next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="30dp"
+        android:layout_alignParentBottom="true"/>
+
+    <ListView
+        android:layout_below="@id/description"
+        android:id="@+id/emergency_contacts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <Button
+        android:id="@+id/add_new_contact"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/emergency_contacts"
+        android:layout_centerHorizontal="true"
+        android:text="@string/pref_add_contacts"/>
+
+</RelativeLayout>
