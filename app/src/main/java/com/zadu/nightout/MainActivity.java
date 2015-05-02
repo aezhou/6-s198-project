@@ -9,12 +9,15 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -49,6 +52,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -77,6 +81,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     String TAG = "MainActivity";
     String openTableApiUrl = "http://opentable.herokuapp.com/api/";
     public GoogleGeocodingCallApi googleGeocodingCallApi;
+
+    //TODO: Cristian
+    Intent i;
+    PendingIntent operation;
+    AlarmManager alarmManager;
+
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -1004,6 +1014,58 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void notifyDirFragOfDestChange(String destName, String destAddress) {
         DirectionsFragment f = (DirectionsFragment) mSectionsPagerAdapter.getItem(1);
         f.onDestinationChanged(destName, destAddress);
+    }
+
+
+    public void stopAlarm() {
+        if(alarmManager != null) {
+            alarmManager.cancel(operation);
+        }
+    }
+
+    public void setAlarm(int durationMinute) {
+        /** This intent invokes the activity DemoActivity, which in turn opens the AlertDialog window */
+        i = new Intent("com.zadu.nightout.checkinactivity");
+        /** Creating a Pending Intent */
+        operation = PendingIntent.getActivity(getBaseContext(), 0, i, Intent.FLAG_ACTIVITY_NEW_TASK);
+        /** Getting a reference to the System Service ALARM_SERVICE */
+        alarmManager = (AlarmManager) getBaseContext().getSystemService(ALARM_SERVICE);
+
+        Calendar now = Calendar.getInstance();
+        int year;
+        int month;
+        int day;
+        int hour;
+        int minute;
+        if(mSqlHelper.getReservationInfo(this, "RESERVATION_YEAR") != null && mSqlHelper.getReservationInfo(this, "RESERVATION_MONTH") != null &&
+                mSqlHelper.getReservationInfo(this, "RESERVATION_DATE")!= null && mSqlHelper.getReservationInfo(this, "RESERVATION_HOUR") != null &&
+                mSqlHelper.getReservationInfo(this, "RESERVATION_MINUTE") != null) {
+            year = mSqlHelper.getReservationInfo(this, "RESERVATION_YEAR");
+            month = mSqlHelper.getReservationInfo(this, "RESERVATION_MONTH");
+            day = mSqlHelper.getReservationInfo(this, "RESERVATION_DATE");
+            hour = mSqlHelper.getReservationInfo(this, "RESERVATION_HOUR");
+            minute =mSqlHelper.getReservationInfo(this, "RESERVATION_MINUTE");
+        }
+        else {
+            year = now.get(Calendar.YEAR);
+            month = now.get(Calendar.MONTH);
+            day = now.get(Calendar.DAY_OF_MONTH);
+            hour = now.get(Calendar.HOUR_OF_DAY);
+            minute = now.get(Calendar.MINUTE);
+        }
+
+
+        /** Creating a calendar object corresponding to the date and time set by the user */
+        GregorianCalendar calendar = new GregorianCalendar(year,month,day, hour, minute);
+
+        /** Converting the date and time in to milliseconds elapsed since epoch */
+        long alarm_time = calendar.getTimeInMillis();
+
+        /** Setting an alarm, which invokes the operation at alarm_time */
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP  , alarm_time , durationMinute * 60000, operation);
+
+        /** Alert is set successfully */
+        Toast.makeText(getBaseContext(), "Alarm is set successfully", Toast.LENGTH_SHORT).show();
     }
 }
 

@@ -1,6 +1,8 @@
 package com.zadu.nightout;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -19,14 +21,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.TimerTask;
 import java.util.prefs.PreferenceChangeListener;
 
@@ -332,36 +337,32 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
 
         mSqlHelper.updatePingsOnOff((MainActivity) getActivity(), true);
 
-        MyThread mt = new MyThread( mSqlHelper.getPingInterval((MainActivity)getActivity()));
-
         if (toggle.isChecked()) {
             // TODO: turn on ping functionality
             Log.i("togglePings", "toggle is checked");
             detailView.setVisibility(View.VISIBLE);
             offView.setVisibility(View.GONE);
-//            mt.start();
-//            mt.notify();
+
+            //TODO: Cristhian
+            int duration = mSqlHelper.getPingInterval((MainActivity)getActivity());
+            ((MainActivity)getActivity()).setAlarm(duration);
+
 
         } else {
-            Log.i("tooglePings", "toggle off");
+            Log.i("togglePings", "toggle off");
             detailView.setVisibility(View.GONE);
             offView.setVisibility(View.VISIBLE);
             mSqlHelper.updatePingsOnOff((MainActivity) getActivity(), false);
             // TODO: turn off ping functionality
-            mt.stopTimerAndTask();
-            mt.interrupt();
-//            try {
-////                mt.wait();
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//            mt.stop();
+            ((MainActivity)getActivity()).stopAlarm();
         }
     }
 
     public void onCheckIn() {
         // TODO: reset check-in timer
         Toast.makeText(getActivity(), "You Checked In!", Toast.LENGTH_SHORT).show();
+
+
     }
 
     public ArrayList<String> getSetContactNumbers() {

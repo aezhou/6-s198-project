@@ -26,7 +26,6 @@
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -75,8 +74,13 @@
 
         <activity
             android:name=".CheckinActivity"
-            android:label="@string/title_activity_checkin" >
-        </activity>
+            android:label="@string/title_activity_checkin"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" >
+            <intent-filter>
+                <action android:name="com.zadu.nightout.checkinactivity" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>>
     </application>
 
 </manifest>

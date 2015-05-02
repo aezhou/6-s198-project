@@ -2,6 +2,8 @@ package com.zadu.nightout;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.view.WindowManager.LayoutParams;
+import android.widget.Toast;
 
 public class CheckinActivity extends FragmentActivity {
     @Override

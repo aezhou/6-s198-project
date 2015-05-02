@@ -8,8 +8,6 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.WindowManager.LayoutParams;
 
-import android.view.WindowManager;
-
 
 public class CheckinAlert extends DialogFragment {
 
@@ -17,7 +15,7 @@ public class CheckinAlert extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         /** Turn Screen On and Unlock the keypad when this alert dialog is displayed */
-        getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+        getActivity().getWindow().addFlags(LayoutParams.FLAG_TURN_SCREEN_ON | LayoutParams.FLAG_DISMISS_KEYGUARD);
 
         /** Creating a alert dialog builder */
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -29,7 +27,7 @@ public class CheckinAlert extends DialogFragment {
         builder.setMessage("An Alarm by AlarmManager");
 
         /** Defining an OK button event listener */
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("OK", new OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 /** Exit application on click OK */
