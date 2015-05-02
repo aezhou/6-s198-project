@@ -72,6 +72,13 @@
                     android:layout_height="wrap_content"
                     android:text="800 Boylston Street, Boston, MA 02199"
                     android:id="@+id/dest_address" />
+
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="Enter a new destination"
+                    android:id="@+id/dest_address_other"
+                    android:visibility="gone"/>
             </LinearLayout>
 
             <LinearLayout

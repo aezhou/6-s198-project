@@ -325,7 +325,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
             else {
                 //Place url is not null therefore make sure to set visibility to true
                 Button reserveOnlineButton = (Button)v.findViewById(R.id.reservationOnlineButton);
-                reserveOnlineButton.setVisibility(View.VISIBLE);
+                reserveOnlineButton.setEnabled(true);
             }
 
         }
@@ -371,12 +371,13 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
     private String state = "";
     private String zipCode = "";
     private String country = "";
-    private String phoneNumber = "unknown";
+    private String phoneNumber = "Phone # Unknown";
     private String placeID = null;
     private String lat = null;
     private String lng = null;
 
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        resetInternalDestFields();
         String choice = (String) adapterView.getItemAtPosition(position);
         // [name, street, city, state, country]; may not have all elements, start from right
         String[] splitChoice = choice.split(", ");
@@ -432,11 +433,20 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
                     public void onResult(PlaceBuffer places) {
                         if (places.getStatus().isSuccess()) {
                             final Place myPlace = places.get(0);
-                            // TODO: Do we need to format out the plus sign?
+                            Log.i(TAG, "Place Name: " + myPlace.getName().toString());
+                            if (myPlace.getName().toString().length() > 0) {
+                                name = myPlace.getName().toString();
+                            }
                             Log.i(TAG, myPlace.getAddress().toString());
                             String[] addressSplit = myPlace.getAddress().toString().split(", ");
-                            if (myPlace.getAddress().toString().length() > 0) {
+                            if (addressSplit.length == 4) {
+                                // Overwrite the address info from before - this is more reliable
                                 streetAddress = addressSplit[0];
+                                Log.i(TAG, "street address: " + streetAddress);
+                                city = addressSplit[1];
+                                state = addressSplit[2].split(" ")[0];
+                                zipCode = addressSplit[2].split(" ")[1];
+                                country = addressSplit[3];
                             }
                             if (myPlace.getPhoneNumber().toString().length() > 0) {
                                 phoneNumber = myPlace.getPhoneNumber().toString();
@@ -454,7 +464,8 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
                         }
                         places.release();
                         mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_NAME", name);
-                        mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_ADDRESS", streetAddress + "|" + city + " " + state + ", " + zipCode);
+
+                        mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_ADDRESS", streetAddress + "|" + formatCityStateZip(city, state, zipCode));
                         mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_NUMBER", phoneNumber);
                         // TODO: Do we need to worry about stale values here, in case the Places call failed or something?
                         mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_ID", placeID);
@@ -471,7 +482,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
 
                         placeName.setText(name);
                         placeAddress.setText(streetAddress);
-                        placeCityStateZip.setText(city + ", " + state + " " + zipCode);
+                        placeCityStateZip.setText(formatCityStateZip(city, state, zipCode));
                         placeNumber.setText(phoneNumber);
 
                         // Find the directions fragment and notify it of the changes
@@ -484,6 +495,36 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
             Log.e(TAG, "Cannot process JSON results", e);
         }
 
+    }
+
+    private void resetInternalDestFields() {
+        name = "";
+        streetAddress = "";
+        city = "";
+        state = "";
+        zipCode = "";
+        country = "";
+        phoneNumber = "Phone # Unknown";
+        placeID = null;
+        lat = null;
+        lng = null;
+    }
+
+    private String formatCityStateZip(String city, String state, String zip) {
+        String formattedAddress = "";
+        if (!city.equals("")) {
+            formattedAddress = city + ", ";
+        }
+        if (!state.equals("")) {
+            formattedAddress = formattedAddress + state + ", ";
+        }
+        if (!zip.equals("")) {
+            formattedAddress = formattedAddress + zip;
+        }
+        if (formattedAddress.endsWith(", ")) {
+            formattedAddress = formattedAddress.substring(0, formattedAddress.length()-2);
+        }
+        return formattedAddress;
     }
 
     public static ArrayList<String> autocomplete(String input) {
@@ -523,19 +564,14 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
         }
 
         try {
-            // TODO: Clean this up
-
             // Create a JSON object hierarchy from the results
             JSONObject jsonObj = new JSONObject(jsonResults.toString());
-            Log.i(TAG, jsonObj.toString());
             JSONArray predsJsonArray = jsonObj.getJSONArray("predictions");
             predictions = predsJsonArray;
 
             // Extract the Place descriptions from the results
             resultList = new ArrayList<String>(predsJsonArray.length());
             for (int i = 0; i < predsJsonArray.length(); i++) {
-                System.out.println(predsJsonArray.getJSONObject(i).getString("description"));
-                System.out.println("============================================================");
                 resultList.add(predsJsonArray.getJSONObject(i).getString("description"));
             }
         } catch (JSONException e) {
