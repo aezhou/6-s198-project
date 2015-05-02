@@ -11,12 +11,15 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class WalkthroughContactsActivity extends ActionBarActivity{
     private SimpleCursorAdapter mAdapter;
+    private MyOpenHelper mSqlHelper;
     private ListView mEmergencyListView;
     private Button mAddButton;
     private Button mNextButton;
@@ -24,14 +27,31 @@ public class WalkthroughContactsActivity extends ActionBarActivity{
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mSqlHelper = MyOpenHelper.getInstance(this);
+
         setContentView(R.layout.activity_welcome_contacts);
         mEmergencyListView = (ListView) findViewById(R.id.emergency_contacts);
-        //TODO: initialize mAdapter (view is R.layout.list_item_settings_contact)
+        Cursor c = mSqlHelper.getDefaultContacts();
+        mAdapter = new SimpleCursorAdapter(this,
+                R.layout.list_item_settings_contact,
+                c,
+                new String[] { mSqlHelper.CONTACT_NAME, mSqlHelper.CONTACT_NUMBER },
+                new int[] { R.id.contactNameTextView, R.id.contactDescriptionTextView },
+                0);
         mEmergencyListView.setAdapter(mAdapter);
         mEmergencyListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                //TODO: delete item from listview and db
+                if (mSqlHelper.getNumDefaultContacts() > 1) {
+                    TextView numberView = (TextView) view.findViewById(R.id.contactDescriptionTextView);
+                    String number = numberView.getText().toString();
+                    mSqlHelper.deleteDefaultContact(number);
+
+                    mAdapter.changeCursor(mSqlHelper.getDefaultContacts());
+                    mEmergencyListView.setAdapter(mAdapter);
+                } else {
+                    Toast.makeText(getApplication(), "You must keep at least one emergency contact.", Toast.LENGTH_SHORT).show();
+                }
                 return false;
             }
         });
@@ -46,6 +66,7 @@ public class WalkthroughContactsActivity extends ActionBarActivity{
         });
 
         mNextButton = (Button) findViewById(R.id.next_button);
+        mNextButton.setEnabled(false);
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -79,7 +100,10 @@ public class WalkthroughContactsActivity extends ActionBarActivity{
 
             if (reqCode == 0) {
                 if (contactName != null && contactNumber != null) {
-                    //TODO: add to listview, db
+                    mSqlHelper.insertDefaultContact(contactName, contactNumber);
+                    mAdapter.changeCursor(mSqlHelper.getDefaultContacts());
+                    mEmergencyListView.setAdapter(mAdapter);
+                    mNextButton.setEnabled(true);
                 }
             }
         }
