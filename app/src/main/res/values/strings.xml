@@ -38,4 +38,5 @@
         <item name="other">Other</item>
     </array>
     <string name="title_activity_settings_activity_two">SettingsActivityTwo</string>
+    <string name="title_activity_checkin">CheckinActivity</string>
 </resources>

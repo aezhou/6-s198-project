@@ -38,12 +38,12 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
-        android:name=".SettingsActivityTwo"
-        android:configChanges="orientation"
-        android:label="@string/title_activity_settings"
-        android:parentActivityName=".MainActivity"
-        android:screenOrientation="portrait" >
-    </activity>
+            android:name=".SettingsActivityTwo"
+            android:configChanges="orientation"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait" >
+        </activity>
         <activity
             android:name=".WelcomeActivity"
             android:configChanges="orientation"
@@ -92,7 +92,12 @@
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyD3xH-kCCFsSPonGRRi7isV-O5ejZWIts8"/>
+            android:value="AIzaSyD3xH-kCCFsSPonGRRi7isV-O5ejZWIts8" />
+
+        <activity
+            android:name=".CheckinActivity"
+            android:label="@string/title_activity_checkin" >
+        </activity>
     </application>
 
 </manifest>
