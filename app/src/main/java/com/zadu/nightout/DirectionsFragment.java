@@ -283,7 +283,6 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         ((MainActivity) getActivity()).getLastLoc();
         String lastLat = ((MainActivity)getActivity()).getLastLat();
         String lastLng = ((MainActivity)getActivity()).getLastLng();
-        Log.i(TAG, "updating ETAs, last loc is " + lastLat + ", " + lastLng);
         // If current location found, make call and update UI with ETA results
         if (lastLat != null && lastLng != null) {
             switch (selection) {
@@ -307,7 +306,6 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
                 default:
                     TextView destAddressTextView = (TextView) getView().findViewById(R.id.dest_address);
                     String destAddress = destAddressTextView.getText().toString();
-                    Log.i(TAG, "view is fine - setting dest address to " + destAddress);
                     if (destAddress != "") {
                         makeDistanceMatrixCall(lastLat, lastLng, destAddress, "driving");
                         makeDistanceMatrixCall(lastLat, lastLng, destAddress, "transit");
@@ -367,7 +365,6 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
 
 
     public void onHomeChanged(String homeAddress) {
-        Log.i(TAG, "home address changed");
         updateDestSpinnerContents(getView());
         // Find new ID and latlong and store those in sharedprefs
         makeGeocodingCall(homeAddress);
@@ -421,7 +418,6 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         Object selected = parent.getItemAtPosition(position);
         String selectionName = selected.toString();
-        Log.i(TAG, "spinner item selected: " + selectionName);
 
         // Show either the Plan destination or input for a separate destination, based on selection
         TextView destAddressView = (TextView) getView().findViewById(R.id.dest_address);
@@ -444,9 +440,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
 
         // Update the rest of the UI
         setUpMap(selectionName);
-        Log.i(TAG, "about to update ETAs");
         updateETAs(selectionName);
-        Log.i(TAG, "updated ETAs");
     }
 
     // Nothing selected listener for destination spinner
