@@ -441,7 +441,10 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
             return;
         }
         final String toNum = myNum;
-        String fromArea = toNum.substring(0,3);
+        String fromArea = "555";
+        if (toNum.length() > 3) {
+            fromArea = toNum.substring(0, 3);
+        }
         final String fromNum = fromArea+"3141592";
 
         // TelAPI credentials

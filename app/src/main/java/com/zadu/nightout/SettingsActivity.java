@@ -23,6 +23,8 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,6 +37,7 @@ public class SettingsActivity extends ActionBarActivity {
     private SimpleCursorAdapter mAdapter;
     private ListView mEmergencyListView;
     private Button mButton;
+    private MyOpenHelper mSqlHelper;
 
     private SharedPreferences preferences;
 
@@ -43,6 +46,7 @@ public class SettingsActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings_activity);
 
+        mSqlHelper = MyOpenHelper.getInstance(this);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         mOwnAddress = (TextView) findViewById(R.id.own_address);
@@ -170,12 +174,23 @@ public class SettingsActivity extends ActionBarActivity {
         });
 
         mEmergencyListView = (ListView) findViewById(R.id.emergency_contacts);
-        //TODO: initialize mAdapter (view is R.layout.list_item_settings_contact)
+        Cursor c = mSqlHelper.getDefaultContacts();
+        mAdapter = new SimpleCursorAdapter(this,
+                R.layout.list_item_settings_contact,
+                c,
+                new String[] { mSqlHelper.CONTACT_NAME, mSqlHelper.CONTACT_NUMBER },
+                new int[] { R.id.contactNameTextView, R.id.contactDescriptionTextView },
+                0);
         mEmergencyListView.setAdapter(mAdapter);
         mEmergencyListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                //TODO: delete item from listview and db
+                TextView numberView = (TextView) view.findViewById(R.id.contactDescriptionTextView);
+                String number = numberView.getText().toString();
+                mSqlHelper.deleteDefaultContact(number);
+
+                mAdapter.changeCursor(mSqlHelper.getDefaultContacts());
+                mEmergencyListView.setAdapter(mAdapter);
                 return false;
             }
         });
@@ -213,7 +228,9 @@ public class SettingsActivity extends ActionBarActivity {
 
             if (reqCode == 0) {
                 if (contactName != null && contactNumber != null) {
-                    //TODO: add to listview, db
+                    mSqlHelper.insertDefaultContact(contactName, contactNumber);
+                    mAdapter.changeCursor(mSqlHelper.getDefaultContacts());
+                    mEmergencyListView.setAdapter(mAdapter);
                 }
             }
         }

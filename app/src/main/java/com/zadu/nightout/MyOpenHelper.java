@@ -108,7 +108,7 @@ public class MyOpenHelper extends SQLiteOpenHelper{
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}
 
     public Cursor getDefaultContacts() {
-        return getReadableDatabase().rawQuery("select "+CONTACT_NAME+", "+CONTACT_NUMBER+
+        return getReadableDatabase().rawQuery("select *"+
                 " from "+DEFAULT_CONTACTS_TABLE_NAME, null);
     }
 
@@ -362,8 +362,8 @@ public class MyOpenHelper extends SQLiteOpenHelper{
         Cursor defaultContacts = getDefaultContacts();
         defaultContacts.moveToFirst();
         while (defaultContacts.isAfterLast() == false) {
-            names.add(defaultContacts.getString(0));
-            nums.add(defaultContacts.getString(1));
+            names.add(defaultContacts.getString(1));
+            nums.add(defaultContacts.getString(2));
             defaultContacts.moveToNext();
         }
         defaultContacts.close();
