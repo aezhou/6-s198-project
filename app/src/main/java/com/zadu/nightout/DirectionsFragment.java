@@ -2,6 +2,7 @@ package com.zadu.nightout;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -64,8 +65,11 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     private SharedPreferences mSharedPrefs;
 
     private static MainActivity activity;
+    private static View view;
 
-    private static String tempETA = null;
+    private static String drivingETA = "?";
+    private static String transitETA = "?";
+    private static String walkingETA = "?";
 
     /**
      * Use this factory method to create a new instance of
@@ -142,6 +146,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
             }
         });
 
+        view = v;
         return v;
     }
 
@@ -250,15 +255,93 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         // TODO: update ETA
     }
 
-    public void updateETAs() {
-
+    public void updateETAs(String selection) {
+        ((MainActivity) getActivity()).getLastLoc();
+        String lastLat = ((MainActivity)getActivity()).getLastLat();
+        String lastLng = ((MainActivity)getActivity()).getLastLng();
+        // If current location found, make call and update UI with ETA results
+        if (lastLat != null && lastLng != null) {
+            switch (selection) {
+                case "Home":
+                    String homeAddress = mSharedPrefs.getString("home_address", null);
+                    if (homeAddress != null) {
+                        makeDistanceMatrixCall(lastLat, lastLng, homeAddress, "driving");
+                        makeDistanceMatrixCall(lastLat, lastLng, homeAddress, "transit");
+                        makeDistanceMatrixCall(lastLat, lastLng, homeAddress, "walking");
+                    }
+                    break;
+                case "Other":
+                    EditText otherDestAddressEditor = (EditText) getView().findViewById(R.id.dest_address_other);
+                    String otherAddress = otherDestAddressEditor.getText().toString();
+                    if (otherAddress != null && otherAddress != "") {
+                        makeDistanceMatrixCall(lastLat, lastLng, otherAddress, "driving");
+                        makeDistanceMatrixCall(lastLat, lastLng, otherAddress, "transit");
+                        makeDistanceMatrixCall(lastLat, lastLng, otherAddress, "walking");
+                    }
+                    break;
+                default:
+                    TextView destAddressTextView = (TextView) getView().findViewById(R.id.dest_address);
+                    String destAddress = destAddressTextView.getText().toString();
+                    if (destAddress != "") {
+                        makeDistanceMatrixCall(lastLat, lastLng, destAddress, "driving");
+                        makeDistanceMatrixCall(lastLat, lastLng, destAddress, "transit");
+                        makeDistanceMatrixCall(lastLat, lastLng, destAddress, "walking");
+                    }
+                    break;
+            }
+        }
+        // Else, update UI with results unknown
+        else {
+            setDrivingETA("?");
+            setTransitETA("?");
+            setWalkingETA("?");
+        }
     }
 
-    // TODO: Remove this?
-    public static void setTempETA(String tempETA) {
-        tempETA = tempETA;
-        Log.i(TAG, "stored the temp ETA: " + tempETA);
+    // Used to get ETAs
+    private void makeDistanceMatrixCall(String lat, String lng, String destAddress, String mode) {
+        String baseURL = "https://maps.googleapis.com/maps/api/distancematrix/json?";
+        String currentLocParam = "origins=" + lat + "," + lng;
+        String destParam = "&destinations=";
+        String encodedDestAddress = null;
+        String modeParam = "&mode=" + mode;
+        String keyParam = "&key=AIzaSyD3xH-kCCFsSPonGRRi7isV-O5ejZWIts8";
+        try {
+            encodedDestAddress = URLEncoder.encode(destAddress, "UTF-8");
+            destParam = destParam + encodedDestAddress;
+        } catch (UnsupportedEncodingException e) {
+            Log.e(TAG, "Encoding exception");
+            e.printStackTrace();
+        }
+        if (encodedDestAddress != null) {
+            String apiUrl = baseURL + currentLocParam + destParam + modeParam + keyParam;
+            ((MainActivity) getActivity()).resetDistanceMatrixApiCaller();
+            ((MainActivity) getActivity()).googleDistanceMatrixCallApi.execute(apiUrl, mode);
+        }
     }
+
+    public static void setDrivingETA(String drivingETAVal) {
+        drivingETA = drivingETAVal;
+        Log.i(TAG, "stored the driving ETA: " + drivingETA);
+        TextView drivingTimeTextView = (TextView) view.findViewById(R.id.driving_time);
+        drivingTimeTextView.setText(drivingETA);
+    }
+
+    public static void setTransitETA(String transitETAVal) {
+        transitETA = transitETAVal;
+        Log.i(TAG, "stored the transit ETA: " + transitETA);
+        TextView transitTimeTextView = (TextView) view.findViewById(R.id.transit_time);
+        transitTimeTextView.setText(transitETA);
+    }
+
+
+    public static void setWalkingETA(String walkingETAVal) {
+        walkingETA = walkingETAVal;
+        Log.i(TAG, "stored the walking ETA: " + walkingETA);
+        TextView walkingTimeTextView = (TextView) view.findViewById(R.id.walking_time);
+        walkingTimeTextView.setText(walkingETA);
+    }
+
 
     public void onHomeChanged(String homeAddress) {
         Log.i(TAG, "home address changed");
@@ -285,12 +368,12 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         }
         if (encodedAddress != null) {
             String apiUrl = baseURL + addressParam + keyParam;
-            Log.i(TAG, "API URL: " + apiUrl);
             ((MainActivity) getActivity()).resetGeocodingApiCaller();
             ((MainActivity) getActivity()).googleGeocodingCallApi.execute(apiUrl);
         }
     }
 
+    // For current location
     private String buildReverseGeocodingURL(String lat, String lng) {
         String baseURL = "https://maps.googleapis.com/maps/api/geocode/json?";
         String latLngParam = "latlng=" + lat + "," + lng;
@@ -316,10 +399,9 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     // Selection listener for destination spinner
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        Log.i(TAG, "firing destination spinner item selected");
         Object selected = parent.getItemAtPosition(position);
         String selectionName = selected.toString();
-        // TODO: update map
-        setUpMap(selectionName);
 
         // Show either the Plan destination or input for a separate destination, based on selection
         TextView destAddressView = (TextView) getView().findViewById(R.id.dest_address);
@@ -339,6 +421,9 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
                         mSqlHelper.getPlanAddressNoPipe((MainActivity) getActivity()));
             }
         }
+
+        setUpMap(selectionName);
+        updateETAs(selectionName);
     }
 
     // Nothing selected listener for destination spinner

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -81,6 +82,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     String TAG = "MainActivity";
     String openTableApiUrl = "http://opentable.herokuapp.com/api/";
     public GoogleGeocodingCallApi googleGeocodingCallApi;
+    public GoogleDistanceMatrixCallApi googleDistanceMatrixCallApi;
 
     //TODO: Cristian
     Intent i;
@@ -534,6 +536,24 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         mGoogleApiClient.connect();
     }
 
+    public String getLastLat() {
+        if (mLastLocation != null) {
+            return String.valueOf(mLastLocation.getLatitude());
+        }
+        else {
+            return null;
+        }
+    }
+
+    public String getLastLng() {
+        if (mLastLocation != null) {
+            return String.valueOf(mLastLocation.getLongitude());
+        }
+        else {
+            return null;
+        }
+    }
+
 
     @Override
     public void updateReservationStatus(boolean isReserved) {
@@ -855,7 +875,15 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     /**
      * Private class for connecting to Google Distance Matrix API
      */
-    private class GoogleDistanceMatrixCallApi extends CallAPI {
+    public class GoogleDistanceMatrixCallApi extends CallAPI {
+        String delimiter = "~~~";
+        @Override
+        protected String doInBackground(String... params) {
+            String superResult = super.doInBackground(params);
+            String mode = params[1];
+            return superResult + delimiter + mode;
+        }
+
         /**
          * Method ran after receiving response from API
          * @param result string result returned from API
@@ -863,28 +891,47 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         @Override
         protected void onPostExecute(String result) {
             Log.i(TAG, "starting Distance Matrix onPostExecute");
+            String[] resultSplit = result.split(delimiter);
+            String queryResult = resultSplit[0];
+            String mode = resultSplit[1];
 
+            JSONObject rowResult = null;
             JSONObject distanceResult = null;
-            String durationResultText = "unknown";
+            String durationResultText = "?";
 
             try {
-                JSONObject jObject = new JSONObject(result);
-                Log.i(TAG, result);
-                distanceResult = jObject.getJSONObject("rows").getJSONObject("elements");
+                JSONObject jObject = new JSONObject(queryResult);
+                rowResult = jObject.getJSONArray("rows").getJSONObject(0);
+                distanceResult = rowResult.getJSONArray("elements").getJSONObject(0);
                 JSONObject durationResult = distanceResult.getJSONObject("duration");
-                durationResultText = durationResult.getJSONArray("text").toString();
+                durationResultText = durationResult.getString("text");
 
             } catch (JSONException e) {
                 Log.e(TAG, "Could not read Distance Matrix JSON result");
                 Log.i(TAG, e.getMessage());
             }
 
-            if (distanceResult != null) {
-                // TODO: Call helper to update ETAs in directions fragment
-                Log.i(TAG, getFragmentManager().toString());
-                //getSectionsPagerAdapter().getDirectionsFrag().setTempETA(durationResultText);
+            if (distanceResult == null) {
+                Log.i(TAG, "could not calculate distance, using ?");
+                durationResultText = "?";
+            }
+
+            switch (mode) {
+                case "driving":
+                    DirectionsFragment.setDrivingETA(durationResultText);
+                    break;
+                case "transit":
+                    DirectionsFragment.setTransitETA(durationResultText);
+                    break;
+                case "walking":
+                    DirectionsFragment.setWalkingETA(durationResultText);
+                    break;
             }
         }
+    }
+
+    public void resetDistanceMatrixApiCaller() {
+        googleDistanceMatrixCallApi = new GoogleDistanceMatrixCallApi();
     }
 
     /**
