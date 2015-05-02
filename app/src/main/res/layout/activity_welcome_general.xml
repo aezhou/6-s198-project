@@ -19,7 +19,8 @@
         android:text="Your phone number will be used if you ever want to spoof a call to yourself. Your address will be used to calculate navigation."
         android:textSize="16sp"
         android:paddingLeft="32dp"
-        android:paddingRight="32dp"/>
+        android:paddingRight="32dp"
+        android:paddingBottom="18dp"/>
 
     <Button
         android:id="@+id/next_button"
@@ -32,7 +33,7 @@
 
 
     <LinearLayout
-        android:paddingTop="24dp"
+        android:paddingTop="6dp"
         android:paddingLeft="32dp"
         android:paddingRight="32dp"
         android:paddingBottom="6dp"
@@ -40,7 +41,8 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/description">
+        android:layout_below="@id/description"
+        android:background="?android:attr/selectableItemBackground">
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -74,11 +76,13 @@
         android:paddingLeft="32dp"
         android:paddingRight="32dp"
         android:paddingTop="6dp"
+        android:paddingBottom="6dp"
         android:id="@+id/home_address_wrapper"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/divider">
+        android:layout_below="@id/divider"
+        android:background="?android:attr/selectableItemBackground">
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
