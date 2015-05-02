@@ -15,6 +15,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
+import android.telephony.PhoneNumberUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,8 +32,15 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.TimerTask;
 import java.util.prefs.PreferenceChangeListener;
 
@@ -60,6 +69,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
     private View mView;
 
     private OnAlertsFragmentInteractionListener mListener;
+    private SharedPreferences mPrefs;
 
     /**
      * Use this factory method to create a new instance of
@@ -90,8 +100,8 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        sharedPrefs.registerOnSharedPreferenceChangeListener(this);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        mPrefs.registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -322,12 +332,18 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
     }
 
     public void onContactChecked(CheckBox v, boolean isDefault) {
-        // TODO: would be good to ensure at least one is always checked
-        TextView nameView = (TextView) mView.findViewById(R.id.contactNameTextView);
-        String name = nameView.getText().toString();
-        TextView numberView = (TextView) mView.findViewById(R.id.contactDescriptionTextView);
-        String number = numberView.getText().toString();
-        mSqlHelper.checkPlanContactNumber((MainActivity) getActivity(), number, ((CheckBox) v).isChecked());
+        // FIXME: seeing a weird bug where if all entries are checked, then unchecked, forces last 2 to stay
+        // might be an artifact of weird initial test db entries??
+        int numChecked = mSqlHelper.getNumCheckedContacts((MainActivity) getActivity());
+        Log.d("ALERTS FRAG", "number of checked contacts before this check: "+numChecked);
+        if (numChecked > 1 || v.isChecked()) {
+            TextView numberView = (TextView) mView.findViewById(R.id.contactDescriptionTextView);
+            String number = numberView.getText().toString();
+            mSqlHelper.checkPlanContactNumber((MainActivity) getActivity(), number, ((CheckBox) v).isChecked());
+        } else {
+            v.setChecked(true); // reset the checkbox back to on
+            Toast.makeText(getActivity(), "You must keep at least one emergency contact checked.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void onTogglePings(View toggleView, View masterView) {
@@ -407,11 +423,56 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         }
     }
 
+    public String getMyNum() {
+        if (mPrefs==null) {return null;}
+        String unformattedNum = mPrefs.getString("phone_number", null);
+        if (unformattedNum==null) {return null;}
+        return PhoneNumberUtils.stripSeparators(unformattedNum);
+    }
+
     public void fakeCall() {
-        Toast.makeText(getActivity(), "Fake Call!", Toast.LENGTH_SHORT).show();
-        String fromNum = "(123) 456-7890";
-        String toNum = "(540) 446-4776";
-        new FakeCallTask().execute(fromNum, toNum);
+        Toast.makeText(getActivity(), "Making Fake Call!", Toast.LENGTH_SHORT).show();
+        final Button callButton = (Button) mView.findViewById(R.id.FakeCallButton);
+        callButton.setEnabled(false);
+
+        String myNum = getMyNum();
+        if (myNum == null) {
+            Toast.makeText(getActivity(), "Couldn't access this phone's number! Check settings.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        final String toNum = myNum;
+        String fromArea = toNum.substring(0,3);
+        final String fromNum = fromArea+"3141592";
+
+        // TelAPI credentials
+        String telapiSid = "ACbf889084aa9ca594bead45998f1506f9";
+        String telapiToken = "6d7f40fb0da44503a520350fd07398ff";
+        String telapiCredentials = telapiSid + ":" + telapiToken;
+        String telapiBase64EncodedCredentials = Base64.encodeToString(telapiCredentials.getBytes(), Base64.NO_WRAP);
+
+        // ion handles asynch-ness
+        Ion.with(getActivity())
+            .load("https://"+telapiSid+":"+telapiToken+"@api.telapi.com/v2/Accounts/"+telapiSid+"/Calls")
+            .addHeader("Authorization", "Basic " + telapiBase64EncodedCredentials)
+            .setLogging("ION_VERBOSE_LOGGING", Log.VERBOSE)
+            .setBodyParameter("To", toNum)
+            .setBodyParameter("From", fromNum)
+            .setBodyParameter("Url", "http://www.telapi.com/ivr/welcome/call")
+            .asString()
+            .setCallback(new FutureCallback<String>() {
+                @Override
+                public void onCompleted(Exception e, String result) {
+                Log.d("ALERT FRAG", "completed post to fake call");
+                if (e!=null) {
+                    Log.d("ALERT FRAG ERR", e.getMessage());
+                }
+                if (result!= null) {
+                    Log.d("ALERT FRAG RESULT", result.toString());
+                }
+                Log.d("ALERT FRAG", "done printing result");
+                callButton.setEnabled(true);
+                    }
+            });
     }
 
     private boolean isDummyContactSet = false;
@@ -452,7 +513,18 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
             mContactsAdapter.changeCursor(mSqlHelper.getContactsToDisplay((MainActivity) getActivity()));
             ListView list = (ListView) mView.findViewById(R.id.contactsListView);
             list.setAdapter(mContactsAdapter);
+
+            if (key == "phone_number") {
+                String newPhone = sharedPreferences.getString("phone_number", null);
+                if (newPhone != null && PhoneNumberUtils.isGlobalPhoneNumber(newPhone)) {
+                    mView.findViewById(R.id.FakeCallButton).setEnabled(true);
+                } else {
+                    // TODO: give this some toast listener or something to inform user to change settings
+                    mView.findViewById(R.id.FakeCallButton).setEnabled(false);
+                }
+            }
         }
+
     }
 
 
@@ -474,14 +546,36 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         public void getLastLoc();
     }
 
-    private class FakeCallTask extends AsyncTask<String, Integer, String> {
-        protected String doInBackground(String... strings) {
-            // TODO: make it do the thing
-            return null;
-        }
 
-        protected void onProgressUpdate(Integer... progress) {}
+// FUNCTIONAL TWILIO API CALL IF NEEDED - BUT FREE ACCOUNT IS TOO LIMITED
 
-        protected void onPostExecute(String result) {}
-    }
+//            String twilioSid = "AC5c171e3338ffeb84902f0e75e2757648";
+//             String twilioToken = "722687b62b430fd606d7009c8614b004";
+//
+//            String twilioCredentials = twilioSid + ":" + twilioToken;
+//            String twilioBase64EncodedCredentials = Base64.encodeToString(twilioCredentials.getBytes(), Base64.NO_WRAP);
+//
+//
+//            Ion.with(getActivity())
+//                .load("https://api.twilio.com/2010-04-01/Accounts/" + twilioSid + "/Calls")
+//                .addHeader("Authorization", "Basic " + twilioBase64EncodedCredentials)
+//                .setLogging("ION_VERBOSE_LOGGING", Log.VERBOSE)
+//                .setBodyParameter("To", "(540) 446-4776")
+//                .setBodyParameter("From", "(972) 999-7480")
+//                .setBodyParameter("Url", "http://demo.twilio.com/docs/voice.xml")
+//                .asString()
+//                .setCallback(new FutureCallback<String>() {
+//                    @Override
+//                    public void onCompleted(Exception e, String result) {
+//                        Log.d("ALERT FRAG", "completed post to fake call");
+//                        if (e != null) {
+//                            Log.d("ALERT FRAG ERR", e.getMessage());
+//                        }
+//                        if (result != null) {
+//                            Log.d("ALERT FRAG RESULT", result.toString());
+//                        }
+//                        Log.d("ALERT FRAG", "done printing result");
+//                    }
+//                });
+
 }

@@ -15,7 +15,7 @@ public class MyOpenHelper extends SQLiteOpenHelper{
 
     private static MyOpenHelper sInstance;
 
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
     public static final String DATABASE_NAME = "nightOut";
     public static final String DEFAULT_CONTACTS_TABLE_NAME = "contacts";
     public static final String CONTACT_NAME = "contact_name";
@@ -42,6 +42,7 @@ public class MyOpenHelper extends SQLiteOpenHelper{
     public static final String RESERVATION_MINUTE = "reservation_minute";
     public static final String HAS_RESERVATION = "has_reservation";
     public static final String PINGS_ON = "pings_on";
+    public static final String PING_MISSES = "ping_misses";
     public static final String PING_INTERVAL = "ping_interval";
     public static final String PING_ALLOWANCE = "ping_allowance";
     private static final String PLAN_TABLE_CREATE =
@@ -62,6 +63,7 @@ public class MyOpenHelper extends SQLiteOpenHelper{
                     RESERVATION_MINUTE + " INTEGER, "+
                     HAS_RESERVATION + " INTEGER, "+//one or zero
                     PINGS_ON + " INTEGER, "+//one or zero
+                    PING_MISSES + " INTEGER, "+
                     PING_INTERVAL + " INTEGER, "+
                     PING_ALLOWANCE + " INTEGER"+ ");";
 
@@ -216,6 +218,17 @@ public class MyOpenHelper extends SQLiteOpenHelper{
         }
     }
 
+    public Integer getPingMisses(MainActivity activity) {
+        String planName = activity.getCurrentPlanName();
+        Cursor c = getReadableDatabase().rawQuery("select "+PING_MISSES+" from " + PLAN_TABLE_NAME +
+                " where " + PLAN_NAME + " == '" + planName + "'", null);
+        c.moveToFirst();
+        if (c.isNull(0)) return null;
+        int interval = c.getInt(0);
+        c.close();
+        return interval;
+    }
+
     public Integer getPingInterval(MainActivity activity) {
         String planName = activity.getCurrentPlanName();
         Cursor c = getReadableDatabase().rawQuery("select "+PING_INTERVAL+" from " + PLAN_TABLE_NAME +
@@ -287,6 +300,13 @@ public class MyOpenHelper extends SQLiteOpenHelper{
                 new String[] {activity.getCurrentPlanName()});
     }
 
+    public void updatePingMisses(MainActivity activity, int misses) {
+        ContentValues cv = new ContentValues();
+        cv.put(PING_MISSES, misses);
+        getWritableDatabase().update(PLAN_TABLE_NAME, cv, PLAN_NAME+" == ?",
+                new String[] {activity.getCurrentPlanName()});
+    }
+
     public void updatePingAllowance(MainActivity activity, int allow) {
         ContentValues cv = new ContentValues();
         cv.put(PING_ALLOWANCE, allow);
@@ -311,6 +331,7 @@ public class MyOpenHelper extends SQLiteOpenHelper{
         cv.put(PLAN_NAME, planName);
         cv.put(HAS_RESERVATION, 0);
         cv.put(PINGS_ON, 0);
+        cv.put(PING_MISSES, 0);
         cv.put(PING_INTERVAL, 30);
         cv.put(PING_ALLOWANCE, 2);
         getWritableDatabase().insert(PLAN_TABLE_NAME, null, cv);
@@ -379,6 +400,16 @@ public class MyOpenHelper extends SQLiteOpenHelper{
         cv.put(IS_ON, isOn);
         getWritableDatabase().update(PLAN_CONTACTS_TABLE_NAME, cv, PLAN_NAME+" == ? AND "+
                 CONTACT_NUMBER+" == ?", new String[] {activity.getCurrentPlanName(), number});
+    }
+
+    public int getNumCheckedContacts(MainActivity activity) {
+        String planName = activity.getCurrentPlanName();
+        Cursor c = getReadableDatabase().rawQuery("SELECT * FROM "+PLAN_CONTACTS_TABLE_NAME+
+                " WHERE "+PLAN_NAME+" == '"+planName+"' AND "+IS_ON+" == 1", null);
+        c.moveToFirst();
+        int num = c.getCount();
+        c.close();
+        return num;
     }
 
 }

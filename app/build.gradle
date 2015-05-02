@@ -17,6 +17,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
 }
 
 dependencies {
@@ -25,4 +26,5 @@ dependencies {
     compile 'com.android.support:support-v4:22.0.0'
     compile 'com.google.android.gms:play-services-maps:7.0.0'
     compile 'com.google.android.gms:play-services-location:7.0.0'
+    compile 'com.koushikdutta.ion:ion:2.+'
 }
