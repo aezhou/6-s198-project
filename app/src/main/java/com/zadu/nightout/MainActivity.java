@@ -227,6 +227,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             return true;
         }
 
+        if (id == R.id.action_delete_plan) {
+            showDeletePlanDialog(getCurrentPlanName());
+        }
+
         if (id == R.id.action_new_plan) {
             final View nameNewPlan = getLayoutInflater().inflate(R.layout.dialog_newplan, null);
 
@@ -534,6 +538,32 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public void updateReservationStatus(boolean isReserved) {
         updateHasReservation(isReserved);
+    }
+
+    public void showDeletePlanDialog(final String plan) {
+        final View planDeleteView = getLayoutInflater().inflate(R.layout.dialog_plan_delete, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setView(planDeleteView);
+
+        builder.setCancelable(true)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        getSqlHelper().deletePlan(plan);
+                        mArrayAdapter.clear();
+                        mArrayAdapter.addAll(mSqlHelper.getPlans());
+                        mArrayAdapter.notifyDataSetChanged();
+                        mSpinner.setSelection(0);
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // close dialog
+                    }
+                }
+        );
+        final AlertDialog alert = builder.create();
+        alert.show();
     }
 
     public void showPingIntervalDialog(final String initValue, final TextView v) {

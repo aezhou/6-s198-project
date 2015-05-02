@@ -462,16 +462,16 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
             .setCallback(new FutureCallback<String>() {
                 @Override
                 public void onCompleted(Exception e, String result) {
-                Log.d("ALERT FRAG", "completed post to fake call");
-                if (e!=null) {
-                    Log.d("ALERT FRAG ERR", e.getMessage());
-                }
-                if (result!= null) {
-                    Log.d("ALERT FRAG RESULT", result.toString());
-                }
-                Log.d("ALERT FRAG", "done printing result");
-                callButton.setEnabled(true);
+                    Log.d("ALERT FRAG", "completed post to fake call");
+                    if (e!=null) {
+                        Log.d("ALERT FRAG ERR", e.getMessage());
                     }
+                    if (result!= null) {
+                        Log.d("ALERT FRAG RESULT", result.toString());
+                    }
+                    Log.d("ALERT FRAG", "done printing result");
+                    callButton.setEnabled(true);
+                }
             });
     }
 
