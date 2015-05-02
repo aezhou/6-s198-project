@@ -16,7 +16,7 @@
         android:id="@+id/description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="You can customize who is listed as an emergency contact for each plan you create."
+        android:text="You can customize who is listed as an emergency contact for each plan you create. You can add more default emergency contacts in the Settings."
         android:textSize="16sp"
         android:paddingLeft="32dp"
         android:paddingRight="32dp"
@@ -26,7 +26,9 @@
         android:layout_below="@id/description"
         android:id="@+id/emergency_contacts"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:paddingLeft="32dp"
+        android:paddingRight="32dp"/>
 
     <Button
         android:id="@+id/next_button"
