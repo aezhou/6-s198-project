@@ -262,7 +262,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
     }
 
     public void refreshDetailFragmentView(View v) {
-        Log.i(TAG, "calling refreshDetailFramentView");
+        Log.i(TAG, "calling refreshDetailFragmentView");
         if(v != null) {
             TextView placeNameText = (TextView)v.findViewById(R.id.destinationName);
             if(mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NAME") != null) {
