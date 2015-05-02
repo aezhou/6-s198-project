@@ -63,9 +63,8 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     private MyOpenHelper mSqlHelper;
     private SharedPreferences mSharedPrefs;
 
-    private static String homeLat = null;
-    private static String homeLng = null;
-    private static String homePlaceID = null;
+    private static MainActivity activity;
+
     private static String tempETA = null;
 
     /**
@@ -99,7 +98,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         }
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mSharedPrefs.registerOnSharedPreferenceChangeListener(this);
-        // TODO: add code to fill in initial values for home address if null and put them in sharedprefs (HELPER WEEEEEE!!!!!)
+        activity = (MainActivity) getActivity();
     }
 
     @Override
@@ -170,6 +169,8 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         // If the destination coords are null, show home on the map instead
         else {
             // TODO: Get home coords, probably need to cast to Double from String
+            String homeLat = mSharedPrefs.getString("home_lat", null);
+            String homeLng = mSharedPrefs.getString("home_lng", null);
             if (endpoint.equals("Home") && homeLat != null && homeLng != null) {
                 Double homeLatDouble = new Double(homeLat);
                 Double homeLngDouble = new Double(homeLng);
@@ -260,6 +261,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     }
 
     public void onHomeChanged(String homeAddress) {
+        Log.i(TAG, "home address changed");
         // TODO: handle null case
         // TODO: update my fragment UI
         // TODO: find new ID and latlong and store those in sharedprefs
@@ -268,8 +270,8 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         makeGeocodingCall(homeAddress);
     }
 
+    // Used for home address lookup to get coords and place_id
     private void makeGeocodingCall(String address) {
-        // TODO: build up URL for address (used for home address lookup)
         String baseURL = "https://maps.googleapis.com/maps/api/geocode/json?";
         String addressParam = "address=";
         String encodedAddress = null;
@@ -283,7 +285,6 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         }
         if (encodedAddress != null) {
             String apiUrl = baseURL + addressParam + keyParam;
-            // TODO: See if this works
             Log.i(TAG, "API URL: " + apiUrl);
             ((MainActivity) getActivity()).resetGeocodingApiCaller();
             ((MainActivity) getActivity()).googleGeocodingCallApi.execute(apiUrl);
@@ -298,11 +299,10 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     }
 
     public static void storeHomeInfo(String lat, String lng, String placeID) {
-        // TODO: make this store to the SharedPreferences thing, not variables within this fragment (ask Amanda)
-        homeLat = lat;
-        homeLng = lng;
-        homePlaceID = placeID;
-        Log.i(TAG, "stored the home stuff");
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
+        sharedPrefs.edit().putString("home_lat", lat).apply();
+        sharedPrefs.edit().putString("home_lng", lng).apply();
+        sharedPrefs.edit().putString("home_place_id", placeID).apply();
     }
 
     @Override
@@ -331,6 +331,13 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         else {
             otherDestInput.setVisibility(View.GONE);
             destAddressView.setVisibility(View.VISIBLE);
+            if (selectionName.equals("Home")) {
+                destAddressView.setText(mSharedPrefs.getString("home_address", "address unknown"));
+            }
+            else {
+                destAddressView.setText(
+                        mSqlHelper.getPlanAddressNoPipe((MainActivity) getActivity()));
+            }
         }
     }
 
