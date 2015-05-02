@@ -1,154 +1,194 @@
 package com.zadu.nightout;
 
-import android.annotation.TargetApi;
-import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
-import android.util.Log;
+import android.support.v7.app.ActionBarActivity;
+import android.os.Bundle;
+import android.telephony.PhoneNumberUtils;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class SettingsActivity extends PreferenceActivity {
-    Preference contact1;
-    Preference contact2;
-    Preference contact3;
-    Preference contact4;
-    Preference contact5;
-    SharedPreferences preferences;
-    private MyOpenHelper mSqlHelper;
 
-    static final int PICK_CONTACT_1 = 1;
-    static final int PICK_CONTACT_2 = 2;
-    static final int PICK_CONTACT_3 = 3;
-    static final int PICK_CONTACT_4 = 4;
-    static final int PICK_CONTACT_5 = 5;
+public class SettingsActivity extends ActionBarActivity {
+    private LinearLayout mPhoneNumber;
+    private LinearLayout mAddress;
+    private TextView mOwnAddress;
+    private TextView mOwnPhone;
+    private SimpleCursorAdapter mAdapter;
+    private ListView mEmergencyListView;
+    private Button mButton;
+
+    private SharedPreferences preferences;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.preferences);
-        mSqlHelper = MyOpenHelper.getInstance(this);
+        setContentView(R.layout.activity_settings_activity);
 
-        contact1 = findPreference("Contact1");
-        contact2 = findPreference("Contact2");
-        contact3 = findPreference("Contact3");
-        contact4 = findPreference("Contact4");
-        contact5 = findPreference("Contact5");
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        contact1.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        mOwnAddress = (TextView) findViewById(R.id.own_address);
+        mOwnAddress.setText(preferences.getString("home_address", getString(R.string.pref_default_display_address)));
+        mOwnPhone = (TextView) findViewById(R.id.own_phone_number);
+        mOwnPhone.setText(preferences.getString("phone_number", getString(R.string.pref_default_display_phone)));
+
+        mPhoneNumber = (LinearLayout) findViewById(R.id.phone_number_wrapper);
+        mPhoneNumber.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onPreferenceClick(Preference preference) {
-                Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
-                startActivityForResult(intent, PICK_CONTACT_1);
+            public void onClick(View view) {
+                final View enterPhoneNum = getLayoutInflater().inflate(R.layout.dialog_phone_number, null);
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
+                builder.setView(enterPhoneNum);
+
+                EditText phone = (EditText) enterPhoneNum.findViewById(R.id.new_phone_num);
+
+                builder.setCancelable(true)
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                EditText phone = (EditText) enterPhoneNum.findViewById(R.id.new_phone_num);
+                                String newNumber = phone.getText().toString();
+                                preferences.edit().putString("phone_number", newNumber).apply();
+                                mOwnPhone.setText(newNumber);
+                            }
+                        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                });
+
+                final AlertDialog alert = builder.create();
+                alert.show();
+
+                if(phone.getText().toString().isEmpty()) {
+                    alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                }
+
+                phone.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+                        if (editable.length() != 0 && PhoneNumberUtils.isGlobalPhoneNumber(editable.toString())) {
+                            alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                        } else {
+                            alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                        }
+                    }
+                });
+            }
+        });
+
+        mAddress = (LinearLayout) findViewById(R.id.home_address_wrapper);
+        mAddress.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final View enterHomeAddress = getLayoutInflater().inflate(R.layout.dialog_home_address, null);
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
+                builder.setView(enterHomeAddress);
+
+                AutoCompleteTextView address = (AutoCompleteTextView)
+                        enterHomeAddress.findViewById(R.id.searchField);
+
+                //TODO: @Cristhian set up autocomplete
+
+
+                builder.setCancelable(true)
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                AutoCompleteTextView address = (AutoCompleteTextView)
+                                        enterHomeAddress.findViewById(R.id.searchField);
+                                String newAddress = address.getText().toString();
+                                preferences.edit().putString("home_address", newAddress).apply();
+                                mOwnAddress.setText(newAddress);
+                            }
+                        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                });
+
+                final AlertDialog alert = builder.create();
+                alert.show();
+
+                if(address.getText().toString().isEmpty()) {
+                    alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                }
+
+                address.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+                        if (editable.length() != 0) {
+                            alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                        } else {
+                            alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                        }
+                    }
+                });
+            }
+        });
+
+        mEmergencyListView = (ListView) findViewById(R.id.emergency_contacts);
+        //TODO: initialize mAdapter (view is R.layout.list_item_settings_contact)
+        mEmergencyListView.setAdapter(mAdapter);
+        mEmergencyListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                //TODO: delete item from listview and db
                 return false;
             }
         });
 
-        Cursor defaultContactsCursor = mSqlHelper.getDefaultContacts();
-        boolean cursorHasNext = defaultContactsCursor.moveToFirst();
-        if (cursorHasNext) {
-            contact1.setTitle(defaultContactsCursor.getString(0));
-            contact1.setSummary(defaultContactsCursor.getString(1));
-        } else {
-            contact1.setTitle("Contact Not Set");
-            contact1.setSummary("Click to Add Default Contact");
-        }
-
-        contact2.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        mButton = (Button) findViewById(R.id.add_new_contact);
+        mButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onPreferenceClick(Preference preference) {
+            public void onClick(View view) {
                 Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
-                startActivityForResult(intent, PICK_CONTACT_2);
-                return false;
+                startActivityForResult(intent, 0);
             }
         });
-
-        cursorHasNext = defaultContactsCursor.moveToNext();
-        if (cursorHasNext) {
-            contact2.setTitle(defaultContactsCursor.getString(0));
-            contact2.setSummary(defaultContactsCursor.getString(1));
-        } else {
-            contact2.setTitle("Contact Not Set");
-            contact2.setSummary("Click to Add Default Contact");
-        }
-
-        contact3.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
-                startActivityForResult(intent, PICK_CONTACT_3);
-                return false;
-            }
-        });
-
-        cursorHasNext = defaultContactsCursor.moveToNext();
-        if (cursorHasNext) {
-            contact3.setTitle(defaultContactsCursor.getString(0));
-            contact3.setSummary(defaultContactsCursor.getString(1));
-        } else {
-            contact3.setTitle("Contact Not Set");
-            contact3.setSummary("Click to Add Default Contact");
-        }
-
-        contact4.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
-                startActivityForResult(intent, PICK_CONTACT_4);
-                return false;
-            }
-        });
-
-        cursorHasNext = defaultContactsCursor.moveToNext();
-        if (cursorHasNext) {
-            contact4.setTitle(defaultContactsCursor.getString(0));
-            contact4.setSummary(defaultContactsCursor.getString(1));
-        } else {
-            contact4.setTitle("Contact Not Set");
-            contact4.setSummary("Click to Add Default Contact");
-        }
-
-        contact5.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
-                startActivityForResult(intent, PICK_CONTACT_5);
-                return false;
-            }
-        });
-
-        cursorHasNext = defaultContactsCursor.moveToNext();
-        if (cursorHasNext) {
-            contact5.setTitle(defaultContactsCursor.getString(0));
-            contact5.setSummary(defaultContactsCursor.getString(1));
-        } else {
-            contact5.setTitle("Contact Not Set");
-            contact5.setSummary("Click to Add Default Contact");
-        }
-        defaultContactsCursor.close();
-
-        bindPreferenceSummaryToValue(findPreference("home_address"));
-        bindPreferenceSummaryToValue(findPreference("phone_number"));
-        bindPreferenceSummaryToValue(findPreference("Contact1"));
-        bindPreferenceSummaryToValue(findPreference("Contact2"));
-        bindPreferenceSummaryToValue(findPreference("Contact3"));
-        bindPreferenceSummaryToValue(findPreference("Contact4"));
-        bindPreferenceSummaryToValue(findPreference("Contact5"));
-
-
     }
-
 
     @Override
     public void onActivityResult(int reqCode, int resultCode, Intent data) {
@@ -167,143 +207,16 @@ public class SettingsActivity extends PreferenceActivity {
                 cursor.close();
             }
 
-        Set<String> set = new HashSet<>();
-        set.add(contactName);
-        set.add(contactNumber);
+            Set<String> set = new HashSet<>();
+            set.add(contactName);
+            set.add(contactNumber);
 
-        switch (reqCode) {
-            case (PICK_CONTACT_1):
+            if (reqCode == 0) {
                 if (contactName != null && contactNumber != null) {
-                    if (!contact1.getSummary().equals("Click to Add Default Contact")) {
-                        mSqlHelper.deleteDefaultContact(contact1.getSummary().toString());
-                    }
-                    contact1.setTitle(contactName);
-                    contact1.setSummary(contactNumber);
-                    mSqlHelper.insertDefaultContact(contactName, contactNumber);
+                    //TODO: add to listview, db
                 }
-                break;
-            case (PICK_CONTACT_2):
-                if (contactName != null && contactNumber != null) {
-                    if (!contact2.getSummary().equals("Click to Add Default Contact")) {
-                        mSqlHelper.deleteDefaultContact(contact2.getSummary().toString());
-                    }
-                    contact2.setTitle(contactName);
-                    contact2.setSummary(contactNumber);
-                    mSqlHelper.insertDefaultContact(contactName, contactNumber);
-                }
-                break;
-            case (PICK_CONTACT_3):
-                if (contactName != null && contactNumber != null) {
-                    if (!contact3.getSummary().equals("Click to Add Default Contact")) {
-                        mSqlHelper.deleteDefaultContact(contact3.getSummary().toString());
-                    }
-                    contact3.setTitle(contactName);
-                    contact3.setSummary(contactNumber);
-                    mSqlHelper.insertDefaultContact(contactName, contactNumber);
-                }
-                break;
-            case (PICK_CONTACT_4):
-                if (contactName != null && contactNumber != null) {
-                    if (!contact4.getSummary().equals("Click to Add Default Contact")) {
-                        mSqlHelper.deleteDefaultContact(contact4.getSummary().toString());
-                    }
-                    contact4.setTitle(contactName);
-                    contact4.setSummary(contactNumber);
-                    mSqlHelper.insertDefaultContact(contactName, contactNumber);
-                }
-                break;
-            case (PICK_CONTACT_5):
-                if (contactName != null && contactNumber != null) {
-                    if (!contact5.getSummary().equals("Click to Add Default Contact")) {
-                        mSqlHelper.deleteDefaultContact(contact5.getSummary().toString());
-                    }
-                    contact5.setTitle(contactName);
-                    contact5.setSummary(contactNumber);
-                    mSqlHelper.insertDefaultContact(contactName, contactNumber);
-                }
-                break;
             }
         }
 
-    }
-
-    /**
-     * A preference value change listener that updates the preference's summary
-     * to reflect its new value.
-     */
-    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
-        @Override
-        public boolean onPreferenceChange(Preference preference, Object value) {
-            String stringValue = value.toString();
-
-            if (preference instanceof ListPreference) {
-                // For list preferences, look up the correct display value in
-                // the preference's 'entries' list.
-                ListPreference listPreference = (ListPreference) preference;
-                int index = listPreference.findIndexOfValue(stringValue);
-
-                // Set the summary to reflect the new value.
-                preference.setSummary(
-                        index >= 0
-                                ? listPreference.getEntries()[index]
-                                : null);
-
-            } else {
-                // For all other preferences, set the summary to the value's
-                // simple string representation.
-                preference.setSummary(stringValue);
-            }
-            return true;
-        }
-    };
-
-    /**
-     * Binds a preference's summary to its value. More specifically, when the
-     * preference's value is changed, its summary (line of text below the
-     * preference title) is updated to reflect the value. The summary is also
-     * immediately updated upon calling this method. The exact display format is
-     * dependent on the type of preference.
-     *
-     * @see #sBindPreferenceSummaryToValueListener
-     */
-    private static void bindPreferenceSummaryToValue(Preference preference) {
-        // Set the listener to watch for value changes.
-        preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
-
-        // Trigger the listener immediately with the preference's
-        // current value.
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
-    }
-
-    /**
-     * This fragment shows general preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class GeneralPreferenceFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.preferences);
-
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-            bindPreferenceSummaryToValue(findPreference("home_address"));
-            bindPreferenceSummaryToValue(findPreference("phone_number"));
-            bindPreferenceSummaryToValue(findPreference("Contact1"));
-            bindPreferenceSummaryToValue(findPreference("Contact2"));
-            bindPreferenceSummaryToValue(findPreference("Contact3"));
-            bindPreferenceSummaryToValue(findPreference("Contact4"));
-            bindPreferenceSummaryToValue(findPreference("Contact5"));
-        }
-    }
-
-    public String getHomeAddress() {
-        return preferences.getString("home_address", null);
     }
 }

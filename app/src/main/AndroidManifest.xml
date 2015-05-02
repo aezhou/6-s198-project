@@ -31,14 +31,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SettingsActivity"
-            android:configChanges="orientation"
-            android:label="@string/title_activity_settings"
-            android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
-        android:name=".SettingsActivityTwo"
+        android:name=".SettingsActivity"
         android:configChanges="orientation"
         android:label="@string/title_activity_settings"
         android:parentActivityName=".MainActivity"
@@ -63,20 +56,6 @@
             android:configChanges="orientation"
             android:label="Add Emergency Contacts"
             android:parentActivityName=".WalkthroughGeneralActivity"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
-            android:name=".WalkthroughGeneralSettingsActivity"
-            android:configChanges="orientation"
-            android:label="Save General Settings"
-            android:parentActivityName=".WelcomeActivity"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
-            android:name=".WalkthroughContactsSettingsActivity"
-            android:configChanges="orientation"
-            android:label="Add Emergency Contact Settings"
-            android:parentActivityName=".WalkthroughGeneralSettingsActivity"
             android:screenOrientation="portrait" >
         </activity>
         <activity
