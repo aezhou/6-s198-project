@@ -19,7 +19,14 @@
         android:text="You can customize who is listed as an emergency contact for each plan you create."
         android:textSize="16sp"
         android:paddingLeft="32dp"
-        android:paddingRight="32dp"/>
+        android:paddingRight="32dp"
+        android:layout_marginBottom="12dp"/>
+
+    <ListView
+        android:layout_below="@id/description"
+        android:id="@+id/emergency_contacts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
     <Button
         android:id="@+id/next_button"
@@ -30,11 +37,6 @@
         android:layout_marginBottom="30dp"
         android:layout_alignParentBottom="true"/>
 
-    <ListView
-        android:layout_below="@id/description"
-        android:id="@+id/emergency_contacts"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
     <Button
         android:id="@+id/add_new_contact"
         android:layout_width="wrap_content"
