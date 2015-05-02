@@ -163,7 +163,7 @@ public class MyOpenHelper extends SQLiteOpenHelper{
         c.close();
         int index = info.indexOf("|"); // index of |
         if (index == -1) return info;
-        return info.substring(0, index) + info.substring(index+1);
+        return info.substring(0, index) + ", " + info.substring(index+1);
     }
 
     public Double getPlanLatLong(MainActivity activity, String param) {
