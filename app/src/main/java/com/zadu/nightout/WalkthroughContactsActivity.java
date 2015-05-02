@@ -24,7 +24,7 @@ public class WalkthroughContactsActivity extends ActionBarActivity{
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_welcome_contacts2);
+        setContentView(R.layout.activity_welcome_contacts);
         mEmergencyListView = (ListView) findViewById(R.id.emergency_contacts);
         //TODO: initialize mAdapter (view is R.layout.list_item_settings_contact)
         mEmergencyListView.setAdapter(mAdapter);
