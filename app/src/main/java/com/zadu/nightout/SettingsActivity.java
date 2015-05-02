@@ -22,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
@@ -185,12 +186,16 @@ public class SettingsActivity extends ActionBarActivity {
         mEmergencyListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                TextView numberView = (TextView) view.findViewById(R.id.contactDescriptionTextView);
-                String number = numberView.getText().toString();
-                mSqlHelper.deleteDefaultContact(number);
+                if (mSqlHelper.getNumDefaultContacts() > 1) {
+                    TextView numberView = (TextView) view.findViewById(R.id.contactDescriptionTextView);
+                    String number = numberView.getText().toString();
+                    mSqlHelper.deleteDefaultContact(number);
 
-                mAdapter.changeCursor(mSqlHelper.getDefaultContacts());
-                mEmergencyListView.setAdapter(mAdapter);
+                    mAdapter.changeCursor(mSqlHelper.getDefaultContacts());
+                    mEmergencyListView.setAdapter(mAdapter);
+                } else {
+                    Toast.makeText(getApplication(), "You must keep at least one emergency contact.", Toast.LENGTH_SHORT).show();
+                }
                 return false;
             }
         });

@@ -412,4 +412,12 @@ public class MyOpenHelper extends SQLiteOpenHelper{
         return num;
     }
 
+    public int getNumDefaultContacts() {
+        Cursor c = getReadableDatabase().rawQuery("SELECT * FROM "+DEFAULT_CONTACTS_TABLE_NAME, null);
+        c.moveToFirst();
+        int num = c.getCount();
+        c.close();
+        return num;
+    }
+
 }
