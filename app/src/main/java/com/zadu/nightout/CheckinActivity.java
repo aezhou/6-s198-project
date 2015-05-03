@@ -5,7 +5,9 @@ import com.zadu.nightout.MainActivity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.WindowManager.LayoutParams;
@@ -43,7 +45,9 @@ public class CheckinActivity extends FragmentActivity {
 
         if(misses > missAllowance) {
             //TODO: call send message to emergency contacts
-
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            preferences.edit().putString("exceeded_misses", "true").apply();
+            Log.i(TAG, "after adjusting prefs");
         }
     }
 

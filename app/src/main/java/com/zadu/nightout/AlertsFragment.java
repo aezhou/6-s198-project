@@ -567,6 +567,14 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
                     sharedPreferences.edit().putString("checkin_change", "false").apply();
                 }
             }
+
+            if(key == "exceeded_misses") {
+                //send text message to emergency contacts
+                if(sharedPreferences.getString("exceeded_misses", "").equals("true")) {
+                    onMessageButton("I have failed to check in on my phone.", true, true);
+                    sharedPreferences.edit().putString("exceeded_misses", "false").apply();
+                }
+            }
         }
 
     }
