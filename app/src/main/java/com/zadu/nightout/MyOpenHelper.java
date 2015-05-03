@@ -289,12 +289,17 @@ public class MyOpenHelper extends SQLiteOpenHelper{
     }
 
     public void updatePingsOnOff(MainActivity activity, boolean on) {
+        String planName = activity.getCurrentPlanName();
+        updatePingsOnOff(planName, on);
+    }
+
+    public void updatePingsOnOff(String planName, boolean on) {
         int onInt = 0;
         if (on) {onInt = 1;}
         ContentValues cv = new ContentValues();
         cv.put(PINGS_ON, onInt);
         getWritableDatabase().update(PLAN_TABLE_NAME, cv, PLAN_NAME+" == ?",
-                new String[] {activity.getCurrentPlanName()});
+                new String[] {planName});
     }
 
     public void updatePingInterval(MainActivity activity, int interval) {
