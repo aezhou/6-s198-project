@@ -121,16 +121,13 @@ public class SettingsActivity extends ActionBarActivity implements AdapterView.O
             @Override
             public void onClick(View view) {
                 final View enterHomeAddress = getLayoutInflater().inflate(R.layout.dialog_home_address, null);
-                AutoCompleteTextView edit = (AutoCompleteTextView) enterHomeAddress.findViewById(R.id.searchField);
-                edit.setText(preferences.getString("home_address", ""));
-                edit.setAdapter(GooglePlacesAutocompleteAdapter.getInstance(getApplicationContext()));
-                edit.setOnItemClickListener(SettingsActivity.this);
+                AutoCompleteTextView address = (AutoCompleteTextView) enterHomeAddress.findViewById(R.id.searchField);
+                address.setText(preferences.getString("home_address", ""));
+                address.setAdapter(GooglePlacesAutocompleteAdapter.getInstance(getApplicationContext()));
+                address.setOnItemClickListener(SettingsActivity.this);
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
                 builder.setView(enterHomeAddress);
-
-                AutoCompleteTextView address = (AutoCompleteTextView)
-                        enterHomeAddress.findViewById(R.id.searchField);
 
                 builder.setCancelable(true)
                         .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
