@@ -541,9 +541,12 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
 
             if (key == "pings_onoff_change") {
                 // update toggle ui to match what's in the db for the current plan
-                Log.d("ALERTS FRAG", "updating pings ui, triggered by shared prefs");
-                updatePingsUIOnly();
-                sharedPreferences.edit().putString("pings_onoff_change", "false").apply();
+                if (sharedPreferences.getString("pings_onoff_change", "").equals("true")) {
+                    Log.d("ALERTS FRAG", "updating pings ui, triggered by shared prefs");
+                    ((MainActivity) getActivity()).stopAlarm();
+                    updatePingsUIOnly();
+                    sharedPreferences.edit().putString("pings_onoff_change", "false").apply();
+                }
             }
         }
 
