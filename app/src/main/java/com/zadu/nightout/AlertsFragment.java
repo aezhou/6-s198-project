@@ -593,7 +593,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
                             "I set up my NightOut app to ask me to check-in periodically "+
                             "tonight to keep me safe, but if you're getting this, I've missed "+
                             "too many check-ins and might be in trouble. Please help!");
-
+                    ((MainActivity)getActivity()).stopAlarm();
                     sharedPreferences.edit().putString("exceeded_misses", "").apply();
                 }
             }

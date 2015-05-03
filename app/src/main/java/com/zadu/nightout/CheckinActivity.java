@@ -29,11 +29,9 @@ public class CheckinActivity extends FragmentActivity {
              sAlert.dismiss();
         }
         sAlert = new CheckinAlert();
+        Bundle args = new Bundle();
+        Boolean isLast = false;
 
-        /** Opening the Alert Dialog Window. This will be opened when the alarm goes off */
-        sAlert.show(getSupportFragmentManager(), "CheckinAlert");
-
-        //TODO: Cristhian perform other check-in functions?
         int missAllowance = mSqlHelper.getPingAllowance(planName);
         int misses = mSqlHelper.getPingMisses(planName);
         misses++;
@@ -45,14 +43,18 @@ public class CheckinActivity extends FragmentActivity {
             //TODO: call send message to emergency contacts
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             preferences.edit().putString("exceeded_misses", planName).apply();
-            Log.i(TAG, "after adjusting prefs");
+            isLast = true;
         }
+
+        args.putBoolean("isLast", isLast);
+        sAlert.setArguments(args);
+        /** Opening the Alert Dialog Window. This will be opened when the alarm goes off */
+        sAlert.show(getSupportFragmentManager(), "CheckinAlert");
     }
 
     public String getPlanName() {
         String planName = getIntent().getExtras().getString("plan");
         if(planName != null) {
-            //TODO: get plan from DB here and update the misses
             Log.i(TAG, "plane name is: " + planName);
         }
 

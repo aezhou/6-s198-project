@@ -12,7 +12,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.WindowManager.LayoutParams;
-import android.widget.Switch;
 import android.widget.Toast;
 
 
@@ -21,20 +20,11 @@ public class CheckinAlert extends DialogFragment{
     private MyOpenHelper mSqlHelper;
     final String TAG = "CheckinAlert";
 
-
-
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-//        //TODO: following line causes an error
+        //TODO: following line causes an error
         mSqlHelper = MyOpenHelper.getInstance(getActivity());
-////        mSqlHelper = ((MainActivity) getActivity()).getSqlHelper();
-//        try {
-//            mListener = (AlertsFragment.OnAlertsFragmentInteractionListener) activity;
-//        } catch (ClassCastException e) {
-//            throw new ClassCastException(activity.toString()
-//                    + " must implement OnFragmentInteractionListener");
-//        }
     }
 
     @Override
@@ -59,47 +49,66 @@ public class CheckinAlert extends DialogFragment{
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-
+        super.onCreate(savedInstanceState);
+        boolean isLast = getArguments().getBoolean("isLast");
         /** Turn Screen On and Unlock the keypad when this alert dialog is displayed */
         getActivity().getWindow().addFlags(LayoutParams.FLAG_TURN_SCREEN_ON | LayoutParams.FLAG_DISMISS_KEYGUARD);
 
         /** Creating a alert dialog builder */
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        /** Setting title for the alert dialog */
-        builder.setTitle("Check-in Alert");
-        /** Setting the content for the alert dialog */
-        builder.setMessage("It's time to check in for your " + ((CheckinActivity)getActivity()).getPlanName() + " plan");
-        /** Defining button event listeners */
-        builder.setPositiveButton("Check In", new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                /** Exit application on click OK */
-//                getActivity().finish();
-                //TODO: do things when user properly checks in
-                Toast.makeText(getActivity(), "User checked it!", Toast.LENGTH_SHORT).show();
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                preferences.edit().putString("checkin_change", "true").apply();
-                Log.i(TAG, "sharedprefs changed");
-            }
-        });
 
-        builder.setNegativeButton("Turn Off", new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-//                getActivity().finish();
-                //TODO: turn checkin toggle off
-                Toast.makeText(getActivity(), "User turned off check-ins!", Toast.LENGTH_SHORT).show();
-                Log.i(TAG, "User turned off check-ins");
-                String planName = ((CheckinActivity)getActivity()).getPlanName();
-                mSqlHelper.updatePingsOnOff(planName, false);
-
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                preferences.edit().putString("pings_onoff_change", "true").apply();
-                Log.i(TAG, "shared prefs changed");
-            }
-        });
-
+        setUpDialog(builder, isLast);
         /** Creating the alert dialog window */
         return builder.create();
+    }
+
+    private void setUpDialog(AlertDialog.Builder builder, boolean isFinal) {
+        if(!isFinal) {
+            /** Setting title for the alert dialog */
+            builder.setTitle("Check-in Alert");
+            /** Setting the content for the alert dialog */
+            builder.setMessage("It's time to check in for your " + ((CheckinActivity) getActivity()).getPlanName() + " plan");
+            /** Defining button event listeners */
+            builder.setPositiveButton("Check In", new OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    /** Exit application on click OK */
+//                getActivity().finish();
+                    //TODO: do things when user properly checks in
+                    Toast.makeText(getActivity(), "User checked it!", Toast.LENGTH_SHORT).show();
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    preferences.edit().putString("checkin_change", "true").apply();
+                    Log.i(TAG, "sharedprefs changed");
+                }
+            });
+
+            builder.setNegativeButton("Turn Off", new OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+//                getActivity().finish();
+                    //TODO: turn checkin toggle off
+                    Toast.makeText(getActivity(), "User turned off check-ins!", Toast.LENGTH_SHORT).show();
+                    Log.i(TAG, "User turned off check-ins");
+                    String planName = ((CheckinActivity) getActivity()).getPlanName();
+                    mSqlHelper.updatePingsOnOff(planName, false);
+
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    preferences.edit().putString("pings_onoff_change", "true").apply();
+                    Log.i(TAG, "shared prefs changed");
+                }
+            });
+        }
+        else {
+            /** Setting title for the alert dialog */
+            builder.setTitle("Check-in Alert");
+            builder.setMessage("You've exceeded the number of misses for " + ((CheckinActivity) getActivity()).getPlanName() + " plan. A message has been sent to your emergency contacts.");
+            builder.setPositiveButton("OK", new OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    /** Exit application on click OK */
+                    getActivity().finish();
+                }
+            });
+        }
     }
 }

@@ -1117,6 +1117,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void stopAlarm() {
         if(alarmManager != null) {
             alarmManager.cancel(operation);
+            mSqlHelper.updatePingMisses(this, 0);
         }
     }
 
