@@ -235,6 +235,10 @@ public class MyOpenHelper extends SQLiteOpenHelper{
 
     public Integer getPingInterval(MainActivity activity) {
         String planName = activity.getCurrentPlanName();
+        return getPingInterval(planName);
+    }
+
+    public Integer getPingInterval(String planName) {
         Cursor c = getReadableDatabase().rawQuery("select "+PING_INTERVAL+" from " + PLAN_TABLE_NAME +
                 " where " + PLAN_NAME + " == '" + planName + "'", null);
         c.moveToFirst();
@@ -246,6 +250,10 @@ public class MyOpenHelper extends SQLiteOpenHelper{
 
     public Integer getPingAllowance(MainActivity activity) {
         String planName = activity.getCurrentPlanName();
+        return getPingAllowance(planName);
+    }
+
+    public Integer getPingAllowance(String planName) {
         Cursor c = getReadableDatabase().rawQuery("select "+PING_ALLOWANCE+" from " + PLAN_TABLE_NAME +
                 " where " + PLAN_NAME + " == '" + planName + "'", null);
         c.moveToFirst();
