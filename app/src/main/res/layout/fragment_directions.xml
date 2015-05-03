@@ -85,7 +85,8 @@
                 </AutoCompleteTextView>
             </LinearLayout>
 
-            <LinearLayout
+            <!-- Probably going to remove this, but leave it for now. -->
+<!--            <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
@@ -106,13 +107,13 @@
                     android:layout_height="wrap_content"
                     android:text="77 Massachusetts Avenue, Cambridge, MA 02139"
                     android:id="@+id/current_address" />
-            </LinearLayout>
+            </LinearLayout>-->
 
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/current_address_layout"
+                android:layout_below="@id/dest_address_layout"
                 android:layout_centerHorizontal="true"
                 android:id="@+id/eta_layout"
                 android:visibility="visible">
