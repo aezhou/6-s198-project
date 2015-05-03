@@ -438,10 +438,10 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
 
                         // Find the directions fragment and notify it of the changes
                         Log.i(TAG, "changed destination");
-                        ((MainActivity) getActivity()).getSectionsPagerAdapter().getDirectionsFrag().onDestinationChanged(name, streetAddress + ", " + city + ", " + state + " " + zipCode);
+                        ((MainActivity) getActivity()).getSectionsPagerAdapter().getDirectionsFrag().onDestinationChanged();
                     }
                 });
-            ((MainActivity) getActivity()).notifyDirFragOfDestChange(name, streetAddress);
+            ((MainActivity) getActivity()).notifyDirFragOfDestChange();
             googleAPIClient.connect();
         } catch (JSONException e) {
             Log.e(TAG, "Cannot process JSON results", e);

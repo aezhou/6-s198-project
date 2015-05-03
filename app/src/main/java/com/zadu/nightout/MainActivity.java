@@ -1109,9 +1109,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         return mSqlHelper;
     }
 
-    public void notifyDirFragOfDestChange(String destName, String destAddress) {
+    public void notifyDirFragOfDestChange() {
         DirectionsFragment f = (DirectionsFragment) mSectionsPagerAdapter.getItem(1);
-        f.onDestinationChanged(destName, destAddress);
+        f.onDestinationChanged();
     }
 
 

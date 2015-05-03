@@ -284,28 +284,20 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     @Override
     public void onPlanChanged() {
         if (getView() != null) {
-            String destName = mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_NAME");
-            String destAddress = mSqlHelper.getPlanAddressNoPipe((MainActivity) getActivity());
-            refreshDirectionFragmentView(getView(), destName, destAddress);
+            refreshDirectionFragmentView();
         }
     }
 
-    public void onDestinationChanged(String destName, String destAddress) {
+    public void onDestinationChanged() {
         if (getView() != null) {
-            refreshDirectionFragmentView(getView(), destName, destAddress);
+            refreshDirectionFragmentView();
         }
     }
 
-    // TODO: call this from places
-    // TODO: probably doesn't need inputs, and would be better without them
-    private void refreshDirectionFragmentView(View v, String destName, String destAddress) {
+    private void refreshDirectionFragmentView() {
         Log.i(TAG, "refreshing directions fragment");
-        //setUpMap("Destination");
-        // Update spinner contents with current destination
+        // Update spinner contents with current destination, which in turn will update map and ETAs
         updateDestSpinnerContents(getView());
-        // TODO: update current location, just for good measure
-        // TODO: update ETAs (make sure works)
-        //updateETAs(destSpinner.getSelectedItem().toString());
     }
 
     public void updateETAs(final String selection, final int numFailedAttempts) {
