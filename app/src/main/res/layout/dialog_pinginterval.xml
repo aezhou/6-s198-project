@@ -7,8 +7,8 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Check in every __ minutes?"
-        android:textSize="24sp"
+        android:text="If you don't check in every __ minutes, you'll get a notification reminder."
+        android:textSize="18sp"
         android:padding="8dp"/>
 
     <EditText

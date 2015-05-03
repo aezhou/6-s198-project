@@ -68,10 +68,10 @@
     <string name="check_in">Check In</string>
     <string name="check_in_description_off">The check-in system is currently OFF.\nToggle this on at the beginning of your outing to use this safety feature.</string>
     <string name="check_in_description_on">The check-in system is currently ON. \nUse the button below to check in periodically.</string>
-    <string name="check_in_text_1">If you don\'t check in for</string>
-    <string name="check_in_text_2">minutes, you\'ll get a notification reminder.</string>
-    <string name="check_in_text_3">Your emergency contacts will be notified after</string>
-    <string name="check_in_text_4">missed reminders.</string>
+
+    <string name="check_in_text_1">Check in every: </string>
+    <string name="check_in_text_2"> minutes</string>
+    <string name="check_in_text_3">Misses before alerting contacts: </string>
     <string name="made_it_there">I\'m There</string>
     <string name="made_it_home">I\'m Home</string>
     <string name="safe">I\'m Safe</string>

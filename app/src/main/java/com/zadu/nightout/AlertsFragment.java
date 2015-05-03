@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -160,10 +161,10 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
 
         Switch pingSwitch = (Switch) v.findViewById(R.id.pingSwitch);
         boolean pingsOn = mSqlHelper.arePingsOn((MainActivity) getActivity());
-        pingSwitch.setOnClickListener(new View.OnClickListener() {
+        pingSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View toggleView) {
-                onTogglePings(toggleView, v);
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                onTogglePings(buttonView, v);
             }
         });
         pingSwitch.setChecked(pingsOn);
@@ -320,21 +321,20 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
     }
 
     public void onContactChecked(CheckBox v, boolean isDefault) {
-        // FIXME: seeing a weird bug where if all entries are checked, then unchecked, forces last 2 to stay
         // might be an artifact of weird initial test db entries??
         int numChecked = mSqlHelper.getNumCheckedContacts((MainActivity) getActivity());
-        Log.d("ALERTS FRAG", "number of checked contacts before this check: "+numChecked);
         if (numChecked > 1 || v.isChecked()) {
-            TextView numberView = (TextView) mView.findViewById(R.id.contactDescriptionTextView);
+            LinearLayout l = (LinearLayout) v.getParent();
+            TextView numberView = (TextView) l.findViewById(R.id.contactDescriptionTextView);
             String number = numberView.getText().toString();
-            mSqlHelper.checkPlanContactNumber((MainActivity) getActivity(), number, ((CheckBox) v).isChecked());
+            mSqlHelper.checkPlanContactNumber((MainActivity) getActivity(), number, v.isChecked());
         } else {
             v.setChecked(true); // reset the checkbox back to on
             Toast.makeText(getActivity(), "You must keep at least one emergency contact checked.", Toast.LENGTH_SHORT).show();
         }
     }
 
-    public void onTogglePings(View toggleView, View masterView) {
+    public void onTogglePings(CompoundButton toggleView, View masterView) {
         if (masterView == null) {
             masterView = getView();
         }

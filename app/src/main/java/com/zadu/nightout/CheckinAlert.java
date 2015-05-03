@@ -73,8 +73,6 @@ public class CheckinAlert extends DialogFragment{
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     /** Exit application on click OK */
-//                getActivity().finish();
-                    //TODO: do things when user properly checks in
                     Toast.makeText(getActivity(), "User checked it!", Toast.LENGTH_SHORT).show();
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
                     preferences.edit().putString("checkin_change", "true").apply();
@@ -86,8 +84,6 @@ public class CheckinAlert extends DialogFragment{
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
 //                getActivity().finish();
-                    //TODO: turn checkin toggle off
-                    Toast.makeText(getActivity(), "User turned off check-ins!", Toast.LENGTH_SHORT).show();
                     Log.i(TAG, "User turned off check-ins");
                     String planName = ((CheckinActivity) getActivity()).getPlanName();
                     mSqlHelper.updatePingsOnOff(planName, false);
@@ -106,7 +102,11 @@ public class CheckinAlert extends DialogFragment{
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     /** Exit application on click OK */
-                    getActivity().finish();
+                    String planName = ((CheckinActivity) getActivity()).getPlanName();
+                    mSqlHelper.updatePingsOnOff(planName, false);
+
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    preferences.edit().putString("pings_onoff_change", "true").apply();
                 }
             });
         }
