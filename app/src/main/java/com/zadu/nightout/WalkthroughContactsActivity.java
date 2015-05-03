@@ -3,9 +3,11 @@ package com.zadu.nightout;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
@@ -26,10 +28,14 @@ public class WalkthroughContactsActivity extends ActionBarActivity{
     private Button mAddButton;
     private Button mNextButton;
 
+    private SharedPreferences preferences;
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mSqlHelper = MyOpenHelper.getInstance(this);
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         setContentView(R.layout.activity_welcome_contacts);
         mEmergencyListView = (ListView) findViewById(R.id.emergency_contacts);
@@ -96,6 +102,7 @@ public class WalkthroughContactsActivity extends ActionBarActivity{
         });
 
         mNextButton = (Button) findViewById(R.id.next_button);
+        mNextButton.setEnabled(preferences.getBoolean("added_first_contact", false));
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -132,6 +139,7 @@ public class WalkthroughContactsActivity extends ActionBarActivity{
                     mSqlHelper.insertDefaultContact(contactName, contactNumber);
                     mAdapter.changeCursor(mSqlHelper.getDefaultContacts());
                     mEmergencyListView.setAdapter(mAdapter);
+                    preferences.edit().putBoolean("added_first_contact", true).apply();
                     mNextButton.setEnabled(true);
                 }
             }

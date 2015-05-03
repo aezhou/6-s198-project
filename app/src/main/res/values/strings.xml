@@ -39,4 +39,20 @@
     </array>
     <string name="title_activity_settings_activity_two">SettingsActivityTwo</string>
     <string name="title_activity_checkin">CheckinActivity</string>
+
+    <string name="attribution">Powered by Google</string>
+
+    <string name="next">Next</string>
+    <string name="finish">Finish</string>
+    <string name="get_started">Get Started</string>
+
+    <!--Walkthrough Strings-->
+    <string name="walkthrough_main">Welcome to NightOut!</string>
+    <string name="walkthrough_helper">Let us be your personal concierge - helping you create a plan, share it, determine how to get there, and stay safe while you\'re out. In order to do that, we need to gather some information first!</string>
+    <string name="walkthrough_general_main">Please enter your cell phone number and home address.</string>
+    <string name="walkthrough_general_helper">Your phone number will be used if you ever want to spoof a call to yourself. Your address will be used to calculate navigation. Without these, the application will not have full functionality.</string>
+    <string name="walkthrough_contacts_main">Please select your default emergency contacts.</string>
+    <string name="walkthrough_contacts_helper">You can customize who is listed as an emergency contact for each plan you create. You can add more default emergency contacts in the Settings.</string>
+    <string name="walkthrough_new_plan_main">Please name your first plan!</string>
+    <string name="walkthrough_new_plan_helper">Each of your plans will have a name - feel free to make it whatever you want!</string>
 </resources>

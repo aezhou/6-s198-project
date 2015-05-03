@@ -7,7 +7,7 @@
         android:id="@+id/helper_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Please select your default emergency contacts."
+        android:text="@string/walkthrough_contacts_main"
         android:textSize="20sp"
         android:padding="32dp"/>
 
@@ -16,7 +16,7 @@
         android:id="@+id/description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="You can customize who is listed as an emergency contact for each plan you create. You can add more default emergency contacts in the Settings."
+        android:text="@string/walkthrough_contacts_helper"
         android:textSize="16sp"
         android:paddingLeft="32dp"
         android:paddingRight="32dp"
@@ -32,7 +32,7 @@
 
     <Button
         android:id="@+id/next_button"
-        android:text="Next"
+        android:text="@string/next"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
