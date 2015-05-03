@@ -214,7 +214,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         ThereSafeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onMessageButton("I made it there safe!", false, false);
+                onMessageButton("I made it there safe!", false);
             }
         });
 
@@ -222,7 +222,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         HomeSafeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onMessageButton("I made it home safe!", false, false);
+                onMessageButton("I made it home safe!", false);
             }
         });
 
@@ -230,7 +230,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         AllClearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onMessageButton("I'm safe! You can ignore my previous messages.", false, false);
+                onMessageButton("I'm safe! You can ignore my previous messages.", false);
             }
         });
 
@@ -238,7 +238,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         GetMeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onMessageButton("Come get me ASAP.", true, false);
+                onMessageButton("Come get me ASAP.", true);
             }
         });
 
@@ -254,7 +254,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         PanicButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onMessageButton("I'm in danger! HELP!", true, false);
+                onMessageButton("I'm in danger! HELP!", true);
             }
         });
 
@@ -373,7 +373,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         return mSqlHelper.getContactNumbers((MainActivity) getActivity());
     }
 
-    public void onMessageButton(String message, boolean sendGPS, boolean skipUI) {
+    public void onMessageButton(String message, boolean sendGPS) {
         if (getSetContactNumbers().size() == 0) {
             Toast.makeText(getActivity(), "No contact numbers to send to!", Toast.LENGTH_SHORT).show();
             return;
@@ -392,37 +392,54 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
             }
         }
 
-        if (!skipUI) {
-            String separator = "; ";
-    //        if(android.os.Build.MANUFACTURER.equalsIgnoreCase("Samsung")){
-    //            separator = ", ";
-    //        }
-            String smsto = "";
-            for (String phoneNumber : getSetContactNumbers()) {
-                smsto = smsto + phoneNumber + separator;
-            }
-            smsto = smsto.substring(0, smsto.length()-1); // remove trailing semicolon
-            Log.d("SendMessage", "to: " + smsto);
+        String separator = "; ";
+//        if(android.os.Build.MANUFACTURER.equalsIgnoreCase("Samsung")){
+//            separator = ", ";
+//        }
+        String smsto = "";
+        for (String phoneNumber : getSetContactNumbers()) {
+            smsto = smsto + phoneNumber + separator;
+        }
+        smsto = smsto.substring(0, smsto.length()-1); // remove trailing semicolon
+        Log.d("SendMessage", "to: " + smsto);
 
 
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.putExtra("address", smsto);
-            intent.putExtra("sms_body", message);
-            intent.setData(Uri.parse("sms:" + smsto));
-            if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
-                Log.d("SendMessage", "starting SMS activity");
-                startActivity(intent);
-            } else {
-                Toast.makeText(getActivity(), "No SMS Application Found!", Toast.LENGTH_LONG).show();
-            }
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.putExtra("address", smsto);
+        intent.putExtra("sms_body", message);
+        intent.setData(Uri.parse("sms:" + smsto));
+        if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+            Log.d("SendMessage", "starting SMS activity");
+            startActivity(intent);
         } else {
-            SmsManager smsManager = SmsManager.getDefault();
-            if (smsManager != null) {
-                for (String phoneNumber : getSetContactNumbers()) {
-                    smsManager.sendTextMessage(phoneNumber, null, message, null, null);
-                }
+            Toast.makeText(getActivity(), "No SMS Application Found!", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void missedCheckinMessage(ArrayList<String> numbers, String message) {
+        if (numbers.size() == 0) {
+            Toast.makeText(getActivity(), "No contact numbers to send to!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String locationProvider = LocationManager.NETWORK_PROVIDER;
+        LocationManager locationManager = ((MainActivity) getActivity()).getLocationManager();
+        Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
+        if (lastKnownLocation != null) {
+            double latitude = lastKnownLocation.getLatitude();
+            double longitude = lastKnownLocation.getLongitude();
+            String locationMsg = " My last known GPS coordinates were: " +
+                    latitude + ", " + longitude;
+            message = message + locationMsg;
+        }
+
+        SmsManager smsManager = SmsManager.getDefault();
+        if (smsManager != null) {
+            for (String phoneNumber : numbers) {
+                smsManager.sendTextMessage(phoneNumber, null, message, null, null);
             }
         }
+
     }
 
     public String getMyNum() {
@@ -570,9 +587,14 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
 
             if(key == "exceeded_misses") {
                 //send text message to emergency contacts
-                if(sharedPreferences.getString("exceeded_misses", "").equals("true")) {
-                    onMessageButton("I have failed to check in on my phone.", true, true);
-                    sharedPreferences.edit().putString("exceeded_misses", "false").apply();
+                if(!sharedPreferences.getString("exceeded_misses", "").equals("")) {
+                    String planName = sharedPreferences.getString("exceeded_misses", "");
+                    missedCheckinMessage(mSqlHelper.getContactNumbers(planName),
+                            "I set up my NightOut app to ask me to check-in periodically "+
+                            "tonight to keep me safe, but if you're getting this, I've missed "+
+                            "too many check-ins and might be in trouble. Please help!");
+
+                    sharedPreferences.edit().putString("exceeded_misses", "").apply();
                 }
             }
         }
