@@ -364,9 +364,14 @@ public class MyOpenHelper extends SQLiteOpenHelper{
     }
 
     public ArrayList<String> getContactNumbers(MainActivity activity) {
+        String planName = activity.getCurrentPlanName();
+        return getContactNumbers(planName);
+    }
+
+    public ArrayList<String> getContactNumbers(String planName) {
         ArrayList<String> nums = new ArrayList<String>();
         Cursor c =  getReadableDatabase().rawQuery("select " + CONTACT_NUMBER + " from " + PLAN_CONTACTS_TABLE_NAME +
-                " where " + PLAN_NAME + " == '" + activity.getCurrentPlanName() + "' AND "+
+                " where " + PLAN_NAME + " == '" + planName + "' AND "+
                 IS_ON+" == 1", null);
         boolean hasNum = c.moveToFirst();
         while (c.isAfterLast() == false) {

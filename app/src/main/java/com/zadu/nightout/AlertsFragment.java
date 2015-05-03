@@ -12,6 +12,7 @@ import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.telephony.PhoneNumberUtils;
+import android.telephony.SmsManager;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -391,22 +392,36 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
             }
         }
 
-        String smsto = "";
-        for (String phoneNumber : getSetContactNumbers()) {
-            smsto = smsto + phoneNumber + ";";
-        }
-        smsto = smsto.substring(0, smsto.length()-2); // remove trailing semicolon
-        Log.d("SendMessage", "to: " + smsto);
+        if (!skipUI) {
+            String separator = "; ";
+    //        if(android.os.Build.MANUFACTURER.equalsIgnoreCase("Samsung")){
+    //            separator = ", ";
+    //        }
+            String smsto = "";
+            for (String phoneNumber : getSetContactNumbers()) {
+                smsto = smsto + phoneNumber + separator;
+            }
+            smsto = smsto.substring(0, smsto.length()-1); // remove trailing semicolon
+            Log.d("SendMessage", "to: " + smsto);
 
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.putExtra("address", smsto);
-        intent.putExtra("sms_body", message);
-        intent.setData(Uri.parse("sms:" + smsto));
-        if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
-            Log.d("SendMessage", "starting SMS activity");
-            startActivity(intent);
+
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.putExtra("address", smsto);
+            intent.putExtra("sms_body", message);
+            intent.setData(Uri.parse("sms:" + smsto));
+            if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                Log.d("SendMessage", "starting SMS activity");
+                startActivity(intent);
+            } else {
+                Toast.makeText(getActivity(), "No SMS Application Found!", Toast.LENGTH_LONG).show();
+            }
         } else {
-            Toast.makeText(getActivity(), "No SMS Application Found!", Toast.LENGTH_LONG).show();
+            SmsManager smsManager = SmsManager.getDefault();
+            if (smsManager != null) {
+                for (String phoneNumber : getSetContactNumbers()) {
+                    smsManager.sendTextMessage(phoneNumber, null, message, null, null);
+                }
+            }
         }
     }
 
