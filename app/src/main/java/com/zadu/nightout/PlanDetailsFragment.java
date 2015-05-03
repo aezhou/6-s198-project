@@ -11,12 +11,9 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.Filter;
-import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -40,15 +37,6 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
-
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link com.zadu.nightout.PlanDetailsFragment.OnPlanDetailsListener} interface
- * to handle interaction events.
- * Use the {@link PlanDetailsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 
 public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemClickListener, PlanChangedListener{
 
@@ -133,14 +121,6 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
             }
         });
 
-        openMapImage = (ImageView) v.findViewById(R.id.planAddressMap);
-//        openMapImage.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                openDirections(view);
-//            }
-//        });
-
         sharePlanButton = (Button) v.findViewById(R.id.planShareButton);
         sharePlanButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -197,12 +177,6 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
         }
     }
 
-    public void openDirections(Object something) {
-        if(mListener != null) {
-            mListener.openGoogleMaps(something);
-        }
-    }
-
     public void sharePlan(Object something) {
         if(mListener != null) {
             mListener.callSharePlan(something);
@@ -222,12 +196,6 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
             mListener.showDatePickerDialog(something);
         }
     }
-
-/*    public void findLocationInfo(Object something) {
-        if(mListener != null) {
-            mListener.findLocation(something);
-        }
-    }*/
 
     public void updateReservationStatus(boolean isReserved) {
         if(mListener != null) {
@@ -341,14 +309,12 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
      */
     public interface OnPlanDetailsListener {
         // send things in fragment to listener, which MainActivity extends
-//        public void onPlanSaved(Object something);
         public void makeOnlineReservation(Object something);
         public void makeCallReservation(Object something);
         public void openGoogleMaps(Object something);
         public void callSharePlan(Object something);
         public void showTimePickerDialog(Object something);
         public void showDatePickerDialog(Object something);
-//        public void findLocation(Object something);
         public void updateReservationStatus(boolean isReserved);
     }
 

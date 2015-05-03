@@ -4,7 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent" android:orientation="vertical"
-    android:layout_margin="10dp"
+    android:padding="16dp"
     tools:context="com.zadu.nightout.AlertsFragment">
 
     <!-- contacts header -->
@@ -34,14 +34,14 @@
     <LinearLayout
         android:id="@+id/contactsView"
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="0dp"
         android:orientation="vertical"
         android:layout_weight="1">
 
         <ListView
             android:id="@+id/contactsListView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_weight="1">
         </ListView>
 
@@ -50,7 +50,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Add Contact"/>
+            android:text="@string/add_contact"/>
 
     </LinearLayout>
 
@@ -59,11 +59,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
+        android:layout_marginBottom="6dp"
         android:orientation="horizontal">
         <TextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Check In"
+            android:text="@string/check_in"
             android:textSize="@dimen/abc_text_size_medium_material"
             android:layout_weight="1"/>
         <Switch
@@ -79,7 +80,7 @@
         android:id="@+id/pingOffLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="The check-in system is currently OFF.\nToggle this on at the beginning of your outing to use this safety feature."/>
+        android:text="@string/check_in_description_off"/>
     <LinearLayout
         android:id="@+id/pingDetailsLayout"
         android:visibility="gone"
@@ -89,7 +90,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="The check-in system is currently ON. \nUse the button below to check in periodically."
+            android:text="@string/check_in_description_on"
             android:layout_marginBottom="5dp"/>
         <LinearLayout
             android:layout_width="match_parent"
@@ -98,7 +99,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="If you don't check in for  "/>
+                android:text="@string/check_in_text_1"/>
             <TextView
                 android:id="@+id/pingIntervalText"
                 android:textStyle="bold"
@@ -106,12 +107,13 @@
                 android:textColor="@color/material_deep_teal_200"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingLeft="8dp"
                 android:text="30"/>
         </LinearLayout>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="minutes, you'll get a notification reminder."/>
+            android:text="@string/check_in_text_2"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -119,7 +121,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Your emergency contacts will be notified after "/>
+                android:text="@string/check_in_text_3"/>
             <TextView
                 android:id="@+id/pingAllowanceText"
                 android:textStyle="bold"
@@ -134,20 +136,20 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="missed reminders."/>
+            android:text="@string/check_in_text_4"/>
         <Button
             android:id="@+id/checkInButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Check In"/>
+            android:text="@string/check_in"/>
     </LinearLayout>
 
     <!-- action buttons -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
+        android:layout_gravity="bottom|center_horizontal"
         android:layout_marginTop="12dp"
         android:orientation="vertical">
         <LinearLayout
@@ -156,25 +158,29 @@
             android:orientation="horizontal">
             <Button
                 android:id="@+id/ThereSafeButton"
-                android:text="I Made It There"
+                android:text="@string/made_it_there"
                 android:background="@color/material_deep_teal_200"
                 android:textColor="#FFFFFF"
                 android:layout_width="wrap_content"
+                android:paddingRight="8dp"
+                android:paddingLeft="8dp"
                 android:layout_height="30dp"
                 android:layout_gravity="start"
                 android:layout_margin="2dp"/>
             <Button
                 android:id="@+id/HomeSafeButton"
-                android:text="I Made It Home"
+                android:text="@string/made_it_home"
                 android:background="@color/material_deep_teal_200"
                 android:textColor="#FFFFFF"
+                android:paddingRight="8dp"
+                android:paddingLeft="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
                 android:layout_gravity="center_horizontal"
                 android:layout_margin="2dp"/>
             <Button
                 android:id="@+id/AllClearButton"
-                android:text="I'm Safe"
+                android:text="@string/safe"
                 android:background="@color/material_deep_teal_200"
                 android:textColor="#FFFFFF"
                 android:layout_width="wrap_content"
@@ -188,7 +194,7 @@
             android:orientation="horizontal">
             <Button
                 android:id="@+id/FakeCallButton"
-                android:text="Fake Call"
+                android:text="@string/fake_call"
                 android:background="#FFFFBB33"
                 android:textColor="#FFFFFF"
                 android:layout_width="fill_parent"
@@ -198,7 +204,7 @@
                 android:layout_margin="2dp"/>
             <Button
                 android:id="@+id/GetMeButton"
-                android:text="Come Get Me"
+                android:text="@string/come_get_me"
                 android:background="#FFFFBB33"
                 android:textColor="#FFFFFF"
                 android:layout_width="fill_parent"
@@ -209,7 +215,7 @@
         </LinearLayout>
         <Button
             android:id="@+id/PanicButton"
-            android:text="PANIC"
+            android:text="@string/panic"
             android:background="#FFCC0000"
             android:textColor="#FFFFFF"
             android:layout_width="match_parent"

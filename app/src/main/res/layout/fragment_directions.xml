@@ -1,6 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" android:orientation="vertical"
+    android:padding="16dp"
     tools:context="com.zadu.nightout.DirectionsFragment">
 
     <ScrollView
@@ -27,15 +28,13 @@
                     class="com.google.android.gms.maps.SupportMapFragment"
                     android:id="@+id/map"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp"/>
+                    android:layout_height="184dp"/>
             </LinearLayout>
 
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
                 android:id="@+id/spinner_layout"
                 android:layout_marginBottom="10dp">
 
@@ -56,8 +55,6 @@
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/spinner_layout"
-                android:layout_centerHorizontal="true"
                 android:id="@+id/dest_address_layout"
                 android:layout_marginBottom="10dp">
 
@@ -113,8 +110,6 @@
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/dest_address_layout"
-                android:layout_centerHorizontal="true"
                 android:id="@+id/eta_layout"
                 android:visibility="visible">
 
@@ -139,6 +134,7 @@
                         android:id="@+id/driving_layout">
 
                         <ImageView
+                            android:contentDescription="@string/car_description"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:id="@+id/driving_imageView"
@@ -159,6 +155,7 @@
                         android:id="@+id/transit_layout">
 
                         <ImageView
+                            android:contentDescription="@string/transit_description"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:id="@+id/transit_imageView"
@@ -179,6 +176,7 @@
                         android:id="@+id/walking_layout">
 
                         <ImageView
+                            android:contentDescription="@string/walking_description"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:id="@+id/walking_imageView"
@@ -204,7 +202,7 @@
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Refresh ETA Data"
+                    android:text="@string/refresh_ETA"
                     android:id="@+id/eta_refresh_button" />
             </LinearLayout>
 
@@ -219,7 +217,6 @@
                 <RelativeLayout
                     android:layout_width="0dip"
                     android:layout_height="fill_parent"
-                    android:layout_centerHorizontal="true"
                     android:layout_weight=".25"
                     android:id="@+id/button_left_inner_layout"
                     android:gravity="center_horizontal">
@@ -227,7 +224,7 @@
                     <Button
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:text="Get Directions"
+                        android:text="@string/get_directions"
                         android:id="@+id/directions_button"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginLeft="10dp"
@@ -245,7 +242,7 @@
                     <Button
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:text="Get an Uber"
+                        android:text="@string/get_Uber"
                         android:id="@+id/call_ride_button"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginLeft="5dp"

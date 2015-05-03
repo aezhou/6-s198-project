@@ -42,9 +42,14 @@
 
     <string name="attribution">Powered by Google</string>
 
+    <!--Buttons-->
+    <string name="refresh_ETA">Refresh ETA Data</string>
+    <string name="get_directions">Get Directions</string>
+    <string name="get_Uber">Get an Uber</string>
     <string name="next">Next</string>
     <string name="finish">Finish</string>
     <string name="get_started">Get Started</string>
+    <string name="add_contact">Add Contact</string>
 
     <!--Walkthrough Strings-->
     <string name="walkthrough_main">Welcome to NightOut!</string>
@@ -55,4 +60,22 @@
     <string name="walkthrough_contacts_helper">You can customize who is listed as an emergency contact for each plan you create. You can add more default emergency contacts in the Settings.</string>
     <string name="walkthrough_new_plan_main">Please name your first plan!</string>
     <string name="walkthrough_new_plan_helper">Each of your plans will have a name - feel free to make it whatever you want!</string>
+
+    <!--Direction Fragment Strings-->
+    <string name="transit_description">transit icon</string>
+    <string name="car_description">car icon</string>
+    <string name="walking_description">walking icon</string>
+    <string name="check_in">Check In</string>
+    <string name="check_in_description_off">The check-in system is currently OFF.\nToggle this on at the beginning of your outing to use this safety feature.</string>
+    <string name="check_in_description_on">The check-in system is currently ON. \nUse the button below to check in periodically.</string>
+    <string name="check_in_text_1">If you don\'t check in for</string>
+    <string name="check_in_text_2">minutes, you\'ll get a notification reminder.</string>
+    <string name="check_in_text_3">Your emergency contacts will be notified after</string>
+    <string name="check_in_text_4">missed reminders.</string>
+    <string name="made_it_there">I Made It There</string>
+    <string name="made_it_home">I Made It Home</string>
+    <string name="safe">I\'m Safe</string>
+    <string name="fake_call">Fake Call</string>
+    <string name="come_get_me">Come Get Me</string>
+    <string name="panic">PANIC</string>
 </resources>
