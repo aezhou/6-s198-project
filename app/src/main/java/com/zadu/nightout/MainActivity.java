@@ -51,6 +51,7 @@ import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -393,7 +394,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 Button timePickerButton = (Button)findViewById(R.id.timePickerButton);
                 timePickerButton.setText(hourOfDay + " : " + minute);
-                updatePlanReservationTime(mHour, mMinute);
+                updatePlanReservationTime(hourOfDay, minute);
             }
         }, mHour, mMinute, false);
         tpd.show();
@@ -411,11 +412,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 new DatePickerDialog.OnDateSetListener() {
 
                     @Override
-                    public void onDateSet(DatePicker view, int year,
-                                          int monthOfYear, int dayOfMonth) {
+                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                         Button datePickerButton = (Button) findViewById(R.id.datePickerButton);
                         datePickerButton.setText(dayOfMonth + "/" + (monthOfYear+1) + "/" +year);
+//                        mSqlHelper.updatePlanReservationDate((Main, mYear, mMonth, mDay);
                         updatePlanReservationDate(mYear, mMonth, mDay);
+                        //TODO: remove line below
+                        Log.i(TAG, "Updated onto db?");
                     }
                 }, mYear, mMonth, mDay);
         dpd.show();
@@ -534,6 +537,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public void getLastLoc() {
         mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void toggleSwitch(Switch p) {
+//        AlertsFragment alert = getSupportFragmentManager().findFragmentById(R.id.)
+//        Switch pingSwitch = (Switch) findViewById(R.id.pingSwitch);
+        mSectionsPagerAdapter.getAlertsFrag().onTogglePings(p, null);
     }
 
     public String getLastLat() {
@@ -674,6 +684,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 }
             }
         });
+    }
+
+    public void togglePings(Switch pingSwitch) {
+
     }
 
     @Override
@@ -1020,10 +1034,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
      */
     private void setReservationInfo(final JSONArray restaurants) {
         Log.i(TAG, "calling setReservationInfo");
-        final ArrayList<String> restaurantNames = new ArrayList<>();
-        final ArrayList<String> restaurantAddresses = new ArrayList<>();
-        ArrayList<Integer> restaurantIDs = new ArrayList<>();
-        final ArrayList<String> restaurantPhones = new ArrayList<>();
         String reservationUrl = null;
 
         Button reserveOnlineButton = (Button)findViewById(R.id.reservationOnlineButton);
@@ -1048,7 +1058,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 else {
                     Log.i(TAG, "WELP! no reservation URL exists!");
                 }
-
             }
             catch (JSONException e){
                 Log.e(TAG, e.getMessage());
@@ -1057,10 +1066,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         }
 
-    }
-
-    public void updatePlaceInfo(String infoType, String infoVal) {
-        mSqlHelper.updatePlanPlaceInfo(this, infoType, infoVal);
     }
 
     public void updatePlanReservationTime(int hour, int min) {
@@ -1100,9 +1105,15 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
-    public void setAlarm(int durationMinute) {
-        /** This intent invokes the activity DemoActivity, which in turn opens the AlertDialog window */
+    public void resetAlarm(int interval) {
+        stopAlarm();
+        setAlarm(interval, true);
+    }
+
+    public void setAlarm(int durationMinute, boolean startFromNow) {
+        /** This intent invokes the activity CheckinActivity, which in turn opens the CheckinAlert window */
         i = new Intent("com.zadu.nightout.checkinactivity");
+        i.putExtra("plan", getCurrentPlanName());
         /** Creating a Pending Intent */
         operation = PendingIntent.getActivity(getBaseContext(), 0, i, Intent.FLAG_ACTIVITY_NEW_TASK);
         /** Getting a reference to the System Service ALARM_SERVICE */
@@ -1116,12 +1127,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         int minute;
         if(mSqlHelper.getReservationInfo(this, "RESERVATION_YEAR") != null && mSqlHelper.getReservationInfo(this, "RESERVATION_MONTH") != null &&
                 mSqlHelper.getReservationInfo(this, "RESERVATION_DATE")!= null && mSqlHelper.getReservationInfo(this, "RESERVATION_HOUR") != null &&
-                mSqlHelper.getReservationInfo(this, "RESERVATION_MINUTE") != null) {
+                mSqlHelper.getReservationInfo(this, "RESERVATION_MINUTE") != null && !startFromNow) {
             year = mSqlHelper.getReservationInfo(this, "RESERVATION_YEAR");
             month = mSqlHelper.getReservationInfo(this, "RESERVATION_MONTH");
             day = mSqlHelper.getReservationInfo(this, "RESERVATION_DATE");
             hour = mSqlHelper.getReservationInfo(this, "RESERVATION_HOUR");
-            minute =mSqlHelper.getReservationInfo(this, "RESERVATION_MINUTE");
+            minute = mSqlHelper.getReservationInfo(this, "RESERVATION_MINUTE");
         }
         else {
             year = now.get(Calendar.YEAR);
@@ -1139,10 +1150,18 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         long alarm_time = calendar.getTimeInMillis();
 
         /** Setting an alarm, which invokes the operation at alarm_time */
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP  , alarm_time , durationMinute * 60000, operation);
+        long duration = 60000*durationMinute;
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP  , alarm_time + duration, duration, operation);
 
         /** Alert is set successfully */
         Toast.makeText(getBaseContext(), "Alarm is set successfully", Toast.LENGTH_SHORT).show();
+    }
+
+    public void userCheckin() {
+        int interval = mSqlHelper.getPingInterval(this);
+        mSqlHelper.updatePingMisses(this, 0);
+        resetAlarm(interval);
+        Toast.makeText(getBaseContext(), "Successfully checked in!", Toast.LENGTH_SHORT).show();
     }
 }
 

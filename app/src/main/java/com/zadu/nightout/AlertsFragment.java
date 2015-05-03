@@ -1,16 +1,12 @@
 package com.zadu.nightout;
 
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.nfc.Tag;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
@@ -342,18 +338,18 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         View detailView = masterView.findViewById(R.id.pingDetailsLayout);
         View offView = masterView.findViewById(R.id.pingOffLayout);
 
-        mSqlHelper.updatePingsOnOff((MainActivity) getActivity(), true);
+
 
         if (toggle.isChecked()) {
             // TODO: turn on ping functionality
             Log.i("togglePings", "toggle is checked");
             detailView.setVisibility(View.VISIBLE);
             offView.setVisibility(View.GONE);
+            mSqlHelper.updatePingsOnOff((MainActivity) getActivity(), true);
 
             //TODO: Cristhian
             int duration = mSqlHelper.getPingInterval((MainActivity)getActivity());
-            ((MainActivity)getActivity()).setAlarm(duration);
-
+            ((MainActivity)getActivity()).setAlarm(duration, false);
 
         } else {
             Log.i("togglePings", "toggle off");
@@ -368,8 +364,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
     public void onCheckIn() {
         // TODO: reset check-in timer
         Toast.makeText(getActivity(), "You Checked In!", Toast.LENGTH_SHORT).show();
-
-
+        ((MainActivity)getActivity()).userCheckin();
     }
 
     public ArrayList<String> getSetContactNumbers() {
@@ -538,6 +533,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         // send things in fragment to listener, which MainActivity extends
         public void OnAlertFragmentInteraction(Object object);
         public void getLastLoc();
+        public void toggleSwitch(Switch s);
     }
 
 

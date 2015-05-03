@@ -225,12 +225,6 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
         }
     }
 
-/*    public void findLocationInfo(Object something) {
-        if(mListener != null) {
-            mListener.findLocation(something);
-        }
-    }*/
-
     public void updateReservationStatus(boolean isReserved) {
         if(mListener != null) {
             mListener.updateReservationStatus(isReserved);
@@ -302,9 +296,11 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
             if(mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_YEAR") != null && mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MONTH") != null &&
                     mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_DATE") != null) {
                 int planYear = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_YEAR");
-                int planMonth = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MONTH");
+                int planMonth = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MONTH") + 1;
                 int planDay = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_DATE");
                 dateButton.setText(planDay + "/" + planMonth + "/" + planYear);
+                //TODO: remove the following line
+                Log.i(TAG, "reset date on date picker button");
             }
             else {
                 dateButton.setText("Select a date");
