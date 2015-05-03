@@ -388,26 +388,25 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     @Override
     public void callRide(Object something) {
-        Log.i(TAG, "callRide() called");
-/*        TextView currentAddressTextView = (TextView)findViewById(R.id.current_address);
-        String currentAddress = currentAddressTextView.getText().toString();
-        Intent intent = new Intent(ReserveIntents.ACTION_RESERVE_TAXI_RESERVATION);
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            Log.i(TAG, "resolving taxi intent");
-            startActivity(intent);
-        }*/
+        // TODO: Make the links also transfer information or be more specific if possible.
         PackageManager pm = getPackageManager();
         try
         {
             pm.getPackageInfo("com.ubercab", PackageManager.GET_ACTIVITIES);
-            // Do something awesome - the app is installed! Launch App.
+            // Launch App.
             Intent launchIntent = pm.getLaunchIntentForPackage("com.ubercab");
             startActivity(launchIntent);
         }
         catch (PackageManager.NameNotFoundException e)
         {
             // No Uber app! Open Mobile Website.
-            Log.i(TAG, "No Uber App installed");
+            Log.i(TAG, "No Uber App installed - opening website");
+            String uberUrl = "https://www.uber.com/";
+            Uri webpage = Uri.parse(uberUrl);
+            Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                startActivity(intent);
+            }
         }
     }
 
