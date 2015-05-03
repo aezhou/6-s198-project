@@ -321,14 +321,13 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
     }
 
     public void onContactChecked(CheckBox v, boolean isDefault) {
-        // FIXME: seeing a weird bug where if all entries are checked, then unchecked, forces last 2 to stay
         // might be an artifact of weird initial test db entries??
         int numChecked = mSqlHelper.getNumCheckedContacts((MainActivity) getActivity());
-        Log.d("ALERTS FRAG", "number of checked contacts before this check: "+numChecked);
         if (numChecked > 1 || v.isChecked()) {
-            TextView numberView = (TextView) mView.findViewById(R.id.contactDescriptionTextView);
+            LinearLayout l = (LinearLayout) v.getParent();
+            TextView numberView = (TextView) l.findViewById(R.id.contactDescriptionTextView);
             String number = numberView.getText().toString();
-            mSqlHelper.checkPlanContactNumber((MainActivity) getActivity(), number, ((CheckBox) v).isChecked());
+            mSqlHelper.checkPlanContactNumber((MainActivity) getActivity(), number, v.isChecked());
         } else {
             v.setChecked(true); // reset the checkbox back to on
             Toast.makeText(getActivity(), "You must keep at least one emergency contact checked.", Toast.LENGTH_SHORT).show();
