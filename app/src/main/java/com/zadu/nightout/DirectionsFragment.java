@@ -1,10 +1,12 @@
 package com.zadu.nightout;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -12,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -20,6 +23,12 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceBuffer;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -29,6 +38,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import org.json.JSONException;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -73,6 +84,9 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     private static MainActivity activity;
     private static View view;
 
+    private String otherDestPlaceID = null;
+    private String otherDestLat = null;
+    private String otherDestLng = null;
     private static String drivingETA = "?";
     private static String transitETA = "?";
     private static String walkingETA = "?";
@@ -162,7 +176,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         autoCompView.setOnItemClickListener(this);
 
         view = v;
-        updateETAs(destSpinner.getSelectedItem().toString());
+        updateETAs(destSpinner.getSelectedItem().toString(), 0);
         return v;
     }
 
@@ -189,7 +203,6 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         }
         // If the destination coords are null, show home on the map instead
         else {
-            // TODO: Get home coords, probably need to cast to Double from String
             String homeLat = mSharedPrefs.getString("home_lat", null);
             String homeLng = mSharedPrefs.getString("home_lng", null);
             if (endpoint.equals("Home") && homeLat != null && homeLng != null) {
@@ -201,6 +214,13 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
             }
             else if (endpoint.equals("Other")) {
                 // TODO: get and check coords for other, then show if valid
+                if (otherDestLat != null && otherDestLng != null) {
+                    Double otherLatDouble = new Double(otherDestLat);
+                    Double otherLngDouble = new Double(otherDestLng);
+                    LatLng otherCoords = new LatLng(otherLatDouble, otherLngDouble);
+                    map.addMarker(new MarkerOptions().position(otherCoords).title("Other"));
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(otherCoords, 15));
+                }
             }
             // If home and other coords are also null, show current location
             else {
@@ -228,7 +248,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     }
 
     public void onRefreshETAButtonPressed(Object something) {
-        updateETAs(destSpinner.getSelectedItem().toString());
+        updateETAs(destSpinner.getSelectedItem().toString(), 0);
     }
 
     public void onGetDirectionsButtonPressed(Object something) {
@@ -288,7 +308,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         //updateETAs(destSpinner.getSelectedItem().toString());
     }
 
-    public void updateETAs(String selection) {
+    public void updateETAs(final String selection, final int numFailedAttempts) {
         ((MainActivity) getActivity()).getLastLoc();
         String lastLat = ((MainActivity)getActivity()).getLastLat();
         String lastLng = ((MainActivity)getActivity()).getLastLng();
@@ -329,6 +349,16 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
             setDrivingETA("?");
             setTransitETA("?");
             setWalkingETA("?");
+            // Try again in half a second, but only twice
+            if (numFailedAttempts < 2) {
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateETAs(selection, numFailedAttempts + 1);
+                    }
+                }, 500);
+            }
         }
     }
 
@@ -452,7 +482,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
 
         // Update the rest of the UI
         setUpMap(selectionName);
-        updateETAs(selectionName);
+        updateETAs(selectionName, 0);
     }
 
     // Nothing selected listener for destination spinner
@@ -464,10 +494,49 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     // Click listener for Other destination autocomplete
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
         // TODO: Implement this
-        Log.i(TAG, "clicked an autocomplete item");
+        resetInternalOtherDestFields();
         String choice = (String) adapterView.getItemAtPosition(position);
+        autoCompView.setText(choice);
         // Hide keyboard
         autoCompView.clearFocus();
+        InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(
+                Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(autoCompView.getWindowToken(), 0);
+
+        try {
+            otherDestPlaceID = GooglePlacesAutocompleteAdapter.getPredictions().getJSONObject(((int) id)).getString("place_id");
+            GoogleApiClient googleAPIClient = new GoogleApiClient.Builder(this.getActivity())
+                    .addConnectionCallbacks((MainActivity) this.getActivity())
+                    .addOnConnectionFailedListener((MainActivity) this.getActivity())
+                    .addApi(LocationServices.API)
+                    .addApi(Places.GEO_DATA_API)
+                    .build();
+            Places.GeoDataApi.getPlaceById(googleAPIClient, otherDestPlaceID)
+                    .setResultCallback(new ResultCallback<PlaceBuffer>() {
+                        @Override
+                        public void onResult(PlaceBuffer places) {
+                            if (places.getStatus().isSuccess()) {
+                                final Place myPlace = places.get(0);
+                                otherDestLat = String.valueOf(myPlace.getLatLng().latitude);
+                                otherDestLng = String.valueOf(myPlace.getLatLng().longitude);
+                            }
+                            places.release();
+
+                            // TODO: update UI (map and ETAs)
+                            setUpMap("Other");
+                            updateETAs("Other", 0);
+                        }
+                    });
+            googleAPIClient.connect();
+        } catch (JSONException e) {
+            Log.e(TAG, "Cannot process JSON results", e);
+        }
+    }
+
+    private void resetInternalOtherDestFields() {
+        otherDestLat = null;
+        otherDestLng = null;
+        otherDestPlaceID = null;
     }
 
 

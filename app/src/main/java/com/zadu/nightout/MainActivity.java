@@ -706,7 +706,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
             Log.i(TAG, "the location should be below: ");
-            Log.i(TAG, String.valueOf(mLastLocation.getLatitude()) + String.valueOf(mLastLocation.getLongitude()));
+            Log.i(TAG, String.valueOf(mLastLocation.getLatitude()) + ", " + String.valueOf(mLastLocation.getLongitude()));
             mGoogleApiClient.disconnect();
         }
     }
@@ -970,7 +970,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         @Override
         protected void onPostExecute(String result) {
             Log.i(TAG, "starting Geocoding onPostExecute");
-
             JSONObject geocodingResult = null;
             String lat = null;
             String lng = null;
@@ -1012,11 +1011,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         @Override
         protected void onPostExecute(String result) {
             Log.i(TAG, "starting Places onPostExecute");
-
             JSONArray placesResults = null;
             try {
                 JSONObject jObject = new JSONObject(result);
-                Log.i(TAG, result);
                 placesResults = jObject.getJSONArray("results");
 
             } catch (JSONException e) {
