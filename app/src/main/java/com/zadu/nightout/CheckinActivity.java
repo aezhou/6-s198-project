@@ -1,26 +1,21 @@
 package com.zadu.nightout;
 
-import com.zadu.nightout.MainActivity;
-
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.WindowManager.LayoutParams;
 import android.widget.Toast;
-
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 
 public class CheckinActivity extends FragmentActivity {
     final String TAG = "CheckinActivity";
     private MyOpenHelper mSqlHelper;
     private PendingIntent operation;
     private AlarmManager alarmManager;
+    private static CheckinAlert sAlert;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,10 +25,13 @@ public class CheckinActivity extends FragmentActivity {
         String planName = getPlanName();
 
         /** Creating an Alert Dialog Window */
-        CheckinAlert alert = new CheckinAlert();
+        if (sAlert != null) {
+             sAlert.dismiss();
+        }
+        sAlert = new CheckinAlert();
 
         /** Opening the Alert Dialog Window. This will be opened when the alarm goes off */
-        alert.show(getSupportFragmentManager(), "CheckinAlert");
+        sAlert.show(getSupportFragmentManager(), "CheckinAlert");
 
         //TODO: Cristhian perform other check-in functions?
         int missAllowance = mSqlHelper.getPingAllowance(planName);
