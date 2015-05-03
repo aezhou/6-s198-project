@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.WindowManager.LayoutParams;
 import android.widget.Switch;
@@ -47,6 +48,13 @@ public class CheckinAlert extends DialogFragment{
     public void onDestroy() {
         super.onDestroy();
         getActivity().finish();
+    }
+
+    @Override
+    public void show(FragmentManager manager, String tag) {
+        if (manager.findFragmentByTag(tag) == null) {
+            super.show(manager, tag);
+        }
     }
 
     @Override
