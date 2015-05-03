@@ -35,7 +35,9 @@ public class WalkthroughNamePlanActivity extends ActionBarActivity {
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(WalkthroughNamePlanActivity.this);
                 preferences.edit().putString("first_time", "false").apply();
                 Intent intent = new Intent(WalkthroughNamePlanActivity.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
+                finish();
             }
         });
 
