@@ -213,7 +213,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         ThereSafeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onMessageButton("I made it there safe!", false);
+                onMessageButton("I made it there safe!", false, false);
             }
         });
 
@@ -221,7 +221,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         HomeSafeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onMessageButton("I made it home safe!", false);
+                onMessageButton("I made it home safe!", false, false);
             }
         });
 
@@ -229,7 +229,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         AllClearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onMessageButton("I'm safe! You can ignore my previous messages.", false);
+                onMessageButton("I'm safe! You can ignore my previous messages.", false, false);
             }
         });
 
@@ -237,7 +237,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         GetMeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onMessageButton("Come get me ASAP.", true);
+                onMessageButton("Come get me ASAP.", true, false);
             }
         });
 
@@ -253,7 +253,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         PanicButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onMessageButton("I'm in danger! HELP!", true);
+                onMessageButton("I'm in danger! HELP!", true, false);
             }
         });
 
@@ -346,29 +346,24 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
             mSqlHelper.updatePingsOnOff((MainActivity) getActivity(), true);
 
             if (toggle.isChecked()) {
-                // TODO: turn on ping functionality
                 Log.i("togglePings", "toggle is checked");
                 detailView.setVisibility(View.VISIBLE);
                 offView.setVisibility(View.GONE);
 
-                //TODO: Cristhian
                 int duration = mSqlHelper.getPingInterval((MainActivity) getActivity());
                 ((MainActivity) getActivity()).setAlarm(duration, false);
-
 
             } else {
                 Log.i("togglePings", "toggle off");
                 detailView.setVisibility(View.GONE);
                 offView.setVisibility(View.VISIBLE);
                 mSqlHelper.updatePingsOnOff((MainActivity) getActivity(), false);
-                // TODO: turn off ping functionality
                 ((MainActivity) getActivity()).stopAlarm();
             }
         }
     }
 
     public void onCheckIn() {
-        // TODO: reset check-in timer
         Toast.makeText(getActivity(), "You Checked In!", Toast.LENGTH_SHORT).show();
         ((MainActivity)getActivity()).userCheckin();
     }
@@ -377,7 +372,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         return mSqlHelper.getContactNumbers((MainActivity) getActivity());
     }
 
-    public void onMessageButton(String message, boolean sendGPS) {
+    public void onMessageButton(String message, boolean sendGPS, boolean skipUI) {
         if (getSetContactNumbers().size() == 0) {
             Toast.makeText(getActivity(), "No contact numbers to send to!", Toast.LENGTH_SHORT).show();
             return;
@@ -539,12 +534,19 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
                 Log.i("ALertsFrag", "Pings onoff was changed to: " + sharedPreferences.getString("pings_onoff_change", ""));
                 // update toggle ui to match what's in the db for the current plan
                 if (sharedPreferences.getString("pings_onoff_change", "").equals("true")) {
-                    Log.d("ALERTS FRAG", "updating pings ui, triggered by shared prefs");
                     ((MainActivity) getActivity()).stopAlarm();
                     Log.i("AlertsFrag", "after stop alarm");
                     updatePingsUIOnly();
                     Log.i("AlertsFrag", "post update pings ui");
                     sharedPreferences.edit().putString("pings_onoff_change", "false").apply();
+                }
+            }
+
+            if (key == "checkin_change") {
+                // update toggle ui to match what's in the db for the current plan
+                if (sharedPreferences.getString("checkin_change", "").equals("true")) {
+                    onCheckIn();
+                    sharedPreferences.edit().putString("checkin_change", "false").apply();
                 }
             }
         }
