@@ -72,8 +72,8 @@
     <string name="check_in_text_2">minutes, you\'ll get a notification reminder.</string>
     <string name="check_in_text_3">Your emergency contacts will be notified after</string>
     <string name="check_in_text_4">missed reminders.</string>
-    <string name="made_it_there">I Made It There</string>
-    <string name="made_it_home">I Made It Home</string>
+    <string name="made_it_there">I\'m There</string>
+    <string name="made_it_home">I\'m Home</string>
     <string name="safe">I\'m Safe</string>
     <string name="fake_call">Fake Call</string>
     <string name="come_get_me">Come Get Me</string>
