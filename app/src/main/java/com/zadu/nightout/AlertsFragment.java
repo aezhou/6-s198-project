@@ -481,13 +481,28 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         mSqlHelper.insertDefaultContact("Kristin", "5404464776");
     }
 
+    public void updatePingsUIOnly() {
+        boolean pingsOn = mSqlHelper.arePingsOn((MainActivity) getActivity());
+
+        Switch pingSwitch = (Switch) mView.findViewById(R.id.pingSwitch);
+        pingSwitch.setChecked(pingsOn);
+
+        View detailView = mView.findViewById(R.id.pingDetailsLayout);
+        View offView = mView.findViewById(R.id.pingOffLayout);
+        if (pingSwitch.isChecked()) {
+            detailView.setVisibility(View.VISIBLE);
+            offView.setVisibility(View.GONE);
+
+        } else {
+            detailView.setVisibility(View.GONE);
+            offView.setVisibility(View.VISIBLE);
+        }
+    }
+
     @Override
     public void onPlanChanged() {
         if (mView != null) {
-            Switch pingSwitch = (Switch) mView.findViewById(R.id.pingSwitch);
-            boolean pingsOn = mSqlHelper.arePingsOn((MainActivity) getActivity());
-            pingSwitch.setChecked(pingsOn);
-            onTogglePings(pingSwitch, mView);
+            updatePingsUIOnly();
 
             TextView pingIntervalText = (TextView) mView.findViewById(R.id.pingIntervalText);
             int savedInterval = mSqlHelper.getPingInterval((MainActivity) getActivity());
@@ -521,6 +536,16 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
                 } else {
                     // TODO: give this some toast listener or something to inform user to change settings
                     mView.findViewById(R.id.FakeCallButton).setEnabled(false);
+                }
+            }
+
+            if (key == "pings_onoff_change") {
+                // update toggle ui to match what's in the db for the current plan
+                if (sharedPreferences.getString("pings_onoff_change", "").equals("true")) {
+                    Log.d("ALERTS FRAG", "updating pings ui, triggered by shared prefs");
+                    ((MainActivity) getActivity()).stopAlarm();
+                    updatePingsUIOnly();
+                    sharedPreferences.edit().putString("pings_onoff_change", "false").apply();
                 }
             }
         }

@@ -220,6 +220,10 @@ public class MyOpenHelper extends SQLiteOpenHelper{
 
     public Integer getPingMisses(MainActivity activity) {
         String planName = activity.getCurrentPlanName();
+        return getPingMisses(planName);
+    }
+
+    public Integer getPingMisses(String planName) {
         Cursor c = getReadableDatabase().rawQuery("select "+PING_MISSES+" from " + PLAN_TABLE_NAME +
                 " where " + PLAN_NAME + " == '" + planName + "'", null);
         c.moveToFirst();
@@ -285,12 +289,17 @@ public class MyOpenHelper extends SQLiteOpenHelper{
     }
 
     public void updatePingsOnOff(MainActivity activity, boolean on) {
+        String planName = activity.getCurrentPlanName();
+        updatePingsOnOff(planName, on);
+    }
+
+    public void updatePingsOnOff(String planName, boolean on) {
         int onInt = 0;
         if (on) {onInt = 1;}
         ContentValues cv = new ContentValues();
         cv.put(PINGS_ON, onInt);
         getWritableDatabase().update(PLAN_TABLE_NAME, cv, PLAN_NAME+" == ?",
-                new String[] {activity.getCurrentPlanName()});
+                new String[] {planName});
     }
 
     public void updatePingInterval(MainActivity activity, int interval) {
@@ -301,10 +310,15 @@ public class MyOpenHelper extends SQLiteOpenHelper{
     }
 
     public void updatePingMisses(MainActivity activity, int misses) {
+        String planName = activity.getCurrentPlanName();
+        updatePingMisses(planName, misses);
+    }
+
+    public void updatePingMisses(String planName, int misses) {
         ContentValues cv = new ContentValues();
         cv.put(PING_MISSES, misses);
         getWritableDatabase().update(PLAN_TABLE_NAME, cv, PLAN_NAME+" == ?",
-                new String[] {activity.getCurrentPlanName()});
+                new String[] {planName});
     }
 
     public void updatePingAllowance(MainActivity activity, int allow) {
