@@ -519,6 +519,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        Log.i("AlertsFrag", "onSHaredPrefs called");
         if (mView != null) {
             mContactsAdapter.changeCursor(mSqlHelper.getContactsToDisplay((MainActivity) getActivity()));
             ListView list = (ListView) mView.findViewById(R.id.contactsListView);
@@ -535,11 +536,14 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
             }
 
             if (key == "pings_onoff_change") {
+                Log.i("ALertsFrag", "Pings onoff was changed to: " + sharedPreferences.getString("pings_onoff_change", ""));
                 // update toggle ui to match what's in the db for the current plan
                 if (sharedPreferences.getString("pings_onoff_change", "").equals("true")) {
                     Log.d("ALERTS FRAG", "updating pings ui, triggered by shared prefs");
                     ((MainActivity) getActivity()).stopAlarm();
+                    Log.i("AlertsFrag", "after stop alarm");
                     updatePingsUIOnly();
+                    Log.i("AlertsFrag", "post update pings ui");
                     sharedPreferences.edit().putString("pings_onoff_change", "false").apply();
                 }
             }

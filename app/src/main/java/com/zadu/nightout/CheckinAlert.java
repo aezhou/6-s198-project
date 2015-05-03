@@ -69,7 +69,10 @@ public class CheckinAlert extends DialogFragment{
 //                getActivity().finish();
                 //TODO: do things when user properly checks in
                 Toast.makeText(getActivity(), "User checked it!", Toast.LENGTH_SHORT).show();
-                ((CheckinActivity) getActivity()).userCheckin();
+//                ((CheckinActivity) getActivity()).userCheckin();
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                preferences.edit().putString("checkin_change", "true").apply();
+                Log.i(TAG, "sharedprefs changed");
             }
         });
 
@@ -79,11 +82,13 @@ public class CheckinAlert extends DialogFragment{
 //                getActivity().finish();
                 //TODO: turn checkin toggle off
                 Toast.makeText(getActivity(), "User turned off check-ins!", Toast.LENGTH_SHORT).show();
+                Log.i(TAG, "User turned off check-ins");
                 String planName = ((CheckinActivity)getActivity()).getPlanName();
                 mSqlHelper.updatePingsOnOff(planName, false);
 
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
                 preferences.edit().putString("pings_onoff_change", "true").apply();
+                Log.i(TAG, "shared prefs changed");
             }
         });
 
