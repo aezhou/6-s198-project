@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -31,6 +32,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 
 
 /**
@@ -41,8 +43,11 @@ import java.net.URLEncoder;
  * Use the {@link DirectionsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
+// TODO: Watch out for overlap between spinner and autocomplete results!
+// TODO: implement AdapterView.OnItemClickListener
 public class DirectionsFragment extends Fragment implements PlanChangedListener, OnMapReadyCallback,
-        SharedPreferences.OnSharedPreferenceChangeListener, AdapterView.OnItemSelectedListener {
+        SharedPreferences.OnSharedPreferenceChangeListener, AdapterView.OnItemSelectedListener,
+        AdapterView.OnItemClickListener{
     private static String TAG = "DirectionsFragment";
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -52,12 +57,14 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     private Spinner destSpinner;
     private MapFragment mMapFragment;
     private GoogleMap map;
+    private AutoCompleteTextView autoCompView;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
     private OnDirectionsFragmentInteractionListener mListener;
+    private Button refreshETAButton;
     private Button getDirectionsButton;
     private Button callRideButton;
 
@@ -119,14 +126,14 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
             Log.e(TAG, "No place coords yet.", e);
         }
 
-        // Populate the destination spinner
-        // TODO: Make show actual dest name, Home, and Other
-        destSpinner = (Spinner) v.findViewById(R.id.dest_spinner);
-        ArrayAdapter adapter = ArrayAdapter.createFromResource(getActivity(),
-                R.array.dest_spinner_array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        destSpinner.setAdapter(adapter);
-        destSpinner.setOnItemSelectedListener(this);
+        // Set listener for the "Refresh ETA Data" button
+        refreshETAButton = (Button) v.findViewById(R.id.eta_refresh_button);
+        refreshETAButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onRefreshETAButtonPressed(view);
+            }
+        });
 
         // Set listener for the "Get Directions" button
         getDirectionsButton = (Button) v.findViewById(R.id.directions_button);
@@ -146,7 +153,17 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
             }
         });
 
+        // Populate the destination spinner
+        updateDestSpinnerContents(v);
+        Spinner destSpinner = (Spinner) v.findViewById(R.id.dest_spinner);
+
+        autoCompView = (AutoCompleteTextView) v.findViewById(R.id.dest_address_other);
+        autoCompView.clearFocus();
+        autoCompView.setAdapter(GooglePlacesAutocompleteAdapter.getInstance(getActivity()));
+        autoCompView.setOnItemClickListener(this);
+
         view = v;
+        updateETAs(destSpinner.getSelectedItem().toString());
         return v;
     }
 
@@ -193,11 +210,26 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         }
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.OnDirectionsFragmentInteraction(uri);
+    private void updateDestSpinnerContents(View view) {
+        destSpinner = (Spinner) view.findViewById(R.id.dest_spinner);
+        ArrayList<String> destSpinnerContents = new ArrayList<String>();
+        String placeName = mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NAME");
+        if (placeName != null) {
+            destSpinnerContents.add(placeName);
         }
+        String homeAddress = mSharedPrefs.getString("home_address", null);
+        if (homeAddress != null) {
+            destSpinnerContents.add("Home");
+        }
+        destSpinnerContents.add("Other");
+
+        ArrayAdapter<String> destSpinnerArrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, destSpinnerContents);
+        destSpinner.setAdapter(destSpinnerArrayAdapter);
+        destSpinner.setOnItemSelectedListener(this);
+    }
+
+    public void onRefreshETAButtonPressed(Object something) {
+        updateETAs(destSpinner.getSelectedItem().toString());
     }
 
     public void onGetDirectionsButtonPressed(Object something) {
@@ -245,14 +277,16 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         }
     }
 
+    // TODO: call this from places
+    // TODO: probably doesn't need inputs, and would be better without them
     private void refreshDirectionFragmentView(View v, String destName, String destAddress) {
         Log.i(TAG, "refreshing directions fragment");
-        setUpMap("Destination");
-        TextView destAddressView = (TextView) getView().findViewById(R.id.dest_address);
-        destAddressView.setText(destAddress);
-        // TODO: update spinner text with destName
+        //setUpMap("Destination");
+        // Update spinner contents with current destination
+        updateDestSpinnerContents(getView());
         // TODO: update current location, just for good measure
-        // TODO: update ETA
+        // TODO: update ETAs (make sure works)
+        //updateETAs(destSpinner.getSelectedItem().toString());
     }
 
     public void updateETAs(String selection) {
@@ -271,7 +305,8 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
                     }
                     break;
                 case "Other":
-                    EditText otherDestAddressEditor = (EditText) getView().findViewById(R.id.dest_address_other);
+                    AutoCompleteTextView otherDestAddressEditor = (
+                            AutoCompleteTextView) getView().findViewById(R.id.dest_address_other);
                     String otherAddress = otherDestAddressEditor.getText().toString();
                     if (otherAddress != null && otherAddress != "") {
                         makeDistanceMatrixCall(lastLat, lastLng, otherAddress, "driving");
@@ -322,14 +357,12 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
 
     public static void setDrivingETA(String drivingETAVal) {
         drivingETA = drivingETAVal;
-        Log.i(TAG, "stored the driving ETA: " + drivingETA);
         TextView drivingTimeTextView = (TextView) view.findViewById(R.id.driving_time);
         drivingTimeTextView.setText(drivingETA);
     }
 
     public static void setTransitETA(String transitETAVal) {
         transitETA = transitETAVal;
-        Log.i(TAG, "stored the transit ETA: " + transitETA);
         TextView transitTimeTextView = (TextView) view.findViewById(R.id.transit_time);
         transitTimeTextView.setText(transitETA);
     }
@@ -337,19 +370,14 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
 
     public static void setWalkingETA(String walkingETAVal) {
         walkingETA = walkingETAVal;
-        Log.i(TAG, "stored the walking ETA: " + walkingETA);
         TextView walkingTimeTextView = (TextView) view.findViewById(R.id.walking_time);
         walkingTimeTextView.setText(walkingETA);
     }
 
 
     public void onHomeChanged(String homeAddress) {
-        Log.i(TAG, "home address changed");
-        // TODO: handle null case
-        // TODO: update my fragment UI
-        // TODO: find new ID and latlong and store those in sharedprefs
-            // TODO: build geocoding URL
-            // TODO: call the geocoding API thingy .doInBackground with the URL (will store result)
+        updateDestSpinnerContents(getView());
+        // Find new ID and latlong and store those in sharedprefs
         makeGeocodingCall(homeAddress);
     }
 
@@ -399,13 +427,13 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     // Selection listener for destination spinner
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        Log.i(TAG, "firing destination spinner item selected");
         Object selected = parent.getItemAtPosition(position);
         String selectionName = selected.toString();
 
         // Show either the Plan destination or input for a separate destination, based on selection
         TextView destAddressView = (TextView) getView().findViewById(R.id.dest_address);
-        EditText otherDestInput = (EditText) getView().findViewById(R.id.dest_address_other);
+        AutoCompleteTextView otherDestInput = (
+                AutoCompleteTextView) getView().findViewById(R.id.dest_address_other);
         if (selectionName.equals("Other")) {
             destAddressView.setVisibility(View.GONE);
             otherDestInput.setVisibility(View.VISIBLE);
@@ -422,8 +450,18 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
             }
         }
 
+        // Update the rest of the UI
         setUpMap(selectionName);
         updateETAs(selectionName);
+    }
+
+    // Click listener for Other destination autocomplete
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        // TODO: Implement this
+        Log.i(TAG, "clicked an autocomplete item");
+        String choice = (String) adapterView.getItemAtPosition(position);
+        // Hide keyboard
+        autoCompView.clearFocus();
     }
 
     // Nothing selected listener for destination spinner

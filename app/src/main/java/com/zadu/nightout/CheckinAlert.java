@@ -5,7 +5,9 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.WindowManager.LayoutParams;
@@ -77,7 +79,11 @@ public class CheckinAlert extends DialogFragment{
                 //TODO: turn checkin toggle off
                 Toast.makeText(getActivity(), "User turned off check-ins!", Toast.LENGTH_SHORT).show();
                 Switch pingSwitch = (Switch)(getActivity().getWindow().getDecorView()).findViewById(R.id.pingSwitch);
+                String planName = ((CheckinActivity)getActivity()).getPlanName();
+                mSqlHelper.updatePingsOnOff(planName, false);
 
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                preferences.edit().putString("pings_onoff_change", "true").apply();
 //                boolean pingsOn = ((MainActivity)getActivity()).getSqlHelper().arePingsOn((MainActivity) getActivity());
 //                Log.i(TAG, pingSwitch.toString());
 //                pingSwitch.setChecked(false);

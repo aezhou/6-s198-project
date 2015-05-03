@@ -73,15 +73,20 @@
                     android:text="800 Boylston Street, Boston, MA 02199"
                     android:id="@+id/dest_address" />
 
-                <EditText
-                    android:layout_width="wrap_content"
+                <AutoCompleteTextView
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Enter a new destination"
                     android:id="@+id/dest_address_other"
-                    android:visibility="gone"/>
+                    android:textSize="14sp"
+                    android:visibility="gone"
+                    android:hint="Enter a new destination">
+
+                    <requestFocus />
+                </AutoCompleteTextView>
             </LinearLayout>
 
-            <LinearLayout
+            <!-- Probably going to remove this, but leave it for now. -->
+<!--            <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
@@ -102,13 +107,13 @@
                     android:layout_height="wrap_content"
                     android:text="77 Massachusetts Avenue, Cambridge, MA 02139"
                     android:id="@+id/current_address" />
-            </LinearLayout>
+            </LinearLayout>-->
 
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/current_address_layout"
+                android:layout_below="@id/dest_address_layout"
                 android:layout_centerHorizontal="true"
                 android:id="@+id/eta_layout"
                 android:visibility="visible">
@@ -200,8 +205,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Refresh ETA Data"
-                    android:id="@+id/eta_refresh_button"
-                    android:visibility="invisible" />
+                    android:id="@+id/eta_refresh_button" />
             </LinearLayout>
 
             <LinearLayout
@@ -241,7 +245,7 @@
                     <Button
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:text="Call a Ride"
+                        android:text="Get an Uber"
                         android:id="@+id/call_ride_button"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginLeft="5dp"

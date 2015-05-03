@@ -174,10 +174,8 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
         });
 
         autoCompView = (AutoCompleteTextView) v.findViewById(R.id.searchField);
-
         autoCompView.clearFocus();
-
-        autoCompView.setAdapter(new GooglePlacesAutocompleteAdapter(v.getContext(), R.layout.list_item_places));
+        autoCompView.setAdapter(GooglePlacesAutocompleteAdapter.getInstance(getActivity()));
         autoCompView.setOnItemClickListener(this);
 
         refreshDetailFragmentView(v);
@@ -256,7 +254,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
     }
 
     public void refreshDetailFragmentView(View v) {
-        Log.i(TAG, "calling refreshDetailFramentView");
+        Log.i(TAG, "calling refreshDetailFragmentView");
         if(v != null) {
             TextView placeNameText = (TextView)v.findViewById(R.id.destinationName);
             if(mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NAME") != null) {
@@ -338,9 +336,6 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnPlanDetailsListener {
-
-        // TODO: Update argument type and name
-
         // send things in fragment to listener, which MainActivity extends
 //        public void onPlanSaved(Object something);
         public void makeOnlineReservation(Object something);
@@ -352,14 +347,6 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
 //        public void findLocation(Object something);
         public void updateReservationStatus(boolean isReserved);
     }
-
-    // Places Autocomplete Stuff Starts Here
-    // Places Autocomplete interactions based on tutorial at http://examples.javacodegeeks.com/android/android-google-places-autocomplete-api-example/
-    private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
-    private static final String TYPE_AUTOCOMPLETE = "/autocomplete";
-    private static final String OUT_JSON = "/json";
-    private static final String API_KEY = "AIzaSyD3xH-kCCFsSPonGRRi7isV-O5ejZWIts8";
-    private static JSONArray predictions = new JSONArray();
 
     private String name = "";
     private String streetAddress = "";
@@ -405,8 +392,6 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
                 break;
         }
 
-        // TODO: Use Places API to get street address and phone number, and update those in UI
-        ((MainActivity) getActivity()).notifyDirFragOfDestChange(splitChoice[0], splitChoice[1]);
         // Remove text input focus and hide the keyboard
         autoCompView.clearFocus();
 //        TODO: CRISTHIAN
@@ -416,7 +401,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
         imm.hideSoftInputFromWindow(autoCompView.getWindowToken(), 0);
 
         try {
-            placeID = predictions.getJSONObject(((int) id)).getString("place_id");
+            placeID = GooglePlacesAutocompleteAdapter.getPredictions().getJSONObject(((int) id)).getString("place_id");
             GoogleApiClient googleAPIClient = new GoogleApiClient.Builder(this.getActivity())
                     .addConnectionCallbacks((MainActivity) this.getActivity())
                     .addOnConnectionFailedListener((MainActivity) this.getActivity())
@@ -486,6 +471,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
                         ((MainActivity) getActivity()).getSectionsPagerAdapter().getDirectionsFrag().onDestinationChanged(name, streetAddress + ", " + city + ", " + state + " " + zipCode);
                     }
                 });
+            ((MainActivity) getActivity()).notifyDirFragOfDestChange(name, streetAddress);
             googleAPIClient.connect();
         } catch (JSONException e) {
             Log.e(TAG, "Cannot process JSON results", e);
@@ -521,107 +507,6 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
             formattedAddress = formattedAddress.substring(0, formattedAddress.length()-2);
         }
         return formattedAddress;
-    }
-
-    public static ArrayList<String> autocomplete(String input) {
-        ArrayList<String> resultList = null;
-
-        HttpURLConnection conn = null;
-        StringBuilder jsonResults = new StringBuilder();
-        try {
-            StringBuilder sb = new StringBuilder(PLACES_API_BASE + TYPE_AUTOCOMPLETE + OUT_JSON);
-            sb.append("?key=" + API_KEY);
-            // TODO: Could change this to determine current country; for now just supports US
-            sb.append("&components=country:us");
-            sb.append("&input=" + URLEncoder.encode(input, "utf8"));
-
-            URL url = new URL(sb.toString());
-
-            System.out.println("URL: "+url);
-            conn = (HttpURLConnection) url.openConnection();
-            InputStreamReader in = new InputStreamReader(conn.getInputStream());
-
-            // Load the results into a StringBuilder
-            int read;
-            char[] buff = new char[1024];
-            while ((read = in.read(buff)) != -1) {
-                jsonResults.append(buff, 0, read);
-            }
-        } catch (MalformedURLException e) {
-            Log.e(TAG, "Error processing Places API URL", e);
-            return resultList;
-        } catch (IOException e) {
-            Log.e(TAG, "Error connecting to Places API", e);
-            return resultList;
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
-        }
-
-        try {
-            // Create a JSON object hierarchy from the results
-            JSONObject jsonObj = new JSONObject(jsonResults.toString());
-            JSONArray predsJsonArray = jsonObj.getJSONArray("predictions");
-            predictions = predsJsonArray;
-
-            // Extract the Place descriptions from the results
-            resultList = new ArrayList<String>(predsJsonArray.length());
-            for (int i = 0; i < predsJsonArray.length(); i++) {
-                resultList.add(predsJsonArray.getJSONObject(i).getString("description"));
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, "Cannot process JSON results", e);
-        }
-
-        return resultList;
-    }
-
-    class GooglePlacesAutocompleteAdapter extends ArrayAdapter<String> implements Filterable {
-        private ArrayList<String> resultList;
-
-        public GooglePlacesAutocompleteAdapter(Context context, int textViewResourceId) {
-            super(context, textViewResourceId);
-        }
-
-        @Override
-        public int getCount() {
-            return resultList.size();
-        }
-
-        @Override
-        public String getItem(int index) {
-            return resultList.get(index);
-        }
-
-        @Override
-        public Filter getFilter() {
-            Filter filter = new Filter() {
-                @Override
-                protected FilterResults performFiltering(CharSequence constraint) {
-                    FilterResults filterResults = new FilterResults();
-                    if (constraint != null) {
-                        // Retrieve the autocomplete results.
-                        resultList = autocomplete(constraint.toString());
-
-                        // Assign the data to the FilterResults
-                        filterResults.values = resultList;
-                        filterResults.count = resultList.size();
-                    }
-                    return filterResults;
-                }
-
-                @Override
-                protected void publishResults(CharSequence constraint, FilterResults results) {
-                    if (results != null && results.count > 0) {
-                        notifyDataSetChanged();
-                    } else {
-                        notifyDataSetInvalidated();
-                    }
-                }
-            };
-            return filter;
-        }
     }
 
 }

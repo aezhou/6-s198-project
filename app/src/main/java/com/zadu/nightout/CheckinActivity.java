@@ -13,15 +13,10 @@ public class CheckinActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String planName = getIntent().getExtras().getString("plan");
-        if(planName == null) {
-            //do nothing
-        }
-        else {
-            //TODO: get plan from DB here and update the misses
-            Log.i(TAG, "plane name is: " + planName);
-        }
+
         mSqlHelper = MyOpenHelper.getInstance(getApplicationContext());
+
+        String planName = getPlanName();
 
         /** Creating an Alert Dialog Window */
         CheckinAlert alert = new CheckinAlert();
@@ -34,7 +29,15 @@ public class CheckinActivity extends FragmentActivity {
 //        Log.i("check", getCallingActivity());
     }
 
-    private  void checkMisses(int misses, int maxMisses) {
-
+    public String getPlanName() {
+        String planName = getIntent().getExtras().getString("plan");
+        if(planName == null) {
+            //do nothing
+        }
+        else {
+            //TODO: get plan from DB here and update the misses
+            Log.i(TAG, "plane name is: " + planName);
+        }
+        return planName;
     }
 }

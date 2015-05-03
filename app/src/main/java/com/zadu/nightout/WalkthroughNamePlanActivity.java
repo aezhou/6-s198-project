@@ -1,7 +1,5 @@
 package com.zadu.nightout;
 
-
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -14,7 +12,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class WalkthroughNamePlanActivity extends Activity {
+public class WalkthroughNamePlanActivity extends ActionBarActivity {
     private Button mButton;
     private EditText mEditText;
 
@@ -37,7 +35,9 @@ public class WalkthroughNamePlanActivity extends Activity {
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(WalkthroughNamePlanActivity.this);
                 preferences.edit().putString("first_time", "false").apply();
                 Intent intent = new Intent(WalkthroughNamePlanActivity.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
+                finish();
             }
         });
 

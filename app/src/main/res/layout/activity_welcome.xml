@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:text="Welcome to NightOut!"
+        android:text="@string/walkthrough_main"
         android:textSize="36sp"
         android:padding="16dp"
         android:layout_marginTop="60dp"/>
@@ -18,7 +18,7 @@
         android:id="@+id/welcome_detail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Let us be your personal concierge - helping you create a plan, share it, determine how to get there, and stay safe while you're out. In order to do that, we need to gather some information first!"
+        android:text="@string/walkthrough_helper"
         android:padding="36dp"
         android:gravity="center_horizontal"
         android:textSize="16sp"/>
@@ -26,7 +26,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Powered by Google"
+        android:text="@string/attribution"
         android:gravity="center_horizontal"
         android:layout_below="@id/welcome_detail"/>
 
@@ -34,7 +34,7 @@
         android:id="@+id/start_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Get Started"
+        android:text="@string/get_started"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="30dp"/>

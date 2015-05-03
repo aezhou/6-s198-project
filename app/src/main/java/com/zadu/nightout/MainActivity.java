@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -50,6 +51,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -134,10 +137,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                for (int i=0; i<mSectionsPagerAdapter.getCount(); i++) {
-                    Fragment f = mSectionsPagerAdapter.getItem(i);
-                    ((PlanChangedListener) f).onPlanChanged();
-                }
+                planChanged();
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
@@ -189,6 +189,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 //        button1.setOnClickListener(onClickListener);
     }
 
+    public void planChanged() {
+        for (int i=0; i<mSectionsPagerAdapter.getCount(); i++) {
+            Fragment f = mSectionsPagerAdapter.getItem(i);
+            ((PlanChangedListener) f).onPlanChanged();
+        }
+    }
+
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         // TODO: save current tab, current plan
@@ -235,59 +242,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
 
         if (id == R.id.action_new_plan) {
-            final View nameNewPlan = getLayoutInflater().inflate(R.layout.dialog_newplan, null);
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setView(nameNewPlan);
-
-            EditText name = (EditText) nameNewPlan.findViewById(R.id.new_plan_edittext);
-
-            builder.setCancelable(true)
-                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            EditText name = (EditText) nameNewPlan.findViewById(R.id.new_plan_edittext);
-                            mSqlHelper.insertNewPlan(name.getText().toString());
-                            mArrayAdapter.clear();
-                            mArrayAdapter.addAll(mSqlHelper.getPlans());
-                            mArrayAdapter.notifyDataSetChanged();
-                            mSpinner.setSelection(mArrayAdapter.getPosition(name.getText().toString()));
-                        }
-                    }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-
-                }
-            });
-
-            final AlertDialog alert = builder.create();
-            alert.show();
-
-            if(name.getText().toString().isEmpty()) {
-                alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-            }
-
-            name.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-
-                }
-
-                @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-
-                }
-
-                @Override
-                public void afterTextChanged(Editable editable) {
-                    if (editable.length() != 0) {
-                        alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
-                    } else {
-                        alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-                    }
-                }
-            });
-
+            showNewPlanDialog(true);
         }
 
         return super.onOptionsItemSelected(item);
@@ -570,22 +525,92 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         updateHasReservation(isReserved);
     }
 
+    public void showNewPlanDialog(boolean cancelable) {
+        final View nameNewPlan = getLayoutInflater().inflate(R.layout.dialog_newplan, null);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setView(nameNewPlan);
+
+        EditText name = (EditText) nameNewPlan.findViewById(R.id.new_plan_edittext);
+
+        if (cancelable) {
+            builder.setCancelable(true)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                    EditText name = (EditText) nameNewPlan.findViewById(R.id.new_plan_edittext);
+                    mSqlHelper.insertNewPlan(name.getText().toString());
+                    mArrayAdapter.clear();
+                    mArrayAdapter.addAll(mSqlHelper.getPlans());
+                    mArrayAdapter.notifyDataSetChanged();
+                    mSpinner.setSelection(mArrayAdapter.getPosition(name.getText().toString()));
+                    planChanged();
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {}
+                });
+        } else {
+            builder.setCancelable(false)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                    EditText name = (EditText) nameNewPlan.findViewById(R.id.new_plan_edittext);
+                    mSqlHelper.insertNewPlan(name.getText().toString());
+                    mArrayAdapter.clear();
+                    mArrayAdapter.addAll(mSqlHelper.getPlans());
+                    mArrayAdapter.notifyDataSetChanged();
+                    mSpinner.setSelection(mArrayAdapter.getPosition(name.getText().toString()));
+                    planChanged();
+                    }
+                });
+        }
+
+        final AlertDialog alert = builder.create();
+        alert.show();
+
+        if(name.getText().toString().isEmpty()) {
+            alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        }
+
+        name.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {}
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (editable.length() != 0) {
+                    alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                } else {
+                    alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                }
+            }
+        });
+    }
+
     public void showDeletePlanDialog(final String plan) {
         final View planDeleteView = getLayoutInflater().inflate(R.layout.dialog_plan_delete, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setView(planDeleteView);
 
         builder.setCancelable(true)
-                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         getSqlHelper().deletePlan(plan);
                         mArrayAdapter.clear();
-                        mArrayAdapter.addAll(mSqlHelper.getPlans());
+                        List plans = mSqlHelper.getPlans();
+                        mArrayAdapter.addAll(plans);
                         mArrayAdapter.notifyDataSetChanged();
                         mSpinner.setSelection(0);
+                        if (plans.size() == 0) {
+                            showNewPlanDialog(false);
+                        }
                     }
-                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                }).setNegativeButton("No", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         // close dialog
@@ -1164,4 +1189,3 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         Toast.makeText(getBaseContext(), "Successfully checked in!", Toast.LENGTH_SHORT).show();
     }
 }
-

@@ -334,30 +334,36 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
     }
 
     public void onTogglePings(View toggleView, View masterView) {
-        Switch toggle = (Switch) toggleView;
-        View detailView = masterView.findViewById(R.id.pingDetailsLayout);
-        View offView = masterView.findViewById(R.id.pingOffLayout);
+        if (masterView == null) {
+            masterView = getView();
+        }
 
+        if (masterView != null) {
+            Switch toggle = (Switch) toggleView;
+            View detailView = masterView.findViewById(R.id.pingDetailsLayout);
+            View offView = masterView.findViewById(R.id.pingOffLayout);
 
-
-        if (toggle.isChecked()) {
-            // TODO: turn on ping functionality
-            Log.i("togglePings", "toggle is checked");
-            detailView.setVisibility(View.VISIBLE);
-            offView.setVisibility(View.GONE);
             mSqlHelper.updatePingsOnOff((MainActivity) getActivity(), true);
 
-            //TODO: Cristhian
-            int duration = mSqlHelper.getPingInterval((MainActivity)getActivity());
-            ((MainActivity)getActivity()).setAlarm(duration, false);
+            if (toggle.isChecked()) {
+                // TODO: turn on ping functionality
+                Log.i("togglePings", "toggle is checked");
+                detailView.setVisibility(View.VISIBLE);
+                offView.setVisibility(View.GONE);
 
-        } else {
-            Log.i("togglePings", "toggle off");
-            detailView.setVisibility(View.GONE);
-            offView.setVisibility(View.VISIBLE);
-            mSqlHelper.updatePingsOnOff((MainActivity) getActivity(), false);
-            // TODO: turn off ping functionality
-            ((MainActivity)getActivity()).stopAlarm();
+                //TODO: Cristhian
+                int duration = mSqlHelper.getPingInterval((MainActivity) getActivity());
+                ((MainActivity) getActivity()).setAlarm(duration, false);
+
+
+            } else {
+                Log.i("togglePings", "toggle off");
+                detailView.setVisibility(View.GONE);
+                offView.setVisibility(View.VISIBLE);
+                mSqlHelper.updatePingsOnOff((MainActivity) getActivity(), false);
+                // TODO: turn off ping functionality
+                ((MainActivity) getActivity()).stopAlarm();
+            }
         }
     }
 
