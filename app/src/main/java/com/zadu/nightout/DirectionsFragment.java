@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -42,8 +43,11 @@ import java.util.ArrayList;
  * Use the {@link DirectionsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
+// TODO: Watch out for overlap between spinner and autocomplete results!
+// TODO: implement AdapterView.OnItemClickListener
 public class DirectionsFragment extends Fragment implements PlanChangedListener, OnMapReadyCallback,
-        SharedPreferences.OnSharedPreferenceChangeListener, AdapterView.OnItemSelectedListener {
+        SharedPreferences.OnSharedPreferenceChangeListener, AdapterView.OnItemSelectedListener,
+        AdapterView.OnItemClickListener{
     private static String TAG = "DirectionsFragment";
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -53,6 +57,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     private Spinner destSpinner;
     private MapFragment mMapFragment;
     private GoogleMap map;
+    private AutoCompleteTextView autoCompView;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -151,6 +156,11 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         // Populate the destination spinner
         updateDestSpinnerContents(v);
         Spinner destSpinner = (Spinner) v.findViewById(R.id.dest_spinner);
+
+        autoCompView = (AutoCompleteTextView) v.findViewById(R.id.dest_address_other);
+        autoCompView.clearFocus();
+        autoCompView.setAdapter(GooglePlacesAutocompleteAdapter.getInstance(getActivity()));
+        autoCompView.setOnItemClickListener(this);
 
         view = v;
         updateETAs(destSpinner.getSelectedItem().toString());
@@ -295,7 +305,8 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
                     }
                     break;
                 case "Other":
-                    EditText otherDestAddressEditor = (EditText) getView().findViewById(R.id.dest_address_other);
+                    AutoCompleteTextView otherDestAddressEditor = (
+                            AutoCompleteTextView) getView().findViewById(R.id.dest_address_other);
                     String otherAddress = otherDestAddressEditor.getText().toString();
                     if (otherAddress != null && otherAddress != "") {
                         makeDistanceMatrixCall(lastLat, lastLng, otherAddress, "driving");
@@ -421,7 +432,8 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
 
         // Show either the Plan destination or input for a separate destination, based on selection
         TextView destAddressView = (TextView) getView().findViewById(R.id.dest_address);
-        EditText otherDestInput = (EditText) getView().findViewById(R.id.dest_address_other);
+        AutoCompleteTextView otherDestInput = (
+                AutoCompleteTextView) getView().findViewById(R.id.dest_address_other);
         if (selectionName.equals("Other")) {
             destAddressView.setVisibility(View.GONE);
             otherDestInput.setVisibility(View.VISIBLE);
@@ -441,6 +453,15 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         // Update the rest of the UI
         setUpMap(selectionName);
         updateETAs(selectionName);
+    }
+
+    // Click listener for Other destination autocomplete
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        // TODO: Implement this
+        Log.i(TAG, "clicked an autocomplete item");
+        String choice = (String) adapterView.getItemAtPosition(position);
+        // Hide keyboard
+        autoCompView.clearFocus();
     }
 
     // Nothing selected listener for destination spinner
