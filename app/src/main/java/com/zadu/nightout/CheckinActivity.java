@@ -46,7 +46,7 @@ public class CheckinActivity extends FragmentActivity {
         if(misses > missAllowance) {
             //TODO: call send message to emergency contacts
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            preferences.edit().putString("exceeded_misses", "true").apply();
+            preferences.edit().putString("exceeded_misses", planName).apply();
             Log.i(TAG, "after adjusting prefs");
         }
     }
