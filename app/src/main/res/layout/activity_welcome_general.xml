@@ -7,7 +7,7 @@
         android:id="@+id/helper_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Please enter your cell phone number and home address."
+        android:text="@string/walkthrough_general_main"
         android:textSize="20sp"
         android:padding="32dp"/>
 
@@ -16,7 +16,7 @@
         android:id="@+id/description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Your phone number will be used if you ever want to spoof a call to yourself. Your address will be used to calculate navigation."
+        android:text="@string/walkthrough_general_helper"
         android:textSize="16sp"
         android:paddingLeft="32dp"
         android:paddingRight="32dp"
@@ -24,7 +24,7 @@
 
     <Button
         android:id="@+id/next_button"
-        android:text="Next"
+        android:text="@string/next"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
