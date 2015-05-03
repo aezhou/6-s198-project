@@ -1,5 +1,7 @@
 package com.zadu.nightout;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -43,12 +45,40 @@ public class WalkthroughContactsActivity extends ActionBarActivity{
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
                 if (mSqlHelper.getNumDefaultContacts() > 1) {
-                    TextView numberView = (TextView) view.findViewById(R.id.contactDescriptionTextView);
-                    String number = numberView.getText().toString();
-                    mSqlHelper.deleteDefaultContact(number);
+                    final View planDeleteView = getLayoutInflater().inflate(R.layout.dialog_contact_delete, null);
 
-                    mAdapter.changeCursor(mSqlHelper.getDefaultContacts());
-                    mEmergencyListView.setAdapter(mAdapter);
+                    TextView nameView = (TextView) findViewById(R.id.contactNameTextView);
+                    String name = nameView.getText().toString();
+                    TextView text = (TextView) planDeleteView.findViewById(R.id.description);
+                    String content = String.format("Deleting a default emergency contact will remove the contact " +
+                            "from all plans. Are you sure you wish to delete %s from your default " +
+                            "emergency contacts?", name);
+                    text.setText(content);
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(WalkthroughContactsActivity.this);
+                    builder.setView(planDeleteView);
+
+                    builder.setCancelable(true)
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    TextView numberView = (TextView) findViewById(R.id.contactDescriptionTextView);
+                                    String number = numberView.getText().toString();
+                                    mSqlHelper.deleteDefaultContact(number);
+
+                                    mAdapter.changeCursor(mSqlHelper.getDefaultContacts());
+                                    mEmergencyListView.setAdapter(mAdapter);
+                                }
+                            }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    // close dialog
+                                }
+                            }
+                    );
+
+                    final AlertDialog alert = builder.create();
+                    alert.show();
                 } else {
                     Toast.makeText(getApplication(), "You must keep at least one emergency contact.", Toast.LENGTH_SHORT).show();
                 }
@@ -66,7 +96,6 @@ public class WalkthroughContactsActivity extends ActionBarActivity{
         });
 
         mNextButton = (Button) findViewById(R.id.next_button);
-        mNextButton.setEnabled(false);
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

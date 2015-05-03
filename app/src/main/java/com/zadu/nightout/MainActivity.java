@@ -569,7 +569,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         builder.setView(planDeleteView);
 
         builder.setCancelable(true)
-                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         getSqlHelper().deletePlan(plan);
@@ -578,7 +578,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         mArrayAdapter.notifyDataSetChanged();
                         mSpinner.setSelection(0);
                     }
-                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                }).setNegativeButton("No", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         // close dialog

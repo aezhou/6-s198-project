@@ -1,7 +1,5 @@
 package com.zadu.nightout;
 
-
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -14,7 +12,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class WalkthroughNamePlanActivity extends Activity {
+public class WalkthroughNamePlanActivity extends ActionBarActivity {
     private Button mButton;
     private EditText mEditText;
 

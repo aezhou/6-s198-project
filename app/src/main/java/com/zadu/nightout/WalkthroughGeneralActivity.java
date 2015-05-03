@@ -36,13 +36,17 @@ public class WalkthroughGeneralActivity extends ActionBarActivity {
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         mOwnAddress = (TextView) findViewById(R.id.own_address);
+        mOwnAddress.setText(preferences.getString("home_address", getString(R.string.pref_default_display_address)));
         mOwnPhone = (TextView) findViewById(R.id.own_phone_number);
+        mOwnPhone.setText(preferences.getString("phone_number", getString(R.string.pref_default_display_phone)));
 
         mPhoneNumber = (LinearLayout) findViewById(R.id.phone_number_wrapper);
         mPhoneNumber.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final View enterPhoneNum = getLayoutInflater().inflate(R.layout.dialog_phone_number, null);
+                EditText edit = (EditText) enterPhoneNum.findViewById(R.id.new_phone_num);
+                edit.setText(preferences.getString("phone_number", ""));
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(WalkthroughGeneralActivity.this);
                 builder.setView(enterPhoneNum);
@@ -100,6 +104,8 @@ public class WalkthroughGeneralActivity extends ActionBarActivity {
             @Override
             public void onClick(View view) {
                 final View enterHomeAddress = getLayoutInflater().inflate(R.layout.dialog_home_address, null);
+                EditText edit = (EditText) enterHomeAddress.findViewById(R.id.searchField);
+                edit.setText(preferences.getString("home_address", ""));
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(WalkthroughGeneralActivity.this);
                 builder.setView(enterHomeAddress);
