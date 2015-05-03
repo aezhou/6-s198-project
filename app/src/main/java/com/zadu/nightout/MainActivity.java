@@ -1175,7 +1175,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         long alarm_time = calendar.getTimeInMillis();
 
         /** Setting an alarm, which invokes the operation at alarm_time */
-        long duration = 60000*durationMinute;
+        long duration = 10000; //60000*durationMinute;
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP  , alarm_time + duration, duration, operation);
 
         /** Alert is set successfully */

@@ -60,7 +60,7 @@ public class CheckinAlert extends DialogFragment{
         /** Setting title for the alert dialog */
         builder.setTitle("Check-in Alert");
         /** Setting the content for the alert dialog */
-        builder.setMessage("It's time to check in.");
+        builder.setMessage("It's time to check in for your " + ((CheckinActivity)getActivity()).getPlanName() + " plan");
         /** Defining button event listeners */
         builder.setPositiveButton("Check In", new OnClickListener() {
             @Override
