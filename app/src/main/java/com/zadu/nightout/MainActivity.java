@@ -1132,6 +1132,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public void resetAlarm(int interval) {
         stopAlarm();
+        Calendar now = Calendar.getInstance();
+        int hour = now.get(Calendar.HOUR_OF_DAY);
+        int minute = now.get(Calendar.MINUTE);
+        Log.i(TAG, "current time: " + hour + ":" + minute);
         setAlarm(interval, true);
     }
 
@@ -1140,33 +1144,17 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         i = new Intent("com.zadu.nightout.checkinactivity");
         i.putExtra("plan", getCurrentPlanName());
         /** Creating a Pending Intent */
-        operation = PendingIntent.getActivity(getBaseContext(), 0, i, Intent.FLAG_ACTIVITY_NEW_TASK);
+        operation = PendingIntent.getActivity(getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
         /** Getting a reference to the System Service ALARM_SERVICE */
         alarmManager = (AlarmManager) getBaseContext().getSystemService(ALARM_SERVICE);
 
         Calendar now = Calendar.getInstance();
-        int year;
-        int month;
-        int day;
-        int hour;
-        int minute;
-        if(mSqlHelper.getReservationInfo(this, "RESERVATION_YEAR") != null && mSqlHelper.getReservationInfo(this, "RESERVATION_MONTH") != null &&
-                mSqlHelper.getReservationInfo(this, "RESERVATION_DATE")!= null && mSqlHelper.getReservationInfo(this, "RESERVATION_HOUR") != null &&
-                mSqlHelper.getReservationInfo(this, "RESERVATION_MINUTE") != null && !startFromNow) {
-            year = mSqlHelper.getReservationInfo(this, "RESERVATION_YEAR");
-            month = mSqlHelper.getReservationInfo(this, "RESERVATION_MONTH");
-            day = mSqlHelper.getReservationInfo(this, "RESERVATION_DATE");
-            hour = mSqlHelper.getReservationInfo(this, "RESERVATION_HOUR");
-            minute = mSqlHelper.getReservationInfo(this, "RESERVATION_MINUTE");
-        }
-        else {
-            year = now.get(Calendar.YEAR);
-            month = now.get(Calendar.MONTH);
-            day = now.get(Calendar.DAY_OF_MONTH);
-            hour = now.get(Calendar.HOUR_OF_DAY);
-            minute = now.get(Calendar.MINUTE);
-        }
 
+        int year = now.get(Calendar.YEAR);
+        int month = now.get(Calendar.MONTH);
+        int day = now.get(Calendar.DAY_OF_MONTH);
+        int hour = now.get(Calendar.HOUR_OF_DAY);
+        int minute = now.get(Calendar.MINUTE);
 
         /** Creating a calendar object corresponding to the date and time set by the user */
         GregorianCalendar calendar = new GregorianCalendar(year,month,day, hour, minute);
@@ -1176,6 +1164,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         /** Setting an alarm, which invokes the operation at alarm_time */
         long duration = 10000; //60000*durationMinute;
+        Log.i(TAG, "set start time to (int milliseconds): " +alarm_time + duration);
+        Log.i(TAG, "set interval to: " + duration);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP  , alarm_time + duration, duration, operation);
 
         /** Alert is set successfully */
