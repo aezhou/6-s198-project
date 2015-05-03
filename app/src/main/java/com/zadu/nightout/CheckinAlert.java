@@ -69,7 +69,6 @@ public class CheckinAlert extends DialogFragment{
 //                getActivity().finish();
                 //TODO: do things when user properly checks in
                 Toast.makeText(getActivity(), "User checked it!", Toast.LENGTH_SHORT).show();
-//                ((CheckinActivity) getActivity()).userCheckin();
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
                 preferences.edit().putString("checkin_change", "true").apply();
                 Log.i(TAG, "sharedprefs changed");

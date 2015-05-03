@@ -40,7 +40,9 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.telephony.SmsManager;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
@@ -712,9 +714,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         });
     }
 
-    public void togglePings(Switch pingSwitch) {
-
-    }
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -1133,10 +1132,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public void resetAlarm(int interval) {
         stopAlarm();
-        Calendar now = Calendar.getInstance();
-        int hour = now.get(Calendar.HOUR_OF_DAY);
-        int minute = now.get(Calendar.MINUTE);
-        Log.i(TAG, "current time: " + hour + ":" + minute);
         setAlarm(interval, true);
     }
 
@@ -1181,8 +1176,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         /** Setting an alarm, which invokes the operation at alarm_time */
         long duration = 15000;//60000*durationMinute;
-        Log.i(TAG, "set start time to (int milliseconds): " +alarm_time + duration);
-        Log.i(TAG, "set interval to: " + duration);
         alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, duration + SystemClock.elapsedRealtime(), duration, operation);
 
         /** Alert is set successfully */
@@ -1194,5 +1187,22 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         mSqlHelper.updatePingMisses(this, 0);
         resetAlarm(interval);
         Toast.makeText(getBaseContext(), "Successfully checked in!", Toast.LENGTH_SHORT).show();
+    }
+
+    public void sendSMS(String message)
+    {
+        ArrayList<String> emContacts = mSqlHelper.getContactNumbers(this);
+        SmsManager sms = SmsManager.getDefault();
+
+//        String allNumbers = TextUtils.join(";", emContacts);
+        for(String number : emContacts) {
+            Log.i(TAG, number);
+            sms.sendTextMessage(number, null, message, null, null);
+        }
+
+//        Uri uri = Uri.parse("smsto:" + allNumbers);
+//        Intent it = new Intent(Intent.ACTION_SENDTO, uri);
+//        it.putExtra("sms_body", "The SMS text");
+//        startActivity(it);
     }
 }
