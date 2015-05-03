@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -160,10 +161,10 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
 
         Switch pingSwitch = (Switch) v.findViewById(R.id.pingSwitch);
         boolean pingsOn = mSqlHelper.arePingsOn((MainActivity) getActivity());
-        pingSwitch.setOnClickListener(new View.OnClickListener() {
+        pingSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View toggleView) {
-                onTogglePings(toggleView, v);
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                onTogglePings(buttonView, v);
             }
         });
         pingSwitch.setChecked(pingsOn);
@@ -334,7 +335,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         }
     }
 
-    public void onTogglePings(View toggleView, View masterView) {
+    public void onTogglePings(CompoundButton toggleView, View masterView) {
         if (masterView == null) {
             masterView = getView();
         }
@@ -590,9 +591,9 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
                 if(!sharedPreferences.getString("exceeded_misses", "").equals("")) {
                     String planName = sharedPreferences.getString("exceeded_misses", "");
                     missedCheckinMessage(mSqlHelper.getContactNumbers(planName),
-                            "I set up my NightOut app to ask me to check-in periodically "+
-                            "tonight to keep me safe, but if you're getting this, I've missed "+
-                            "too many check-ins and might be in trouble. Please help!");
+                            "I set up my NightOut app to ask me to check-in periodically " +
+                                    "tonight to keep me safe, but if you're getting this, I've missed " +
+                                    "too many check-ins and might be in trouble. Please help!");
 
                     sharedPreferences.edit().putString("exceeded_misses", "").apply();
                 }
