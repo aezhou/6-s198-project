@@ -24,18 +24,7 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
-import org.w3c.dom.Text;
-
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.ArrayList;
 
 
 public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemClickListener, PlanChangedListener{
@@ -440,10 +429,10 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
 
                         // Find the directions fragment and notify it of the changes
                         Log.i(TAG, "changed destination");
-                        ((MainActivity) getActivity()).getSectionsPagerAdapter().getDirectionsFrag().onDestinationChanged(name, streetAddress + ", " + city + ", " + state + " " + zipCode);
+                        ((MainActivity) getActivity()).getSectionsPagerAdapter().getDirectionsFrag().onDestinationChanged();
                     }
                 });
-            ((MainActivity) getActivity()).notifyDirFragOfDestChange(name, streetAddress);
+            ((MainActivity) getActivity()).notifyDirFragOfDestChange();
             googleAPIClient.connect();
         } catch (JSONException e) {
             Log.e(TAG, "Cannot process JSON results", e);

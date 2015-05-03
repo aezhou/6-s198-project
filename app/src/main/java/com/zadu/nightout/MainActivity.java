@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -54,8 +52,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.Filter;
-import android.widget.Filterable;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -394,26 +390,25 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     @Override
     public void callRide(Object something) {
-        Log.i(TAG, "callRide() called");
-/*        TextView currentAddressTextView = (TextView)findViewById(R.id.current_address);
-        String currentAddress = currentAddressTextView.getText().toString();
-        Intent intent = new Intent(ReserveIntents.ACTION_RESERVE_TAXI_RESERVATION);
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            Log.i(TAG, "resolving taxi intent");
-            startActivity(intent);
-        }*/
+        // TODO: Make the links also transfer information or be more specific if possible.
         PackageManager pm = getPackageManager();
         try
         {
             pm.getPackageInfo("com.ubercab", PackageManager.GET_ACTIVITIES);
-            // Do something awesome - the app is installed! Launch App.
+            // Launch App.
             Intent launchIntent = pm.getLaunchIntentForPackage("com.ubercab");
             startActivity(launchIntent);
         }
         catch (PackageManager.NameNotFoundException e)
         {
             // No Uber app! Open Mobile Website.
-            Log.i(TAG, "No Uber App installed");
+            Log.i(TAG, "No Uber App installed - opening website");
+            String uberUrl = "https://www.uber.com/";
+            Uri webpage = Uri.parse(uberUrl);
+            Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                startActivity(intent);
+            }
         }
     }
 
@@ -442,10 +437,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             e.printStackTrace();
         }
         if (destAddressEncoded != null) {
-            Uri gmmIntentUri = Uri.parse("google.navigation:q=" + destAddressEncoded);
-            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-            mapIntent.setPackage("com.google.android.apps.maps");
-            startActivity(mapIntent);
+            Intent mapIntent = new Intent(android.content.Intent.ACTION_VIEW,
+                    Uri.parse("http://maps.google.com/maps?daddr=" + destAddressEncoded));
             if (mapIntent.resolveActivity(getPackageManager()) != null) {
                 startActivity(mapIntent);
             }
@@ -720,7 +713,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
             Log.i(TAG, "the location should be below: ");
-            Log.i(TAG, String.valueOf(mLastLocation.getLatitude()) + String.valueOf(mLastLocation.getLongitude()));
+            Log.i(TAG, String.valueOf(mLastLocation.getLatitude()) + ", " + String.valueOf(mLastLocation.getLongitude()));
             mGoogleApiClient.disconnect();
         }
     }
@@ -984,7 +977,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         @Override
         protected void onPostExecute(String result) {
             Log.i(TAG, "starting Geocoding onPostExecute");
-
             JSONObject geocodingResult = null;
             String lat = null;
             String lng = null;
@@ -1026,11 +1018,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         @Override
         protected void onPostExecute(String result) {
             Log.i(TAG, "starting Places onPostExecute");
-
             JSONArray placesResults = null;
             try {
                 JSONObject jObject = new JSONObject(result);
-                Log.i(TAG, result);
                 placesResults = jObject.getJSONArray("results");
 
             } catch (JSONException e) {
@@ -1118,9 +1108,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         return mSqlHelper;
     }
 
-    public void notifyDirFragOfDestChange(String destName, String destAddress) {
+    public void notifyDirFragOfDestChange() {
         DirectionsFragment f = (DirectionsFragment) mSectionsPagerAdapter.getItem(1);
-        f.onDestinationChanged(destName, destAddress);
+        f.onDestinationChanged();
     }
 
 
