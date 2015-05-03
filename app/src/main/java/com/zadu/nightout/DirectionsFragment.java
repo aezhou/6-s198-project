@@ -44,10 +44,9 @@ import java.util.ArrayList;
  * create an instance of this fragment.
  */
 // TODO: Watch out for overlap between spinner and autocomplete results!
-// TODO: implement AdapterView.OnItemClickListener
 public class DirectionsFragment extends Fragment implements PlanChangedListener, OnMapReadyCallback,
         SharedPreferences.OnSharedPreferenceChangeListener, AdapterView.OnItemSelectedListener,
-        AdapterView.OnItemClickListener{
+        AdapterView.OnItemClickListener {
     private static String TAG = "DirectionsFragment";
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -401,6 +400,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         }
     }
 
+    // TODO: remove if not using
     // For current location
     private String buildReverseGeocodingURL(String lat, String lng) {
         String baseURL = "https://maps.googleapis.com/maps/api/geocode/json?";
@@ -455,6 +455,12 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         updateETAs(selectionName);
     }
 
+    // Nothing selected listener for destination spinner
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+        // Do nothing?
+    }
+
     // Click listener for Other destination autocomplete
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
         // TODO: Implement this
@@ -462,12 +468,6 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         String choice = (String) adapterView.getItemAtPosition(position);
         // Hide keyboard
         autoCompView.clearFocus();
-    }
-
-    // Nothing selected listener for destination spinner
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-        // Do nothing?
     }
 
 

@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.telephony.PhoneNumberUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
@@ -30,7 +31,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-public class SettingsActivity extends ActionBarActivity {
+public class SettingsActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
+    private static String TAG = "SettingsActivity";
     private LinearLayout mPhoneNumber;
     private LinearLayout mAddress;
     private TextView mOwnAddress;
@@ -119,17 +121,16 @@ public class SettingsActivity extends ActionBarActivity {
             @Override
             public void onClick(View view) {
                 final View enterHomeAddress = getLayoutInflater().inflate(R.layout.dialog_home_address, null);
-                EditText edit = (EditText) enterHomeAddress.findViewById(R.id.searchField);
+                AutoCompleteTextView edit = (AutoCompleteTextView) enterHomeAddress.findViewById(R.id.searchField);
                 edit.setText(preferences.getString("home_address", ""));
+                edit.setAdapter(GooglePlacesAutocompleteAdapter.getInstance(getApplicationContext()));
+                edit.setOnItemClickListener(SettingsActivity.this);
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
                 builder.setView(enterHomeAddress);
 
                 AutoCompleteTextView address = (AutoCompleteTextView)
                         enterHomeAddress.findViewById(R.id.searchField);
-
-                //TODO: @Cristhian set up autocomplete
-
 
                 builder.setCancelable(true)
                         .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -272,5 +273,12 @@ public class SettingsActivity extends ActionBarActivity {
             }
         }
 
+    }
+
+    // Click listener for home address autocomplete
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        // TODO: @Amanda do anything that needs doing after a selection is made
+        // Hide keyboard
+        adapterView.clearFocus();
     }
 }
