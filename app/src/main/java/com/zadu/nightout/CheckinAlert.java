@@ -66,17 +66,17 @@ public class CheckinAlert extends DialogFragment{
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 /** Exit application on click OK */
-                getActivity().finish();
+//                getActivity().finish();
                 //TODO: do things when user properly checks in
                 Toast.makeText(getActivity(), "User checked it!", Toast.LENGTH_SHORT).show();
-//                ((MainActivity)getActivity()).userCheckin();
+                ((CheckinActivity) getActivity()).userCheckin();
             }
         });
 
         builder.setNegativeButton("Turn Off", new OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                getActivity().finish();
+//                getActivity().finish();
                 //TODO: turn checkin toggle off
                 Toast.makeText(getActivity(), "User turned off check-ins!", Toast.LENGTH_SHORT).show();
                 String planName = ((CheckinActivity)getActivity()).getPlanName();

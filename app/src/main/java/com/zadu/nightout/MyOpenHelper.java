@@ -233,16 +233,16 @@ public class MyOpenHelper extends SQLiteOpenHelper{
         return interval;
     }
 
+
     public Integer getPingInterval(MainActivity activity) {
         String planName = activity.getCurrentPlanName();
         return getPingInterval(planName);
     }
 
     public Integer getPingInterval(String planName) {
-        Cursor c = getReadableDatabase().rawQuery("select "+PING_INTERVAL+" from " + PLAN_TABLE_NAME +
-                " where " + PLAN_NAME + " == '" + planName + "'", null);
+        Cursor c = getReadableDatabase().rawQuery("select " + PING_INTERVAL+" from " + PLAN_TABLE_NAME + " where " + PLAN_NAME + " == '" + planName + "'", null);
         c.moveToFirst();
-        if (c.isNull(0)) return null;
+        if(c.isNull(0)) return null;
         int interval = c.getInt(0);
         c.close();
         return interval;
@@ -254,13 +254,12 @@ public class MyOpenHelper extends SQLiteOpenHelper{
     }
 
     public Integer getPingAllowance(String planName) {
-        Cursor c = getReadableDatabase().rawQuery("select "+PING_ALLOWANCE+" from " + PLAN_TABLE_NAME +
-                " where " + PLAN_NAME + " == '" + planName + "'", null);
+        Cursor c = getReadableDatabase().rawQuery("select " +PING_ALLOWANCE+" from " + PLAN_TABLE_NAME + " where " + PLAN_NAME + " == '" + planName + "'", null);
         c.moveToFirst();
-        if (c.isNull(0)) return null;
+        if(c.isNull(0))return null;
         int allowance = c.getInt(0);
         c.close();
-        return allowance;
+        return  allowance;
     }
 
     public void updatePlanPlaceInfo(MainActivity activity, String infoType, String value) {
