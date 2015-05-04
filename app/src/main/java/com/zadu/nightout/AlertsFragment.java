@@ -558,11 +558,14 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals("default_contact_change")) {
+        if (key.equals("default_contacts_change")) {
             if (mView != null && mContactsAdapter != null && mSqlHelper != null && getActivity() != null) {
-                mContactsAdapter.changeCursor(mSqlHelper.getContactsToDisplay((MainActivity) getActivity()));
-                ListView list = (ListView) mView.findViewById(R.id.contactsListView);
-                list.setAdapter(mContactsAdapter);
+                if (sharedPreferences.getString("default_contacts_change", "").equals("true")) {
+                    mContactsAdapter.changeCursor(mSqlHelper.getContactsToDisplay((MainActivity) getActivity()));
+                    ListView list = (ListView) mView.findViewById(R.id.contactsListView);
+                    list.setAdapter(mContactsAdapter);
+                    sharedPreferences.edit().putString("default_contacts_change", "false").apply();
+                }
             } else {
                 Log.i("AlertsFrag", "on shared pref default_contact_change update, got null thing");
             }
