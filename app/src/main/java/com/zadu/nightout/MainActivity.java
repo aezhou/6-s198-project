@@ -1128,7 +1128,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         alarmManager = (AlarmManager) getBaseContext().getSystemService(ALARM_SERVICE);
 
         /** Setting an alarm, which invokes the operation at alarm_time */
-        long duration = 60000*durationMinute;
+        long duration = 10000; //60000*durationMinute;
         alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, duration + SystemClock.elapsedRealtime(), duration, operation);
     }
 

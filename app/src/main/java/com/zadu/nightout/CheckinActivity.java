@@ -28,7 +28,7 @@ public class CheckinActivity extends FragmentActivity {
 
         /** Creating an Alert Dialog Window */
         if (sAlert != null) {
-             sAlert.dismiss();
+             sAlert.dismissAllowingStateLoss();
         }
         sAlert = new CheckinAlert();
         Bundle args = new Bundle();

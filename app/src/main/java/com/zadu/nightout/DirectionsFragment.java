@@ -183,37 +183,41 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     available.
     */
     private void setUpMap(String endpoint) {
-        map.clear();
-        // Show the new destination on the embedded map
-        String destName = mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_NAME");
-        Double destLat = mSqlHelper.getPlanLatLong((MainActivity) getActivity(), "PLACE_LAT");
-        Double destLng = mSqlHelper.getPlanLatLong((MainActivity) getActivity(), "PLACE_LONG");
-        if (!endpoint.equals("Home") && !endpoint.equals("Other") &&
-                destLat != null && destLng != null) {
-            LatLng destCoords = new LatLng(destLat, destLng);
-            map.addMarker(new MarkerOptions().position(destCoords).title(destName));
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(destCoords, 15));
-        }
-        // If the destination coords are null, show home on the map instead
-        else {
-            String homeLat = mSharedPrefs.getString("home_lat", null);
-            String homeLng = mSharedPrefs.getString("home_lng", null);
-            if (endpoint.equals("Home") && homeLat != null && homeLng != null) {
-                Double homeLatDouble = new Double(homeLat);
-                Double homeLngDouble = new Double(homeLng);
-                LatLng homeCoords = new LatLng(homeLatDouble, homeLngDouble);
-                map.addMarker(new MarkerOptions().position(homeCoords).title("Home"));
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeCoords, 15));
+        if(mSqlHelper != null) {
+            map.clear();
+            // Show the new destination on the embedded map
+            String destName = mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_NAME");
+            Double destLat = mSqlHelper.getPlanLatLong((MainActivity) getActivity(), "PLACE_LAT");
+            Double destLng = mSqlHelper.getPlanLatLong((MainActivity) getActivity(), "PLACE_LONG");
+            if (!endpoint.equals("Home") && !endpoint.equals("Other") &&
+                    destLat != null && destLng != null) {
+                LatLng destCoords = new LatLng(destLat, destLng);
+                map.addMarker(new MarkerOptions().position(destCoords).title(destName));
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(destCoords, 15));
             }
-            else if (endpoint.equals("Other")) {
-                if (otherDestLat != null && otherDestLng != null) {
-                    Double otherLatDouble = new Double(otherDestLat);
-                    Double otherLngDouble = new Double(otherDestLng);
-                    LatLng otherCoords = new LatLng(otherLatDouble, otherLngDouble);
-                    map.addMarker(new MarkerOptions().position(otherCoords).title("Other"));
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(otherCoords, 15));
+            // If the destination coords are null, show home on the map instead
+            else {
+                String homeLat = mSharedPrefs.getString("home_lat", null);
+                String homeLng = mSharedPrefs.getString("home_lng", null);
+                if (endpoint.equals("Home") && homeLat != null && homeLng != null) {
+                    Double homeLatDouble = new Double(homeLat);
+                    Double homeLngDouble = new Double(homeLng);
+                    LatLng homeCoords = new LatLng(homeLatDouble, homeLngDouble);
+                    map.addMarker(new MarkerOptions().position(homeCoords).title("Home"));
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeCoords, 15));
+                } else if (endpoint.equals("Other")) {
+                    if (otherDestLat != null && otherDestLng != null) {
+                        Double otherLatDouble = new Double(otherDestLat);
+                        Double otherLngDouble = new Double(otherDestLng);
+                        LatLng otherCoords = new LatLng(otherLatDouble, otherLngDouble);
+                        map.addMarker(new MarkerOptions().position(otherCoords).title("Other"));
+                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(otherCoords, 15));
+                    }
                 }
             }
+        }
+        else {
+            Log.i(TAG, "msql db is null");
         }
     }
 
