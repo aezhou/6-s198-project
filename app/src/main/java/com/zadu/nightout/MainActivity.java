@@ -450,7 +450,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         TextView searchAddress = (TextView)findViewById(R.id.planAddressText);
         String address = mSqlHelper.getPlanDetail(this, "PLACE_ADDRESS");
         Log.i(TAG, "address from DB: " + address);
-        if(searchAddress != null && address != null && !address.equals("")) {
+        if(address != null && !address.equals("")) {
             Log.i(TAG, "search addresss not null");
             String [] addressSplit = address.split("\\|");
             String streetAddress = addressSplit[0];
@@ -477,11 +477,17 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 if (encodedAddress != null && encodedZip != null) {
                     String apiUrl = openTableApiUrl + "restaurants?" + searchText;
                     new OpenTableCallApi().execute(apiUrl);
+                    Log.i(TAG, "Called execture optentableapi");
                 }
             }
         }
         else {
             Log.i(TAG, "search address is null!");
+            Button reserveOnlineButton = (Button) findViewById(R.id.reservationOnlineButton);
+            if(reserveOnlineButton != null) {
+                Log.i(TAG, "reserveButton is not null");
+                reserveOnlineButton.setEnabled(false);
+            }
         }
     }
 
@@ -810,7 +816,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private class CallAPI extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... params) {
-
+            Log.i(TAG, "CallAPI doInBackground called");
             String urlString = params[0]; // URL to call
 
             HttpURLConnection urlConnection = null;
@@ -860,16 +866,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
          */
         protected void onPostExecute(String result) {
             Log.i(TAG, "starting onPostExecute CallAPI");
-
-            JSONArray resultEntries = null;
-            try {
-                JSONObject jObject = new JSONObject(result);
-
-            } catch (JSONException e) {
-            }
-
-            if (resultEntries != null) {
-            }
         }
 
     } // end CallAPI
@@ -900,6 +896,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
             if (restaurantEntries != null) {
                 setReservationInfo(restaurantEntries);
+            }
+            else {
+                //TODO: Cristhian set reserve button to disabled
             }
         }
     }
@@ -1060,26 +1059,29 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
         else if(restaurants.length() > 1) {
             Log.i(TAG, "OH NO! More than one place matches that description!");
-            reserveOnlineButton.setEnabled(true);
         }
-
-        for(int i = 0; i < restaurants.length(); i++) {
+        else {
             try {
-                JSONObject restInfo = (JSONObject) restaurants.get(i);
+                JSONObject restInfo = (JSONObject) restaurants.get(0);
                 reservationUrl = restInfo.getString("mobile_reserve_url");
-                if(reservationUrl != null) {
+                if (reservationUrl != null) {
+                    String tempUrl = mSqlHelper.getPlanDetail(this, "PLACE_URL");
                     mSqlHelper.updatePlanPlaceInfo(this, "PLACE_URL", reservationUrl);
-                }
-                else {
+                    Log.i(TAG, "just added a url to the DB");
+                    //TODO: Cristhian test the line below
+                    reserveOnlineButton.setEnabled(true);
+                } else {
                     Log.i(TAG, "WELP! no reservation URL exists!");
                 }
-            }
-            catch (JSONException e){
+            } catch (JSONException e) {
                 Log.e(TAG, e.getMessage());
                 e.printStackTrace();
             }
-
         }
+//        for(int i = 0; i < restaurants.length(); i++) {
+//
+//
+//        }
 
     }
 
@@ -1135,38 +1137,22 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         /** Getting a reference to the System Service ALARM_SERVICE */
         alarmManager = (AlarmManager) getBaseContext().getSystemService(ALARM_SERVICE);
 
-        Calendar now = Calendar.getInstance();
-        int year;
-        int month;
-        int day;
-        int hour;
-        int minute;
-        if(mSqlHelper.getReservationInfo(this, "RESERVATION_YEAR") != null && mSqlHelper.getReservationInfo(this, "RESERVATION_MONTH") != null &&
-                mSqlHelper.getReservationInfo(this, "RESERVATION_DATE")!= null && mSqlHelper.getReservationInfo(this, "RESERVATION_HOUR") != null &&
-                mSqlHelper.getReservationInfo(this, "RESERVATION_MINUTE") != null && !startFromNow) {
-            year = mSqlHelper.getReservationInfo(this, "RESERVATION_YEAR");
-            month = mSqlHelper.getReservationInfo(this, "RESERVATION_MONTH");
-            day = mSqlHelper.getReservationInfo(this, "RESERVATION_DATE");
-            hour = mSqlHelper.getReservationInfo(this, "RESERVATION_HOUR");
-            minute = mSqlHelper.getReservationInfo(this, "RESERVATION_MINUTE");
-        }
-        else {
-            year = now.get(Calendar.YEAR);
-            month = now.get(Calendar.MONTH);
-            day = now.get(Calendar.DAY_OF_MONTH);
-            hour = now.get(Calendar.HOUR_OF_DAY);
-            minute = now.get(Calendar.MINUTE);
-        }
-
-
-        /** Creating a calendar object corresponding to the date and time set by the user */
-        GregorianCalendar calendar = new GregorianCalendar(year,month,day, hour, minute);
-
-        /** Converting the date and time in to milliseconds elapsed since epoch */
-        long alarm_time = calendar.getTimeInMillis();
+//        Calendar now = Calendar.getInstance();
+//        int year = now.get(Calendar.YEAR);
+//        int month = now.get(Calendar.MONTH);
+//        int day = now.get(Calendar.DAY_OF_MONTH);
+//        int hour = now.get(Calendar.HOUR_OF_DAY);
+//        int minute = now.get(Calendar.MINUTE);
+//
+//
+//        /** Creating a calendar object corresponding to the date and time set by the user */
+//        GregorianCalendar calendar = new GregorianCalendar(year,month,day, hour, minute);
+//
+//        /** Converting the date and time in to milliseconds elapsed since epoch */
+//        long alarm_time = calendar.getTimeInMillis();
 
         /** Setting an alarm, which invokes the operation at alarm_time */
-        long duration = 15000;//60000*durationMinute;
+        long duration = 60000*durationMinute;
         alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, duration + SystemClock.elapsedRealtime(), duration, operation);
 
         /** Alert is set successfully */
@@ -1180,20 +1166,17 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         Toast.makeText(getBaseContext(), "Successfully checked in!", Toast.LENGTH_SHORT).show();
     }
 
-    public void sendSMS(String message)
-    {
-        ArrayList<String> emContacts = mSqlHelper.getContactNumbers(this);
-        SmsManager sms = SmsManager.getDefault();
 
-//        String allNumbers = TextUtils.join(";", emContacts);
-        for(String number : emContacts) {
-            Log.i(TAG, number);
-            sms.sendTextMessage(number, null, message, null, null);
-        }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG, "MESSAGE: Called on destroy");
+        Toast.makeText(getBaseContext(), "MESSAGE: Called on destro", Toast.LENGTH_SHORT).show();
+    }
 
-//        Uri uri = Uri.parse("smsto:" + allNumbers);
-//        Intent it = new Intent(Intent.ACTION_SENDTO, uri);
-//        it.putExtra("sms_body", "The SMS text");
-//        startActivity(it);
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i(TAG, "MESSAGE: called on stop");
     }
 }

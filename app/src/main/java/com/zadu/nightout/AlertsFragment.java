@@ -567,7 +567,6 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
                 // update toggle ui to match what's in the db for the current plan
                 if (sharedPreferences.getString("pings_onoff_change", "").equals("true")) {
 
-                    ((MainActivity) getActivity()).sendSMS("derp");
                     ((MainActivity) getActivity()).stopAlarm();
                     mSqlHelper.updatePingMisses((MainActivity)getActivity(), 0); // when alarm is turned off, reset miss count
                     Log.i("AlertsFrag", "after stop alarm");
