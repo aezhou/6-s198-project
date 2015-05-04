@@ -148,7 +148,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
         autoCompView.setOnItemClickListener(this);
 
         refreshDetailFragmentView(v);
-
+        refreshDetailFragmentView(v);
         return v;
     }
 
@@ -212,8 +212,9 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
 
     @Override
     public void onPlanChanged() {
-        // TODO: update ui with info from database for place info and reservation info
-        refreshDetailFragmentView(getView());
+        if(getView() != null) {
+            refreshDetailFragmentView(getView());
+        }
     }
 
     public void refreshDetailFragmentView(View v) {
@@ -260,15 +261,15 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
                 int planYear = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_YEAR");
                 int planMonth = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MONTH") + 1;
                 int planDay = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_DATE");
-                dateButton.setText(planDay + "/" + planMonth + "/" + planYear);
-                //TODO: remove the following line
-                Log.i(TAG, "reset date on date picker button");
+                dateButton.setText(planMonth + "/" + planDay + "/" + planYear);
             }
             else {
                 dateButton.setText("Select a date");
             }
 
             Button timeButton = (Button)v.findViewById(R.id.timePickerButton);
+            Button reservePhoneButton = (Button)v.findViewById(R.id.reservationCallButton);
+            Button reserveOnlineButton = (Button)v.findViewById(R.id.reservationOnlineButton);
             if(mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_HOUR") != null && mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MINUTE") != null) {
                 int planHour = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_HOUR");
                 int planMin = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MINUTE");
@@ -277,15 +278,44 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
             else {
                 timeButton.setText("Select a time");
             }
-            if(mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_URL") == null) {
+            String currentUrl = mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_URL");
+            if( currentUrl == null || currentUrl.equals("")) {
+                reserveOnlineButton.setEnabled(false);
                 ((MainActivity) getActivity()).findOpenTableUrl(null);
             }
             else {
                 //Place url is not null therefore make sure to set visibility to true
-                Button reserveOnlineButton = (Button)v.findViewById(R.id.reservationOnlineButton);
+                Log.i(TAG, "Thinks the URL is not null/empty");
                 reserveOnlineButton.setEnabled(true);
             }
 
+            if(mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NUMBER") == null) {
+                Log.i(TAG, "phoneButton is disabled");
+                reservePhoneButton.setEnabled(false);
+            }
+            else {
+                Log.i(TAG, "phoneButton is enabled");
+                reservePhoneButton.setEnabled(true);
+            }
+
+            //handling when to enable/disable share button
+            Button shareButton = (Button) v.findViewById(R.id.planShareButton);
+            if(mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_DATE") == null || mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_HOUR") == null ||
+            mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MINUTE") == null || mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_YEAR") == null  ||
+            mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MONTH") == null || mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NAME") == null) {
+
+                shareButton.setEnabled(false);
+            }
+            else {
+                shareButton.setEnabled(true);
+            }
+            CheckBox reservationMade = (CheckBox) v.findViewById(R.id.checkReservationCheckBox);
+            if(mSqlHelper.hasReservation((MainActivity)getActivity())) {
+                reservationMade.setChecked(true);
+            }
+            else {
+                reservationMade.setChecked(false);
+            }
         }
     }
 
@@ -356,7 +386,6 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
 
         // Remove text input focus and hide the keyboard
         autoCompView.clearFocus();
-//        TODO: CRISTHIAN
         autoCompView.setText("");
         InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(
                 Context.INPUT_METHOD_SERVICE);
@@ -399,7 +428,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
                                 Log.i(TAG, "zip code: " + zipCode);
 
                             } catch (ArrayIndexOutOfBoundsException e) {
-                                // TODO: Maybe add a toast to tell them they clicked a dumb option
+                                // TODO: Maybe add a toast to tell them they clicked a bad option
                                 Log.e(TAG, "Can't find zip code.", e);
                             }
                             lat = String.valueOf(myPlace.getLatLng().latitude);
@@ -415,7 +444,6 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
                         mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_LAT", lat);
                         mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_LONG", lng);
 
-                        //TODO: Cristhian's work here
                         ((MainActivity) getActivity()).findOpenTableUrl("");
 
                         TextView placeName = (TextView)getActivity().findViewById(R.id.destinationName);
@@ -427,6 +455,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
                         placeAddress.setText(streetAddress);
                         placeCityStateZip.setText(formatCityStateZip(city, state, zipCode));
                         placeNumber.setText(phoneNumber);
+                        refreshDetailFragmentView(getView());
 
                         // Find the directions fragment and notify it of the changes
                         Log.i(TAG, "changed destination");

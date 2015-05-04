@@ -1,6 +1,7 @@
 package com.zadu.nightout;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -10,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
+import android.provider.Telephony;
 import android.support.v4.app.Fragment;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.SmsManager;
@@ -179,6 +181,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
             public void onClick(View v) {
                 String initValue = ((TextView) v).getText().toString();
                 ((MainActivity) getActivity()).showPingIntervalDialog(initValue, (TextView) v);
+                ((MainActivity)getActivity()).stopAlarm();
             }
         });
         TextView pingAllowanceText = (TextView) v.findViewById(R.id.pingAllowanceText);
@@ -189,6 +192,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
             public void onClick(View v) {
                 String initValue = ((TextView) v).getText().toString();
                 ((MainActivity) getActivity()).showPingAllowanceDialog(initValue, (TextView) v);
+                ((MainActivity)getActivity()).stopAlarm();
             }
         });
 
@@ -352,7 +356,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
                 offView.setVisibility(View.GONE);
 
                 int duration = mSqlHelper.getPingInterval((MainActivity) getActivity());
-                ((MainActivity) getActivity()).setAlarm(duration, false);
+                ((MainActivity) getActivity()).setAlarm(duration);
 
             } else {
                 Log.i("togglePings", "toggle off");
@@ -434,10 +438,20 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         }
 
         SmsManager smsManager = SmsManager.getDefault();
+
         if (smsManager != null) {
+            String SENT = "SMS_SENT";
+            String DELIVERED = "SMS_DELIVERED";
             for (String phoneNumber : numbers) {
-                smsManager.sendTextMessage(phoneNumber, null, message, null, null);
+                PendingIntent sentPI = PendingIntent.getBroadcast(getActivity(), 0, new Intent(SENT), 0);
+                PendingIntent deliveredPI = PendingIntent.getBroadcast(getActivity(), 0, new Intent(DELIVERED), 0);
+                Log.i("SMSManager", phoneNumber);
+                smsManager.sendTextMessage(phoneNumber, null, "message", sentPI, deliveredPI);
+                Log.i("SMS Manager", "after calling send text");
             }
+        }
+        else{
+            Log.i("SMSManager", "sms is null");
         }
 
     }
@@ -578,7 +592,6 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
                 // update toggle ui to match what's in the db for the current plan
                 if (sharedPreferences.getString("pings_onoff_change", "").equals("true")) {
 
-                    ((MainActivity) getActivity()).sendSMS("derp");
                     ((MainActivity) getActivity()).stopAlarm();
                     mSqlHelper.updatePingMisses((MainActivity)getActivity(), 0); // when alarm is turned off, reset miss count
                     Log.i("AlertsFrag", "after stop alarm");
