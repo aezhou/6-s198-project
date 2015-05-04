@@ -355,7 +355,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         String destParam = "&destinations=";
         String encodedDestAddress = null;
         String modeParam = "&mode=" + mode;
-        String keyParam = "&key=AIzaSyD3xH-kCCFsSPonGRRi7isV-O5ejZWIts8";
+        String keyParam = "&key=AIzaSyDOCr7uzy7g0ZidvYZARe-ihCiaXrGceuk";
         try {
             encodedDestAddress = URLEncoder.encode(destAddress, "UTF-8");
             destParam = destParam + encodedDestAddress;
@@ -411,7 +411,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
             String baseURL = "https://maps.googleapis.com/maps/api/geocode/json?";
             String addressParam = "address=";
             String encodedAddress = null;
-            String keyParam = "&key=AIzaSyD3xH-kCCFsSPonGRRi7isV-O5ejZWIts8";
+            String keyParam = "&key=AIzaSyDOCr7uzy7g0ZidvYZARe-ihCiaXrGceuk";
             try {
                 encodedAddress = URLEncoder.encode(address, "UTF-8");
                 addressParam = addressParam + encodedAddress;
@@ -432,7 +432,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     private String buildReverseGeocodingURL(String lat, String lng) {
         String baseURL = "https://maps.googleapis.com/maps/api/geocode/json?";
         String latLngParam = "latlng=" + lat + "," + lng;
-        String keyParam = "&key=AIzaSyD3xH-kCCFsSPonGRRi7isV-O5ejZWIts8";
+        String keyParam = "&key=AIzaSyDOCr7uzy7g0ZidvYZARe-ihCiaXrGceuk";
         return baseURL + latLngParam + keyParam;
     }
 
