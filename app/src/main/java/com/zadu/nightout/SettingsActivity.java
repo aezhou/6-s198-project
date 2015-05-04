@@ -49,6 +49,7 @@ public class SettingsActivity extends ActionBarActivity implements AdapterView.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings_activity);
 
+
         mSqlHelper = MyOpenHelper.getInstance(this);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -239,6 +240,8 @@ public class SettingsActivity extends ActionBarActivity implements AdapterView.O
                 startActivityForResult(intent, 0);
             }
         });
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
 
     @Override
