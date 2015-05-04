@@ -213,7 +213,7 @@ public class SettingsActivity extends ActionBarActivity implements AdapterView.O
 
                                     mAdapter.changeCursor(mSqlHelper.getDefaultContacts());
                                     mEmergencyListView.setAdapter(mAdapter);
-                                    preferences.edit().putString("default_addresses_change", "true").apply();
+                                    preferences.edit().putString("default_contacts_change", "true").apply();
                                 }
                             }).setNegativeButton("No", new DialogInterface.OnClickListener() {
                                 @Override
@@ -270,7 +270,7 @@ public class SettingsActivity extends ActionBarActivity implements AdapterView.O
                     mSqlHelper.insertDefaultContact(contactName, contactNumber);
                     mAdapter.changeCursor(mSqlHelper.getDefaultContacts());
                     mEmergencyListView.setAdapter(mAdapter);
-                    preferences.edit().putString("default_addresses_change", "true").apply();
+                    preferences.edit().putString("default_contacts_change", "true").apply();
                 }
             }
         }
