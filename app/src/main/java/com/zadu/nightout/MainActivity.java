@@ -349,6 +349,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 Button timePickerButton = (Button)findViewById(R.id.timePickerButton);
                 timePickerButton.setText(hourOfDay + " : " + minute);
                 updatePlanReservationTime(hourOfDay, minute);
+
+                //TODO: Cristhian call refresh for plan details
+//                PlanDetailsFragment f = new
             }
         }, mHour, mMinute, false);
         tpd.show();
@@ -362,17 +365,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         final int mMonth = c.get(Calendar.MONTH);
         final int mDay = c.get(Calendar.DAY_OF_MONTH);
 
-        DatePickerDialog dpd = new DatePickerDialog(this,
-                new DatePickerDialog.OnDateSetListener() {
-
+        DatePickerDialog dpd = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                         Button datePickerButton = (Button) findViewById(R.id.datePickerButton);
                         datePickerButton.setText(dayOfMonth + "/" + (monthOfYear+1) + "/" +year);
-//                        mSqlHelper.updatePlanReservationDate((Main, mYear, mMonth, mDay);
                         updatePlanReservationDate(mYear, mMonth, mDay);
-                        //TODO: remove line below
-                        Log.i(TAG, "Updated onto db?");
                     }
                 }, mYear, mMonth, mDay);
         dpd.show();
@@ -1146,7 +1144,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 //        long alarm_time = calendar.getTimeInMillis();
 
         /** Setting an alarm, which invokes the operation at alarm_time */
-        long duration = 60000*durationMinute;
+        long duration = 10000; //60000*durationMinute;
         alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, duration + SystemClock.elapsedRealtime(), duration, operation);
 
         /** Alert is set successfully */

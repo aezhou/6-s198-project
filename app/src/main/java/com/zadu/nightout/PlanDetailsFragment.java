@@ -310,6 +310,13 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
             else {
                 shareButton.setEnabled(true);
             }
+            CheckBox reservationMade = (CheckBox) v.findViewById(R.id.checkReservationCheckBox);
+            if(mSqlHelper.hasReservation((MainActivity)getActivity())) {
+                reservationMade.setChecked(true);
+            }
+            else {
+                reservationMade.setChecked(false);
+            }
         }
     }
 

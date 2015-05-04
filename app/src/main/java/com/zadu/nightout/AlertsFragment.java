@@ -1,6 +1,7 @@
 package com.zadu.nightout;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -10,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
+import android.provider.Telephony;
 import android.support.v4.app.Fragment;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.SmsManager;
@@ -434,10 +436,20 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         }
 
         SmsManager smsManager = SmsManager.getDefault();
+
         if (smsManager != null) {
+            String SENT = "SMS_SENT";
+            String DELIVERED = "SMS_DELIVERED";
             for (String phoneNumber : numbers) {
-                smsManager.sendTextMessage(phoneNumber, null, message, null, null);
+                PendingIntent sentPI = PendingIntent.getBroadcast(getActivity(), 0, new Intent(SENT), 0);
+                PendingIntent deliveredPI = PendingIntent.getBroadcast(getActivity(), 0, new Intent(DELIVERED), 0);
+                Log.i("SMSManager", phoneNumber);
+                smsManager.sendTextMessage(phoneNumber, null, "message", sentPI, deliveredPI);
+                Log.i("SMS Manager", "after calling send text");
             }
+        }
+        else{
+            Log.i("SMSManager", "sms is null");
         }
 
     }
