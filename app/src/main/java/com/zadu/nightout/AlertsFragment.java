@@ -181,6 +181,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
             public void onClick(View v) {
                 String initValue = ((TextView) v).getText().toString();
                 ((MainActivity) getActivity()).showPingIntervalDialog(initValue, (TextView) v);
+                ((MainActivity)getActivity()).stopAlarm();
             }
         });
         TextView pingAllowanceText = (TextView) v.findViewById(R.id.pingAllowanceText);
@@ -191,6 +192,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
             public void onClick(View v) {
                 String initValue = ((TextView) v).getText().toString();
                 ((MainActivity) getActivity()).showPingAllowanceDialog(initValue, (TextView) v);
+                ((MainActivity)getActivity()).stopAlarm();
             }
         });
 
@@ -354,7 +356,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
                 offView.setVisibility(View.GONE);
 
                 int duration = mSqlHelper.getPingInterval((MainActivity) getActivity());
-                ((MainActivity) getActivity()).setAlarm(duration, false);
+                ((MainActivity) getActivity()).setAlarm(duration);
 
             } else {
                 Log.i("togglePings", "toggle off");

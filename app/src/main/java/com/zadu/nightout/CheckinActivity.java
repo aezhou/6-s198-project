@@ -38,9 +38,6 @@ public class CheckinActivity extends FragmentActivity {
 
         misses++;
         mSqlHelper.updatePingMisses(planName, misses);
-        //TODO: Cristhian pass this information on to the dialog
-        Toast.makeText(this, "number of misses: " + misses, Toast.LENGTH_SHORT).show();
-        Log.i(TAG, "num misses: " + misses);
 
         if(misses > missAllowance) {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -49,7 +46,7 @@ public class CheckinActivity extends FragmentActivity {
         }
 
         args.putBoolean("isLast", isLast);
-        args.putInt("numMisses", misses);
+        args.putInt("numMisses", misses-1);
         sAlert.setArguments(args);
         /** Opening the Alert Dialog Window. This will be opened when the alarm goes off */
         sAlert.show(getSupportFragmentManager(), "CheckinAlert");

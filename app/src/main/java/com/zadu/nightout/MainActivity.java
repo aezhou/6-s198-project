@@ -349,8 +349,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 Button timePickerButton = (Button)findViewById(R.id.timePickerButton);
                 timePickerButton.setText(hourOfDay + " : " + minute);
                 updatePlanReservationTime(hourOfDay, minute);
-
-                //TODO: Cristhian call refresh for plan details
                 PlanDetailsFragment f = (PlanDetailsFragment) mSectionsPagerAdapter.getItem(0);
                 f.onPlanChanged();
             }
@@ -638,6 +636,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     String interval = intervalEdit.getText().toString();
                     mSqlHelper.updatePingInterval(MainActivity.this, Integer.parseInt(interval));
                     //TODO: reset timer interval [CRISTHIAN]
+                    resetAlarm(Integer.parseInt(interval));
                     v.setText(interval);
                 }
             }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -683,6 +682,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         String allowance = allowanceEdit.getText().toString();
                         mSqlHelper.updatePingAllowance(MainActivity.this, Integer.parseInt(allowance));
                         //TODO: reset timer for checkin [Cristhian]
+                        resetAlarm(getCurrentInterval());
                         v.setText(allowance);
                     }
                 }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -897,9 +897,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             if (restaurantEntries != null) {
                 setReservationInfo(restaurantEntries);
             }
-            else {
-                //TODO: Cristhian set reserve button to disabled
-            }
         }
     }
 
@@ -1065,7 +1062,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 JSONObject restInfo = (JSONObject) restaurants.get(0);
                 reservationUrl = restInfo.getString("mobile_reserve_url");
                 if (reservationUrl != null) {
-                    String tempUrl = mSqlHelper.getPlanDetail(this, "PLACE_URL");
+//                    String tempUrl = mSqlHelper.getPlanDetail(this, "PLACE_URL");
                     mSqlHelper.updatePlanPlaceInfo(this, "PLACE_URL", reservationUrl);
                     Log.i(TAG, "just added a url to the DB");
                     //TODO: Cristhian test the line below
@@ -1121,10 +1118,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public void resetAlarm(int interval) {
         stopAlarm();
-        setAlarm(interval, true);
+        setAlarm(interval);
     }
 
-    public void setAlarm(int durationMinute, boolean startFromNow) {
+    public void setAlarm(int durationMinute) {
         /** This intent invokes the activity CheckinActivity, which in turn opens the CheckinAlert window */
         i = new Intent("com.zadu.nightout.checkinactivity");
         i.putExtra("plan", getCurrentPlanName());
@@ -1143,6 +1140,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         mSqlHelper.updatePingMisses(this, 0);
         resetAlarm(interval);
         Toast.makeText(getBaseContext(), "Successfully checked in!", Toast.LENGTH_SHORT).show();
+    }
+
+    public int getCurrentInterval() {
+        int interval = mSqlHelper.getPingInterval(this);
+        return interval;
     }
 
 }

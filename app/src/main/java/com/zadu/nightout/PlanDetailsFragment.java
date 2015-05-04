@@ -387,7 +387,6 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
 
         // Remove text input focus and hide the keyboard
         autoCompView.clearFocus();
-//        TODO: CRISTHIAN
         autoCompView.setText("");
         InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(
                 Context.INPUT_METHOD_SERVICE);
@@ -446,7 +445,6 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
                         mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_LAT", lat);
                         mSqlHelper.updatePlanPlaceInfo((MainActivity)getActivity(), "PLACE_LONG", lng);
 
-                        //TODO: Cristhian's work here
                         ((MainActivity) getActivity()).findOpenTableUrl("");
 
                         TextView placeName = (TextView)getActivity().findViewById(R.id.destinationName);
