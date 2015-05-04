@@ -546,23 +546,31 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        Log.i("AlertsFrag", "onSHaredPrefs called");
-        if (mView != null) {
-            mContactsAdapter.changeCursor(mSqlHelper.getContactsToDisplay((MainActivity) getActivity()));
-            ListView list = (ListView) mView.findViewById(R.id.contactsListView);
-            list.setAdapter(mContactsAdapter);
+        if (key.equals("default_contact_change")) {
+            if (mView != null && mContactsAdapter != null && mSqlHelper != null && getActivity() != null) {
+                mContactsAdapter.changeCursor(mSqlHelper.getContactsToDisplay((MainActivity) getActivity()));
+                ListView list = (ListView) mView.findViewById(R.id.contactsListView);
+                list.setAdapter(mContactsAdapter);
+            } else {
+                Log.i("AlertsFrag", "on shared pref default_contact_change update, got null thing");
+            }
+        }
 
-            if (key == "phone_number") {
+        if (key.equals("phone_number")) {
+            if (mView != null) {
                 String newPhone = sharedPreferences.getString("phone_number", null);
                 if (newPhone != null && PhoneNumberUtils.isGlobalPhoneNumber(newPhone)) {
                     mView.findViewById(R.id.FakeCallButton).setEnabled(true);
                 } else {
-                    // TODO: give this some toast listener or something to inform user to change settings
                     mView.findViewById(R.id.FakeCallButton).setEnabled(false);
                 }
+            } else {
+                Log.i("AlertsFrag", "on shared pref phone_number update, got null thing");
             }
+        }
 
-            if (key == "pings_onoff_change") {
+        if (key.equals("pings_onoff_change")) {
+            if (mView != null && mSqlHelper != null && getActivity() != null) {
                 Log.i("ALertsFrag", "Pings onoff was changed to: " + sharedPreferences.getString("pings_onoff_change", ""));
                 // update toggle ui to match what's in the db for the current plan
                 if (sharedPreferences.getString("pings_onoff_change", "").equals("true")) {
@@ -574,29 +582,40 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
                     Log.i("AlertsFrag", "post update pings ui");
                     sharedPreferences.edit().putString("pings_onoff_change", "false").apply();
                 }
+            } else {
+                Log.i("AlertsFrag", "on shared pref pings_onoff_change, got null thing");
             }
+        }
 
-            if (key == "checkin_change") {
+        if (key.equals("checkin_change")) {
+            if (getActivity() != null) {
                 // update toggle ui to match what's in the db for the current plan
                 if (sharedPreferences.getString("checkin_change", "").equals("true")) {
                     onCheckIn();
                     sharedPreferences.edit().putString("checkin_change", "false").apply();
                 }
-            }
-
-            if(key == "exceeded_misses") {
-                //send text message to emergency contacts
-                if(!sharedPreferences.getString("exceeded_misses", "").equals("")) {
-                    String planName = sharedPreferences.getString("exceeded_misses", "");
-                    missedCheckinMessage(mSqlHelper.getContactNumbers(planName),
-                            "I set up my NightOut app to ask me to check-in periodically "+
-                            "tonight to keep me safe, but if you're getting this, I've missed "+
-                            "too many check-ins and might be in trouble. Please help!");
-                    ((MainActivity)getActivity()).stopAlarm();
-                    sharedPreferences.edit().putString("exceeded_misses", "").apply();
-                }
+            } else {
+                Log.i("AlertsFrag", "on shared pref checkin_change, got null thing");
             }
         }
+
+        if(key.equals("exceeded_misses")) {
+            if (mSqlHelper != null && getActivity() != null) {
+                //send text message to emergency contacts
+                if (!sharedPreferences.getString("exceeded_misses", "").equals("")) {
+                    String planName = sharedPreferences.getString("exceeded_misses", "");
+                    missedCheckinMessage(mSqlHelper.getContactNumbers(planName),
+                            "I set up my NightOut app to ask me to check-in periodically " +
+                                    "tonight to keep me safe, but if you're getting this, I've missed " +
+                                    "too many check-ins and might be in trouble. Please help!");
+                    ((MainActivity) getActivity()).stopAlarm();
+                    sharedPreferences.edit().putString("exceeded_misses", "").apply();
+                }
+            } else {
+                Log.i("AlertsFrag", "on shared pref exceeded_misses, got null thing");
+            }
+        }
+
 
     }
 

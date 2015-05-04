@@ -55,11 +55,11 @@
     <string name="walkthrough_main">Welcome to NightOut!</string>
     <string name="walkthrough_helper">Let us be your personal concierge - helping you create a plan, share it, determine how to get there, and stay safe while you\'re out. In order to do that, we need to gather some information first!</string>
     <string name="walkthrough_general_main">Please enter your cell phone number and home address.</string>
-    <string name="walkthrough_general_helper">Your phone number will be used if you ever want to spoof a call to yourself. Your address will be used to calculate navigation. Without these, the application will not have full functionality.</string>
+    <string name="walkthrough_general_helper">Your phone number is needed so you can create a fake call to yourself as an easy exit strategy, if you ever find yourself in an uncomfortable situation. Your address will be used to calculate navigation. Without these, the application will not have full functionality.</string>
     <string name="walkthrough_contacts_main">Please select your default emergency contacts.</string>
-    <string name="walkthrough_contacts_helper">You can customize who is listed as an emergency contact for each plan you create. You can add more default emergency contacts in the Settings.</string>
+    <string name="walkthrough_contacts_helper">Add more default emergency contacts in the Settings, and delete a contact with a long press. You can customize the emergency contacts for each plan. The app enables you to easily notify your emergency contacts if you\'re safe or in danger. The check-in feature will automatically notify your emergency contacts after a certain amount of inactivity.</string>
     <string name="walkthrough_new_plan_main">Please name your first plan!</string>
-    <string name="walkthrough_new_plan_helper">Each of your plans will have a name - feel free to make it whatever you want!</string>
+    <string name="walkthrough_new_plan_helper">The details of your night out, your emergency contacts, and your preferred safety measures will be saved together as a plan. The names of each plan are customized - feel free to pick whatever makes sense to you!</string>
 
     <!--Direction Fragment Strings-->
     <string name="transit_description">transit icon</string>

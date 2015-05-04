@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -12,7 +12,6 @@
         android:padding="32dp"/>
 
     <TextView
-        android:layout_below="@id/helper_text"
         android:id="@+id/description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -23,28 +22,27 @@
         android:layout_marginBottom="12dp"/>
 
     <ListView
-        android:layout_below="@id/description"
         android:id="@+id/emergency_contacts"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:paddingLeft="32dp"
         android:paddingRight="32dp"/>
+
+    <Button
+        android:id="@+id/add_new_contact"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/pref_add_contacts"/>
 
     <Button
         android:id="@+id/next_button"
         android:text="@string/next"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="30dp"
-        android:layout_alignParentBottom="true"/>
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="30dp"/>
 
-    <Button
-        android:id="@+id/add_new_contact"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/emergency_contacts"
-        android:layout_centerHorizontal="true"
-        android:text="@string/pref_add_contacts"/>
 
-</RelativeLayout>
+</LinearLayout>
