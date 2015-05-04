@@ -48,7 +48,6 @@ import java.util.ArrayList;
  * Use the {@link DirectionsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-// TODO: Watch out for overlap between spinner and autocomplete results!
 public class DirectionsFragment extends Fragment implements PlanChangedListener, OnMapReadyCallback,
         SharedPreferences.OnSharedPreferenceChangeListener, AdapterView.OnItemSelectedListener,
         AdapterView.OnItemClickListener {
@@ -207,7 +206,6 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeCoords, 15));
             }
             else if (endpoint.equals("Other")) {
-                // TODO: get and check coords for other, then show if valid
                 if (otherDestLat != null && otherDestLng != null) {
                     Double otherLatDouble = new Double(otherDestLat);
                     Double otherLngDouble = new Double(otherDestLng);
@@ -216,30 +214,31 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(otherCoords, 15));
                 }
             }
-            // If home and other coords are also null, show current location
-            else {
-                // TODO: use current location
-            }
         }
     }
 
     private void updateDestSpinnerContents(View view) {
-        // FIXME: gets null view when settings home address is updated
-        destSpinner = (Spinner) view.findViewById(R.id.dest_spinner);
-        ArrayList<String> destSpinnerContents = new ArrayList<String>();
-        String placeName = mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NAME");
-        if (placeName != null) {
-            destSpinnerContents.add(placeName);
-        }
-        String homeAddress = mSharedPrefs.getString("home_address", null);
-        if (homeAddress != null) {
-            destSpinnerContents.add("Home");
-        }
-        destSpinnerContents.add("Other");
+        if (view != null) {
+            // FIXME: gets null view when settings home address is updated - Maybe fixed?
+            destSpinner = (Spinner) view.findViewById(R.id.dest_spinner);
+            ArrayList<String> destSpinnerContents = new ArrayList<String>();
+            String placeName = mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_NAME");
+            if (placeName != null) {
+                destSpinnerContents.add(placeName);
+            }
+            String homeAddress = mSharedPrefs.getString("home_address", null);
+            if (homeAddress != null) {
+                destSpinnerContents.add("Home");
+            }
+            destSpinnerContents.add("Other");
 
-        ArrayAdapter<String> destSpinnerArrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, destSpinnerContents);
-        destSpinner.setAdapter(destSpinnerArrayAdapter);
-        destSpinner.setOnItemSelectedListener(this);
+            ArrayAdapter<String> destSpinnerArrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, destSpinnerContents);
+            destSpinner.setAdapter(destSpinnerArrayAdapter);
+            destSpinner.setOnItemSelectedListener(this);
+        }
+        else {
+            Log.e(TAG, "View was null, not updating destination spinner contents.");
+        }
     }
 
     public void onRefreshETAButtonPressed(Object something) {
@@ -336,7 +335,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
             setDrivingETA("?");
             setTransitETA("?");
             setWalkingETA("?");
-            // Try again in half a second, but only twice
+            // Try again in half a second, but only up to twice
             if (numFailedAttempts < 2) {
                 final Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
@@ -392,28 +391,39 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
 
 
     public void onHomeChanged(String homeAddress) {
-        updateDestSpinnerContents(getView());
-        // Find new ID and latlong and store those in sharedprefs
-        makeGeocodingCall(homeAddress);
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
+        sharedPrefs.edit().putString("home_lat", null).apply();
+        sharedPrefs.edit().putString("home_lng", null).apply();
+        sharedPrefs.edit().putString("home_place_id", null).apply();
+        if (getView() != null) {
+            updateDestSpinnerContents(getView());
+            // Find new ID and latlong and store those in sharedprefs
+            makeGeocodingCall(homeAddress);
+        }
+        else {
+            Log.e(TAG, "View was null, not updating home data (will now be null)");
+        }
     }
 
     // Used for home address lookup to get coords and place_id
     private void makeGeocodingCall(String address) {
-        String baseURL = "https://maps.googleapis.com/maps/api/geocode/json?";
-        String addressParam = "address=";
-        String encodedAddress = null;
-        String keyParam = "&key=AIzaSyD3xH-kCCFsSPonGRRi7isV-O5ejZWIts8";
-        try {
-            encodedAddress = URLEncoder.encode(address, "UTF-8");
-            addressParam = addressParam + encodedAddress;
-        } catch (UnsupportedEncodingException e) {
-            Log.e(TAG, "Encoding exception");
-            e.printStackTrace();
-        }
-        if (encodedAddress != null) {
-            String apiUrl = baseURL + addressParam + keyParam;
-            ((MainActivity) getActivity()).resetGeocodingApiCaller();
-            ((MainActivity) getActivity()).googleGeocodingCallApi.execute(apiUrl);
+        if (address != null && address != "") {
+            String baseURL = "https://maps.googleapis.com/maps/api/geocode/json?";
+            String addressParam = "address=";
+            String encodedAddress = null;
+            String keyParam = "&key=AIzaSyD3xH-kCCFsSPonGRRi7isV-O5ejZWIts8";
+            try {
+                encodedAddress = URLEncoder.encode(address, "UTF-8");
+                addressParam = addressParam + encodedAddress;
+            } catch (UnsupportedEncodingException e) {
+                Log.e(TAG, "Encoding exception");
+                e.printStackTrace();
+            }
+            if (encodedAddress != null) {
+                String apiUrl = baseURL + addressParam + keyParam;
+                ((MainActivity) getActivity()).resetGeocodingApiCaller();
+                ((MainActivity) getActivity()).googleGeocodingCallApi.execute(apiUrl);
+            }
         }
     }
 
@@ -427,6 +437,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     }
 
     public static void storeHomeInfo(String lat, String lng, String placeID) {
+        Log.i(TAG, "Storing home info: " + lat + ", " + lng + " for " + placeID);
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
         sharedPrefs.edit().putString("home_lat", lat).apply();
         sharedPrefs.edit().putString("home_lng", lng).apply();
@@ -437,6 +448,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if(key == "home_address") {
             String homeAddress = sharedPreferences.getString(key, null);
+            Log.i(TAG, "Home address changed to: " + homeAddress);
             onHomeChanged(homeAddress);
         }
     }
@@ -480,7 +492,6 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
 
     // Click listener for Other destination autocomplete
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-        // TODO: Implement this
         resetInternalOtherDestFields();
         String choice = (String) adapterView.getItemAtPosition(position);
         autoCompView.setText(choice);
@@ -509,7 +520,6 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
                             }
                             places.release();
 
-                            // TODO: update UI (map and ETAs)
                             setUpMap("Other");
                             updateETAs("Other", 0);
                         }
@@ -538,10 +548,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnDirectionsFragmentInteractionListener {
-        // TODO: Update argument type and name (you can rename listener/method)
-
         // send things in fragment to listener, which MainActivity extends
-        public void OnDirectionsFragmentInteraction(Object object);
         public void callRide(Object something);
         public void openGoogleMapsDirections(Object something);
     }
