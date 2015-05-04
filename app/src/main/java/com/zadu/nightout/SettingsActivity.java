@@ -188,11 +188,11 @@ public class SettingsActivity extends ActionBarActivity implements AdapterView.O
         mEmergencyListView.setAdapter(mAdapter);
         mEmergencyListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public boolean onItemLongClick(AdapterView<?> adapterView, final View view, int i, long l) {
                 if (mSqlHelper.getNumDefaultContacts() > 1) {
                     final View planDeleteView = getLayoutInflater().inflate(R.layout.dialog_contact_delete, null);
 
-                    TextView nameView = (TextView) findViewById(R.id.contactNameTextView);
+                    TextView nameView = (TextView) view.findViewById(R.id.contactNameTextView);
                     String name = nameView.getText().toString();
                     TextView text = (TextView) planDeleteView.findViewById(R.id.description);
                     String content = String.format("Deleting a default emergency contact will remove the contact " +
@@ -207,7 +207,7 @@ public class SettingsActivity extends ActionBarActivity implements AdapterView.O
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
-                                    TextView numberView = (TextView) findViewById(R.id.contactDescriptionTextView);
+                                    TextView numberView = (TextView) view.findViewById(R.id.contactDescriptionTextView);
                                     String number = numberView.getText().toString();
                                     mSqlHelper.deleteDefaultContact(number);
 
