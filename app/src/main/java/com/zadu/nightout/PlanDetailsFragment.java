@@ -302,7 +302,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
             Button shareButton = (Button) v.findViewById(R.id.planShareButton);
             if(mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_DATE") == null || mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_HOUR") == null ||
             mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MINUTE") == null || mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_YEAR") == null  ||
-            mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MONTH") == null || mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLAN_NAME") == null) {
+            mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MONTH") == null || mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NAME") == null) {
 
                 shareButton.setEnabled(false);
             }
