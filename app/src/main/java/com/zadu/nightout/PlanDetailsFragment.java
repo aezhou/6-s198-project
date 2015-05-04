@@ -220,6 +220,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
         Log.i(TAG, "calling refreshDetailFragmentView");
         if(v != null) {
             TextView placeNameText = (TextView)v.findViewById(R.id.destinationName);
+            // FIXME: null pointer crash can happen here after updating settings
             if(mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NAME") != null) {
                 String placeName = mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NAME");
                 placeNameText.setText(placeName);

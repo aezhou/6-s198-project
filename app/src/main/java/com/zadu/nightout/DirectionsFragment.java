@@ -224,6 +224,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     }
 
     private void updateDestSpinnerContents(View view) {
+        // FIXME: gets null view when settings home address is updated
         destSpinner = (Spinner) view.findViewById(R.id.dest_spinner);
         ArrayList<String> destSpinnerContents = new ArrayList<String>();
         String placeName = mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NAME");
