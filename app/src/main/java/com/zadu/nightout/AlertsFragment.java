@@ -459,10 +459,10 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
             Toast.makeText(getActivity(), "Couldn't access this phone's number! Check settings.", Toast.LENGTH_SHORT).show();
             return;
         }
-        final String toNum = myNum;
+        final String toNum = "1"+myNum;
         String fromArea = "555";
-        if (toNum.length() > 3) {
-            fromArea = toNum.substring(0, 3);
+        if (myNum.length() > 3) {
+            fromArea = myNum.substring(0, 3);
         }
         final String fromNum = fromArea+"3141592";
 
