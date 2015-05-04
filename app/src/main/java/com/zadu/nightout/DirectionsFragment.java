@@ -127,7 +127,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         map = ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map))
                 .getMap();
         try {
-            setUpMap("Destination");
+            setUpMap("Destination", 0);
         } catch (NullPointerException e) {
             Log.e(TAG, "No place coords yet.", e);
         }
@@ -175,36 +175,37 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
 
     @Override
     public void onMapReady(GoogleMap map) {
-        setUpMap("Destination");
+        setUpMap("Destination", 0);
     }
 
     /*
     Show the correct location on the map, based on the user's spinner selection and what is
     available.
     */
-    private void setUpMap(String endpoint) {
-        if(mSqlHelper != null) {
-            map.clear();
-            // Show the new destination on the embedded map
-            String destName = mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_NAME");
-            Double destLat = mSqlHelper.getPlanLatLong((MainActivity) getActivity(), "PLACE_LAT");
-            Double destLng = mSqlHelper.getPlanLatLong((MainActivity) getActivity(), "PLACE_LONG");
-            if (!endpoint.equals("Home") && !endpoint.equals("Other") &&
-                    destLat != null && destLng != null) {
-                LatLng destCoords = new LatLng(destLat, destLng);
-                map.addMarker(new MarkerOptions().position(destCoords).title(destName));
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(destCoords, 15));
-            }
-            // If the destination coords are null, show home on the map instead
-            else {
-                String homeLat = mSharedPrefs.getString("home_lat", null);
-                String homeLng = mSharedPrefs.getString("home_lng", null);
-                if (endpoint.equals("Home") && homeLat != null && homeLng != null) {
-                    Double homeLatDouble = new Double(homeLat);
-                    Double homeLngDouble = new Double(homeLng);
-                    LatLng homeCoords = new LatLng(homeLatDouble, homeLngDouble);
-                    map.addMarker(new MarkerOptions().position(homeCoords).title("Home"));
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeCoords, 15));
+
+    private void setUpMap(final String endpoint, final int numFailedAttempts) {
+        map.clear();
+        // Show the new destination on the embedded map
+        String destName = mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_NAME");
+        Double destLat = mSqlHelper.getPlanLatLong((MainActivity) getActivity(), "PLACE_LAT");
+        Double destLng = mSqlHelper.getPlanLatLong((MainActivity) getActivity(), "PLACE_LONG");
+        if (!endpoint.equals("Home") && !endpoint.equals("Other") &&
+                destLat != null && destLng != null) {
+            LatLng destCoords = new LatLng(destLat, destLng);
+            map.addMarker(new MarkerOptions().position(destCoords).title(destName));
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(destCoords, 15));
+        }
+        // If the destination coords are null, show home on the map instead
+        else {
+            String homeLat = mSharedPrefs.getString("home_lat", null);
+            String homeLng = mSharedPrefs.getString("home_lng", null);
+            if (endpoint.equals("Home") && homeLat != null && homeLng != null) {
+                Double homeLatDouble = new Double(homeLat);
+                Double homeLngDouble = new Double(homeLng);
+                LatLng homeCoords = new LatLng(homeLatDouble, homeLngDouble);
+                map.addMarker(new MarkerOptions().position(homeCoords).title("Home"));
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeCoords, 15));
+
                 } else if (endpoint.equals("Other")) {
                     if (otherDestLat != null && otherDestLng != null) {
                         Double otherLatDouble = new Double(otherDestLat);
@@ -214,16 +215,37 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
                         map.moveCamera(CameraUpdateFactory.newLatLngZoom(otherCoords, 15));
                     }
                 }
+                else {
+                    // If destination is Other, but nothing is input yet, try to show current location
+                    ((MainActivity) getActivity()).getLastLoc();
+                    String lastLat = ((MainActivity)getActivity()).getLastLat();
+                    String lastLng = ((MainActivity)getActivity()).getLastLng();
+                    if (lastLat != null && lastLng != null) {
+                        Double lastLatDouble = new Double(lastLat);
+                        Double lastLngDouble = new Double(lastLng);
+                        LatLng lastCoords = new LatLng(lastLatDouble, lastLngDouble);
+                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(lastCoords, 15));
+                    }
+                    else {
+                        // If location was not available, try again in half a second, but only up to twice
+                        if (numFailedAttempts < 2) {
+                            final Handler handler = new Handler();
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    setUpMap(endpoint, numFailedAttempts + 1);
+                                }
+                            }, 500);
+                        }
+                    }
+                }
             }
-        }
-        else {
-            Log.i(TAG, "msql db is null");
-        }
+
     }
 
     private void updateDestSpinnerContents(View view) {
         if (view != null) {
-            // FIXME: gets null view when settings home address is updated - Maybe fixed?
+            // FIXME: gets null view when settings home address is updated - Should be fixed now?
             destSpinner = (Spinner) view.findViewById(R.id.dest_spinner);
             ArrayList<String> destSpinnerContents = new ArrayList<String>();
             String placeName = mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_NAME");
@@ -484,7 +506,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         }
 
         // Update the rest of the UI
-        setUpMap(selectionName);
+        setUpMap(selectionName, 0);
         updateETAs(selectionName, 0);
     }
 
@@ -524,7 +546,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
                             }
                             places.release();
 
-                            setUpMap("Other");
+                            setUpMap("Other", 0);
                             updateETAs("Other", 0);
                         }
                     });
