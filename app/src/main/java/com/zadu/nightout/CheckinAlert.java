@@ -51,29 +51,29 @@ public class CheckinAlert extends DialogFragment{
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         boolean isLast = getArguments().getBoolean("isLast");
+        int misses = getArguments().getInt("numMisses");
         /** Turn Screen On and Unlock the keypad when this alert dialog is displayed */
         getActivity().getWindow().addFlags(LayoutParams.FLAG_TURN_SCREEN_ON | LayoutParams.FLAG_DISMISS_KEYGUARD);
 
         /** Creating a alert dialog builder */
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        setUpDialog(builder, isLast);
+        setUpDialog(builder, isLast, misses);
         /** Creating the alert dialog window */
         return builder.create();
     }
 
-    private void setUpDialog(AlertDialog.Builder builder, boolean isFinal) {
+    private void setUpDialog(AlertDialog.Builder builder, boolean isFinal, int missed) {
         if(!isFinal) {
             /** Setting title for the alert dialog */
             builder.setTitle("Check-in Alert");
             /** Setting the content for the alert dialog */
-            builder.setMessage("It's time to check in for your " + ((CheckinActivity) getActivity()).getPlanName() + " plan");
+            builder.setMessage("It's time to check in for your " + ((CheckinActivity) getActivity()).getPlanName() + " plan. You have " + missed + "misses.");
             /** Defining button event listeners */
             builder.setPositiveButton("Check In", new OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     /** Exit application on click OK */
-                    Toast.makeText(getActivity(), "User checked it!", Toast.LENGTH_SHORT).show();
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
                     preferences.edit().putString("checkin_change", "true").apply();
                     Log.i(TAG, "sharedprefs changed");
@@ -83,7 +83,6 @@ public class CheckinAlert extends DialogFragment{
             builder.setNegativeButton("Turn Off", new OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-//                getActivity().finish();
                     Log.i(TAG, "User turned off check-ins");
                     String planName = ((CheckinActivity) getActivity()).getPlanName();
                     mSqlHelper.updatePingsOnOff(planName, false);

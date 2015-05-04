@@ -20,9 +20,11 @@ public class CheckinActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mSqlHelper = MyOpenHelper.getInstance(getApplicationContext());
-
         String planName = getPlanName();
+        mSqlHelper = MyOpenHelper.getInstance(getApplicationContext());
+        int misses = mSqlHelper.getPingMisses(planName);
+
+
 
         /** Creating an Alert Dialog Window */
         if (sAlert != null) {
@@ -33,20 +35,21 @@ public class CheckinActivity extends FragmentActivity {
         Boolean isLast = false;
 
         int missAllowance = mSqlHelper.getPingAllowance(planName);
-        int misses = mSqlHelper.getPingMisses(planName);
+
         misses++;
         mSqlHelper.updatePingMisses(planName, misses);
+        //TODO: Cristhian pass this information on to the dialog
         Toast.makeText(this, "number of misses: " + misses, Toast.LENGTH_SHORT).show();
         Log.i(TAG, "num misses: " + misses);
 
         if(misses > missAllowance) {
-            //TODO: call send message to emergency contacts
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             preferences.edit().putString("exceeded_misses", planName).apply();
             isLast = true;
         }
 
         args.putBoolean("isLast", isLast);
+        args.putInt("numMisses", misses);
         sAlert.setArguments(args);
         /** Opening the Alert Dialog Window. This will be opened when the alarm goes off */
         sAlert.show(getSupportFragmentManager(), "CheckinAlert");

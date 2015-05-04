@@ -351,7 +351,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 updatePlanReservationTime(hourOfDay, minute);
 
                 //TODO: Cristhian call refresh for plan details
-//                PlanDetailsFragment f = new
+                PlanDetailsFragment f = (PlanDetailsFragment) mSectionsPagerAdapter.getItem(0);
+                f.onPlanChanged();
             }
         }, mHour, mMinute, false);
         tpd.show();
@@ -371,6 +372,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         Button datePickerButton = (Button) findViewById(R.id.datePickerButton);
                         datePickerButton.setText(dayOfMonth + "/" + (monthOfYear+1) + "/" +year);
                         updatePlanReservationDate(mYear, mMonth, mDay);
+
+                        PlanDetailsFragment f = (PlanDetailsFragment) mSectionsPagerAdapter.getItem(0);
+                        f.onPlanChanged();
                     }
                 }, mYear, mMonth, mDay);
         dpd.show();
@@ -1129,26 +1133,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         /** Getting a reference to the System Service ALARM_SERVICE */
         alarmManager = (AlarmManager) getBaseContext().getSystemService(ALARM_SERVICE);
 
-//        Calendar now = Calendar.getInstance();
-//        int year = now.get(Calendar.YEAR);
-//        int month = now.get(Calendar.MONTH);
-//        int day = now.get(Calendar.DAY_OF_MONTH);
-//        int hour = now.get(Calendar.HOUR_OF_DAY);
-//        int minute = now.get(Calendar.MINUTE);
-//
-//
-//        /** Creating a calendar object corresponding to the date and time set by the user */
-//        GregorianCalendar calendar = new GregorianCalendar(year,month,day, hour, minute);
-//
-//        /** Converting the date and time in to milliseconds elapsed since epoch */
-//        long alarm_time = calendar.getTimeInMillis();
-
         /** Setting an alarm, which invokes the operation at alarm_time */
-        long duration = 10000; //60000*durationMinute;
+        long duration = 60000*durationMinute;
         alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, duration + SystemClock.elapsedRealtime(), duration, operation);
-
-        /** Alert is set successfully */
-        Toast.makeText(getBaseContext(), "Alarm is set successfully", Toast.LENGTH_SHORT).show();
     }
 
     public void userCheckin() {
@@ -1158,17 +1145,4 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         Toast.makeText(getBaseContext(), "Successfully checked in!", Toast.LENGTH_SHORT).show();
     }
 
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.i(TAG, "MESSAGE: Called on destroy");
-        Toast.makeText(getBaseContext(), "MESSAGE: Called on destro", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.i(TAG, "MESSAGE: called on stop");
-    }
 }
