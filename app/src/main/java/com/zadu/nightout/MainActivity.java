@@ -317,7 +317,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         CheckBox reservationMade = (CheckBox) findViewById(R.id.checkReservationCheckBox);
 
         String destination = destinationName.getText().toString();
-        String address = planAddressText.getText().toString() + destinationCityStateZip.getText().toString();
+        String address = planAddressText.getText().toString() + ", " + destinationCityStateZip.getText().toString();
         boolean isReserved = reservationMade.isChecked();
         Button dateButton = (Button)findViewById(R.id.datePickerButton);
         String date = dateButton.getText().toString();
@@ -328,7 +328,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             reservationMessage = "A reservation has already been made.";
         }
 
-        String messageBody = "Hi, I will be going to " + destination + " " + address+ " on " + date + " at " + time + ". I hope to see " +
+        String messageBody = "Hi, I will be going to " + destination + " " + address + " on " + date + " at " + time + ". I hope to see " +
                 "you there! " + reservationMessage;
 
         Intent intent = new Intent(Intent.ACTION_SEND);
@@ -448,6 +448,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void findOpenTableUrl(Object something) {
         Log.i(TAG, "findOpenTableUrl() called");
         TextView searchAddress = (TextView)findViewById(R.id.planAddressText);
+        String name = mSqlHelper.getPlanDetail(this, "PLACE_NAME");
         String address = mSqlHelper.getPlanDetail(this, "PLACE_ADDRESS");
         Log.i(TAG, "address from DB: " + address);
         if(address != null && !address.equals("")) {
@@ -465,10 +466,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 searchText = "address=" + streetAddress + ";postal_code=" + zipCode;
                 String encodedAddress = null;
                 String encodedZip = null;
+                String encodedName = null;
                 try {
+                    encodedName = URLEncoder.encode(name, "UTF-8");
                     encodedAddress = URLEncoder.encode(streetAddress, "UTF-8");
                     encodedZip = URLEncoder.encode(zipCode, "UTF-8");
-                    searchText = "address=" + encodedAddress + ";postal_code=" + encodedZip;
+                    searchText = "address=" + encodedAddress + ";postal_code=" + encodedZip + ";name="+encodedName;
                     Log.i(TAG, "search text: " + searchText);
                 } catch (UnsupportedEncodingException e) {
                     Log.e(TAG, "Encoding exception");
@@ -1078,10 +1081,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 e.printStackTrace();
             }
         }
-//        for(int i = 0; i < restaurants.length(); i++) {
-//
-//
-//        }
 
     }
 
