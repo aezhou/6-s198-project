@@ -212,7 +212,6 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
 
     @Override
     public void onPlanChanged() {
-        // TODO: update ui with info from database for place info and reservation info
         if(getView() != null) {
             refreshDetailFragmentView(getView());
         }
@@ -262,7 +261,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
                 int planYear = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_YEAR");
                 int planMonth = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MONTH") + 1;
                 int planDay = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_DATE");
-                dateButton.setText(planDay + "/" + planMonth + "/" + planYear);
+                dateButton.setText(planMonth + "/" + planDay + "/" + planYear);
             }
             else {
                 dateButton.setText("Select a date");
@@ -429,7 +428,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
                                 Log.i(TAG, "zip code: " + zipCode);
 
                             } catch (ArrayIndexOutOfBoundsException e) {
-                                // TODO: Maybe add a toast to tell them they clicked a dumb option
+                                // TODO: Maybe add a toast to tell them they clicked a bad option
                                 Log.e(TAG, "Can't find zip code.", e);
                             }
                             lat = String.valueOf(myPlace.getLatLng().latitude);

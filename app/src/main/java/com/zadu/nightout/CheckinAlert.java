@@ -23,7 +23,6 @@ public class CheckinAlert extends DialogFragment{
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        //TODO: following line causes an error
         mSqlHelper = MyOpenHelper.getInstance(getActivity());
     }
 

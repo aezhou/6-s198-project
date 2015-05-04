@@ -87,7 +87,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public GoogleGeocodingCallApi googleGeocodingCallApi;
     public GoogleDistanceMatrixCallApi googleDistanceMatrixCallApi;
 
-    //TODO: Cristian
     Intent i;
     PendingIntent operation;
     AlarmManager alarmManager;
@@ -368,7 +367,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                         Button datePickerButton = (Button) findViewById(R.id.datePickerButton);
-                        datePickerButton.setText(dayOfMonth + "/" + (monthOfYear+1) + "/" +year);
+                        datePickerButton.setText((monthOfYear+1) + "/" + dayOfMonth + "/" +year);
                         updatePlanReservationDate(mYear, mMonth, mDay);
 
                         PlanDetailsFragment f = (PlanDetailsFragment) mSectionsPagerAdapter.getItem(0);
@@ -635,7 +634,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     EditText intervalEdit = (EditText) pingIntervalView.findViewById(R.id.pingIntervalEditText);
                     String interval = intervalEdit.getText().toString();
                     mSqlHelper.updatePingInterval(MainActivity.this, Integer.parseInt(interval));
-                    //TODO: reset timer interval [CRISTHIAN]
+                    //reset timer interval [CRISTHIAN]
                     resetAlarm(Integer.parseInt(interval));
                     v.setText(interval);
                 }
@@ -681,7 +680,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         EditText allowanceEdit = (EditText) pingAllowanceView.findViewById(R.id.pingAllowanceEditText);
                         String allowance = allowanceEdit.getText().toString();
                         mSqlHelper.updatePingAllowance(MainActivity.this, Integer.parseInt(allowance));
-                        //TODO: reset timer for checkin [Cristhian]
+                        //reset timer for checkin [Cristhian]
                         resetAlarm(getCurrentInterval());
                         v.setText(allowance);
                     }
@@ -1062,10 +1061,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 JSONObject restInfo = (JSONObject) restaurants.get(0);
                 reservationUrl = restInfo.getString("mobile_reserve_url");
                 if (reservationUrl != null) {
-//                    String tempUrl = mSqlHelper.getPlanDetail(this, "PLACE_URL");
                     mSqlHelper.updatePlanPlaceInfo(this, "PLACE_URL", reservationUrl);
                     Log.i(TAG, "just added a url to the DB");
-                    //TODO: Cristhian test the line below
                     reserveOnlineButton.setEnabled(true);
                 } else {
                     Log.i(TAG, "WELP! no reservation URL exists!");
