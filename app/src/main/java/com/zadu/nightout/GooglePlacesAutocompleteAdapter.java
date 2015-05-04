@@ -56,7 +56,7 @@ class GooglePlacesAutocompleteAdapter extends ArrayAdapter<String> implements Fi
         final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
         final String TYPE_AUTOCOMPLETE = "/autocomplete";
         final String OUT_JSON = "/json";
-        final String API_KEY = "AIzaSyD3xH-kCCFsSPonGRRi7isV-O5ejZWIts8";
+        final String API_KEY = "AIzaSyDOCr7uzy7g0ZidvYZARe-ihCiaXrGceuk";
         String TAG = "Places Autocomplete";
         ArrayList<String> resultList = null;
 

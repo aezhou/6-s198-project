@@ -71,7 +71,7 @@
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyD3xH-kCCFsSPonGRRi7isV-O5ejZWIts8" />
+            android:value="AIzaSyDOCr7uzy7g0ZidvYZARe-ihCiaXrGceuk" />
 
         <activity
             android:name=".CheckinActivity"
