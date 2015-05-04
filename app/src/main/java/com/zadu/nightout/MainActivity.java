@@ -384,18 +384,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     @Override
-    public void OnDirectionsFragmentInteraction(Object object) {
-        //TODO: interact with any passed info in Object
-    }
-
-    @Override
     public void callRide(Object something) {
         // TODO: Make the links also transfer information or be more specific if possible.
         PackageManager pm = getPackageManager();
         try
         {
             pm.getPackageInfo("com.ubercab", PackageManager.GET_ACTIVITIES);
-            // Launch App.
+            // Launch App
             Intent launchIntent = pm.getLaunchIntentForPackage("com.ubercab");
             startActivity(launchIntent);
         }
