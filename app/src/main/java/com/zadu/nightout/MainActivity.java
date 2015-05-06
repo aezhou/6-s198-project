@@ -87,9 +87,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public GoogleGeocodingCallApi googleGeocodingCallApi;
     public GoogleDistanceMatrixCallApi googleDistanceMatrixCallApi;
 
-    Intent i;
-    PendingIntent operation;
-    AlarmManager alarmManager;
+    private Intent i;
+    private PendingIntent pendingIntent;
+    private AlarmManager alarmManager;
 
 
     /**
@@ -111,6 +111,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -1108,9 +1110,16 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public void stopAlarm() {
         if(alarmManager != null) {
-            alarmManager.cancel(operation);
-            mSqlHelper.updatePingMisses(this, 0);
+//            alarmManager.cancel(pendingIntent);
+//            mSqlHelper.updatePingMisses(this, 0);
+            Intent alarmIntent = new Intent(this, AlarmReceiver.class);
+            pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+            alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+            alarmManager.cancel(pendingIntent);
+            Toast.makeText(this, "Alarm Canceled", Toast.LENGTH_SHORT).show();
         }
+
+
     }
 
     public void resetAlarm(int interval) {
@@ -1119,17 +1128,26 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     public void setAlarm(int durationMinute) {
-        /** This intent invokes the activity CheckinActivity, which in turn opens the CheckinAlert window */
-        i = new Intent("com.zadu.nightout.checkinactivity");
-        i.putExtra("plan", getCurrentPlanName());
-        /** Creating a Pending Intent */
-        operation = PendingIntent.getActivity(getBaseContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
-        /** Getting a reference to the System Service ALARM_SERVICE */
-        alarmManager = (AlarmManager) getBaseContext().getSystemService(ALARM_SERVICE);
+//        /** This intent invokes the activity CheckinActivity, which in turn opens the CheckinAlert window */
+//        i = new Intent("com.zadu.nightout.checkinactivity");
+//        i.putExtra("plan", getCurrentPlanName());
+//        /** Creating a Pending Intent */
+//        pendingIntent = PendingIntent.getActivity(getBaseContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+//        /** Getting a reference to the System Service ALARM_SERVICE */
+//        alarmManager = (AlarmManager) getBaseContext().getSystemService(ALARM_SERVICE);
+
+        // Retrieve a PendingIntent that will perform a broadcast
+        Intent alarmIntent = new Intent(this, AlarmReceiver.class);
+        alarmIntent.putExtra("plan", getCurrentPlanName());
+        pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+
+
+        //TODO: Cristhian testing waking up activity on alarm fire
+        alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
 
         /** Setting an alarm, which invokes the operation at alarm_time */
-        long duration = 60000*durationMinute;
-        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, duration + SystemClock.elapsedRealtime(), duration, operation);
+        long duration = 10000;//60000*durationMinute;
+        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, duration + SystemClock.elapsedRealtime(), duration, pendingIntent);
     }
 
     public void userCheckin() {

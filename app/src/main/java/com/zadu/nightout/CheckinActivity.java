@@ -22,8 +22,10 @@ public class CheckinActivity extends FragmentActivity {
 
         String planName = getPlanName();
         mSqlHelper = MyOpenHelper.getInstance(getApplicationContext());
-        int misses = mSqlHelper.getPingMisses(planName);
-
+        int misses = 0;
+        if(mSqlHelper.getPingMisses(planName) != null) {
+            misses = mSqlHelper.getPingMisses(planName);
+        }
 
 
         /** Creating an Alert Dialog Window */
