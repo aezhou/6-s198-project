@@ -1111,7 +1111,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void stopAlarm() {
         if(alarmManager != null) {
 //            alarmManager.cancel(pendingIntent);
-//            mSqlHelper.updatePingMisses(this, 0);
+            mSqlHelper.updatePingMisses(this, 0);
             Intent alarmIntent = new Intent(this, AlarmReceiver.class);
             pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
             alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);

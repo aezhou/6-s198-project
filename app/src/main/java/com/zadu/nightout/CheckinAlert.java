@@ -72,7 +72,9 @@ public class CheckinAlert extends DialogFragment{
             builder.setPositiveButton("Check In", new OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    /** Exit application on click OK */
+                    //TODO: Cristhian
+                    /** Exit application on click */
+                    Log.i(TAG, "WHY YOU NO CLICk!!");
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
                     preferences.edit().putString("checkin_change", "true").apply();
                     Log.i(TAG, "sharedprefs changed");
@@ -82,6 +84,8 @@ public class CheckinAlert extends DialogFragment{
             builder.setNegativeButton("Turn Off", new OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    //TODO: Cristhian
+//                    WakeLocker.release();
                     Log.i(TAG, "User turned off check-ins");
                     String planName = ((CheckinActivity) getActivity()).getPlanName();
                     mSqlHelper.updatePingsOnOff(planName, false);

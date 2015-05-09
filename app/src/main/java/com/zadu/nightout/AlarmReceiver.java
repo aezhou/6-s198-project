@@ -9,6 +9,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        WakeLocker.acquire(context);
         // For our recurring task, we'll just display a message
         Toast.makeText(context, "Alarm receiver doing stuff!", Toast.LENGTH_SHORT).show();
         //TODO: do stuff here
