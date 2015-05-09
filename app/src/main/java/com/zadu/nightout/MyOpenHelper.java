@@ -205,6 +205,10 @@ public class MyOpenHelper extends SQLiteOpenHelper{
 
     public Boolean arePingsOn(MainActivity activity) {
         String planName = activity.getCurrentPlanName();
+        return arePingsOn(planName);
+    }
+
+    public Boolean arePingsOn(String planName) {
         Cursor c = getReadableDatabase().rawQuery("select "+PINGS_ON+" from " + PLAN_TABLE_NAME +
                 " where " + PLAN_NAME + " == '" + planName + "'", null);
         c.moveToFirst();

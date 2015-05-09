@@ -601,6 +601,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        if (getSqlHelper().arePingsOn(plan)) {
+                            stopAlarm();
+                        }
                         getSqlHelper().deletePlan(plan);
                         mArrayAdapter.clear();
                         List plans = mSqlHelper.getPlans();
