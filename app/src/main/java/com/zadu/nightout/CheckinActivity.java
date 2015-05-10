@@ -2,6 +2,7 @@ package com.zadu.nightout;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -19,6 +20,11 @@ public class CheckinActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //TODO: Cristhian
+//        Intent mainIntent = new Intent("com.zadu.nightout.mainactivity");
+//        mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK );
+//        getApplicationContext().startActivity(mainIntent);
 
         String planName = getPlanName();
         mSqlHelper = MyOpenHelper.getInstance(getApplicationContext());

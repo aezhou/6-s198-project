@@ -76,10 +76,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         GoogleApiClient.OnConnectionFailedListener{
     private Spinner mSpinner;
     private ArrayAdapter mArrayAdapter;
-    private ArrayAdapter locationArrayAdapter;
     private MyOpenHelper mSqlHelper;
     private LocationManager mLocationManager;
-    private Dialog dialog;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     String TAG = "MainActivity";
@@ -111,6 +109,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
 
         mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
@@ -187,6 +186,19 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
 
 //        button1.setOnClickListener(onClickListener);
+//        TODO: Cristhian - remove the following block of code
+//        Bundle b = getIntent().getExtras();
+//        if(b != null) {
+//            boolean isAlert = b.getBoolean("isAlert");
+//            String planName = b.getString("planName");
+//            if(isAlert) {
+//                Log.i(TAG, "Is an Alert!!");
+//                Intent checkinIntent = new Intent("com.zadu.nightout.checkinactivity");
+//                checkinIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                checkinIntent.putExtra("plan", planName);
+//                startActivity(checkinIntent);
+//            }
+//        }
     }
 
     public void planChanged() {

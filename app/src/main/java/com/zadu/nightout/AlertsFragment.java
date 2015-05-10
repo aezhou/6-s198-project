@@ -608,6 +608,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
             if (getActivity() != null) {
                 // update toggle ui to match what's in the db for the current plan
                 if (sharedPreferences.getString("checkin_change", "").equals("true")) {
+                    Log.i("alerts fragment", "should call onCheckIn");
                     onCheckIn();
                     sharedPreferences.edit().putString("checkin_change", "false").apply();
                 }

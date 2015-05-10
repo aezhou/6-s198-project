@@ -85,11 +85,9 @@ public class CheckinAlert extends DialogFragment{
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     //TODO: Cristhian
-//                    WakeLocker.release();
                     Log.i(TAG, "User turned off check-ins");
                     String planName = ((CheckinActivity) getActivity()).getPlanName();
                     mSqlHelper.updatePingsOnOff(planName, false);
-
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
                     preferences.edit().putString("pings_onoff_change", "true").apply();
                     Log.i(TAG, "shared prefs changed");
