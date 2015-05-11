@@ -11,17 +11,6 @@
         android:textSize="20sp"
         android:padding="32dp"/>
 
-    <TextView
-        android:layout_below="@id/helper_text"
-        android:id="@+id/description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/walkthrough_general_helper"
-        android:textSize="16sp"
-        android:paddingLeft="32dp"
-        android:paddingRight="32dp"
-        android:paddingBottom="18dp"/>
-
     <Button
         android:id="@+id/next_button"
         android:text="@string/next"
@@ -31,75 +20,98 @@
         android:layout_margin="30dp"
         android:layout_alignParentBottom="true"/>
 
-
-    <LinearLayout
-        android:paddingTop="6dp"
-        android:paddingLeft="32dp"
-        android:paddingRight="32dp"
-        android:paddingBottom="6dp"
-        android:id="@+id/phone_number_wrapper"
-        android:orientation="vertical"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/description"
-        android:background="?android:attr/selectableItemBackground">
-        <TextView
+        android:layout_height="fill_parent"
+        android:layout_below="@id/helper_text"
+        android:layout_above="@id/next_button">
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:paddingLeft="4dp"
-            android:paddingTop="1dp"
-            android:paddingBottom="1dp"
-            android:text="@string/pref_title_phone"/>
-        <TextView
-            android:id="@+id/own_phone_number"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="4dp"
-            android:paddingTop="1dp"
-            android:paddingBottom="1dp"
-            android:textSize="14sp"
-            android:text="@string/pref_default_display_phone"/>
-    </LinearLayout>
-
-    <View
-        android:id="@+id/divider"
-        android:layout_width="fill_parent"
-        android:layout_height="1dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginLeft="30dp"
-        android:background="#DADADA"
-        android:layout_below="@id/phone_number_wrapper"/>
+            android:layout_height="fill_parent"
+            android:orientation="vertical">
+            <TextView
+                android:layout_below="@id/helper_text"
+                android:id="@+id/description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/walkthrough_general_helper"
+                android:textSize="16sp"
+                android:paddingLeft="32dp"
+                android:paddingRight="32dp"
+                android:paddingBottom="18dp"/>
 
 
-    <LinearLayout
-        android:paddingLeft="32dp"
-        android:paddingRight="32dp"
-        android:paddingTop="6dp"
-        android:paddingBottom="6dp"
-        android:id="@+id/home_address_wrapper"
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/divider"
-        android:background="?android:attr/selectableItemBackground">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:paddingLeft="4dp"
-            android:paddingTop="1dp"
-            android:paddingBottom="1dp"
-            android:text="@string/pref_title_address"/>
-        <TextView
-            android:id="@+id/own_address"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="4dp"
-            android:paddingTop="1dp"
-            android:paddingBottom="1dp"
-            android:textSize="14sp"
-            android:text="@string/pref_default_display_address"/>
-    </LinearLayout>
+            <LinearLayout
+                android:paddingTop="6dp"
+                android:paddingLeft="32dp"
+                android:paddingRight="32dp"
+                android:paddingBottom="6dp"
+                android:id="@+id/phone_number_wrapper"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/description"
+                android:background="?android:attr/selectableItemBackground">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="18sp"
+                    android:paddingLeft="4dp"
+                    android:paddingTop="1dp"
+                    android:paddingBottom="1dp"
+                    android:text="@string/pref_title_phone"/>
+                <TextView
+                    android:id="@+id/own_phone_number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="4dp"
+                    android:paddingTop="1dp"
+                    android:paddingBottom="1dp"
+                    android:textSize="14sp"
+                    android:text="@string/pref_default_display_phone"/>
+            </LinearLayout>
+
+            <View
+                android:id="@+id/divider"
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginLeft="30dp"
+                android:background="#DADADA"
+                android:layout_below="@id/phone_number_wrapper"/>
+
+
+            <LinearLayout
+                android:paddingLeft="32dp"
+                android:paddingRight="32dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:id="@+id/home_address_wrapper"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/divider"
+                android:background="?android:attr/selectableItemBackground">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="18sp"
+                    android:paddingLeft="4dp"
+                    android:paddingTop="1dp"
+                    android:paddingBottom="1dp"
+                    android:text="@string/pref_title_address"/>
+                <TextView
+                    android:id="@+id/own_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="4dp"
+                    android:paddingTop="1dp"
+                    android:paddingBottom="1dp"
+                    android:textSize="14sp"
+                    android:text="@string/pref_default_display_address"/>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
 
 </RelativeLayout>
