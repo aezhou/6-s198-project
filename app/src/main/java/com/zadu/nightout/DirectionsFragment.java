@@ -127,6 +127,7 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
         map = ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map))
                 .getMap();
         map.setMyLocationEnabled(true);
+        mSqlHelper = ((MainActivity) getActivity()).getSqlHelper();
         try {
             setUpMap("Destination", 0);
         } catch (NullPointerException e) {

@@ -100,7 +100,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         final View v = inflater.inflate(R.layout.fragment_alerts, container, false);
-
+        mSqlHelper = ((MainActivity) getActivity()).getSqlHelper();
         ListView list = (ListView) v.findViewById(R.id.contactsListView);
         Cursor c = mSqlHelper.getContactsToDisplay((MainActivity) getActivity());
         isDummyContactSet = c.moveToFirst();
