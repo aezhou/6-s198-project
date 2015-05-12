@@ -8,6 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/walkthrough_general_main"
+        android:textColor="@color/background_navy"
         android:textSize="20sp"
         android:padding="32dp"/>
 
