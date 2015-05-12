@@ -1,10 +1,13 @@
 package com.zadu.nightout;
 
 
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 public class CheckinActivity extends FragmentActivity {
@@ -43,6 +46,18 @@ public class CheckinActivity extends FragmentActivity {
             isLast = true;
         }
 
+        //TODO: Cristhian
+        int mNotificationId = 101;
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("Check In")
+                .setContentText("Don't forget to check in with NightOut.")
+                .setAutoCancel(true);
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        // mId allows you to update the notification later on.
+        mNotificationManager.notify(mNotificationId, mBuilder.build());
+
+        args.putInt("notifId", mNotificationId);
         args.putBoolean("isLast", isLast);
         args.putInt("numMisses", misses-1);
         sAlert.setArguments(args);
