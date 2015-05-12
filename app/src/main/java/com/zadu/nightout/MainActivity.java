@@ -185,20 +185,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             .setTabListener(this));
         }
 
-//        button1.setOnClickListener(onClickListener);
-//        TODO: Cristhian - remove the following block of code
-//        Bundle b = getIntent().getExtras();
-//        if(b != null) {
-//            boolean isAlert = b.getBoolean("isAlert");
-//            String planName = b.getString("planName");
-//            if(isAlert) {
-//                Log.i(TAG, "Is an Alert!!");
-//                Intent checkinIntent = new Intent("com.zadu.nightout.checkinactivity");
-//                checkinIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                checkinIntent.putExtra("plan", planName);
-//                startActivity(checkinIntent);
-//            }
-//        }
     }
 
     public void planChanged() {
@@ -392,7 +378,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     @Override
     public void OnAlertFragmentInteraction(Object object) {
-        //TODO: interact with any passed info in Object
+
     }
 
     @Override
@@ -454,7 +440,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public void findOpenTableUrl(Object something) {
         Log.i(TAG, "findOpenTableUrl() called");
-        TextView searchAddress = (TextView)findViewById(R.id.planAddressText);
         String name = mSqlHelper.getPlanDetail(this, "PLACE_NAME");
         String address = mSqlHelper.getPlanDetail(this, "PLACE_ADDRESS");
         Log.i(TAG, "address from DB: " + address);
@@ -479,7 +464,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     encodedAddress = URLEncoder.encode(streetAddress, "UTF-8");
                     encodedZip = URLEncoder.encode(zipCode, "UTF-8");
                     searchText = "address=" + encodedAddress + ";postal_code=" + encodedZip + ";name="+encodedName;
-                    Log.i(TAG, "search text: " + searchText);
                 } catch (UnsupportedEncodingException e) {
                     Log.e(TAG, "Encoding exception");
                     e.printStackTrace();
@@ -487,15 +471,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 if (encodedAddress != null && encodedZip != null) {
                     String apiUrl = openTableApiUrl + "restaurants?" + searchText;
                     new OpenTableCallApi().execute(apiUrl);
-                    Log.i(TAG, "Called execture optentableapi");
                 }
             }
         }
         else {
-            Log.i(TAG, "search address is null!");
             Button reserveOnlineButton = (Button) findViewById(R.id.reservationOnlineButton);
             if(reserveOnlineButton != null) {
-                Log.i(TAG, "reserveButton is not null");
                 reserveOnlineButton.setEnabled(false);
             }
         }
@@ -508,8 +489,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     @Override
     public void toggleSwitch(Switch p) {
-//        AlertsFragment alert = getSupportFragmentManager().findFragmentById(R.id.)
-//        Switch pingSwitch = (Switch) findViewById(R.id.pingSwitch);
         mSectionsPagerAdapter.getAlertsFrag().onTogglePings(p, null);
     }
 
@@ -733,8 +712,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void onConnected(Bundle bundle) {
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
-            Log.i(TAG, "the location should be below: ");
-            Log.i(TAG, String.valueOf(mLastLocation.getLatitude()) + ", " + String.valueOf(mLastLocation.getLongitude()));
+//            Log.i(TAG, "the location should be below: ");
+//            Log.i(TAG, String.valueOf(mLastLocation.getLatitude()) + ", " + String.valueOf(mLastLocation.getLongitude()));
             mGoogleApiClient.disconnect();
         }
     }
@@ -746,7 +725,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.i(TAG, "connection failed");
+        Log.e(TAG, "connection failed");
     }
 
     /**
@@ -1124,13 +1103,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public void stopAlarm() {
         if(alarmManager != null) {
-//            alarmManager.cancel(pendingIntent);
             mSqlHelper.updatePingMisses(this, 0);
             Intent alarmIntent = new Intent(this, AlarmReceiver.class);
             pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
             alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
             alarmManager.cancel(pendingIntent);
-            Toast.makeText(this, "Alarm Canceled", Toast.LENGTH_SHORT).show();
         }
 
 
@@ -1142,21 +1119,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     public void setAlarm(int durationMinute) {
-//        /** This intent invokes the activity CheckinActivity, which in turn opens the CheckinAlert window */
-//        i = new Intent("com.zadu.nightout.checkinactivity");
-//        i.putExtra("plan", getCurrentPlanName());
-//        /** Creating a Pending Intent */
-//        pendingIntent = PendingIntent.getActivity(getBaseContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
-//        /** Getting a reference to the System Service ALARM_SERVICE */
-//        alarmManager = (AlarmManager) getBaseContext().getSystemService(ALARM_SERVICE);
-
         // Retrieve a PendingIntent that will perform a broadcast
         Intent alarmIntent = new Intent(this, AlarmReceiver.class);
         alarmIntent.putExtra("plan", getCurrentPlanName());
         pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
 
-
-        //TODO: Cristhian testing waking up activity on alarm fire
         alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
 
         /** Setting an alarm, which invokes the operation at alarm_time */

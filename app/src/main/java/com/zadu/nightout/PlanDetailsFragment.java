@@ -398,16 +398,16 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
                     public void onResult(PlaceBuffer places) {
                         if (places.getStatus().isSuccess()) {
                             final Place myPlace = places.get(0);
-                            Log.i(TAG, "Place Name: " + myPlace.getName().toString());
+//                            Log.i(TAG, "Place Name: " + myPlace.getName().toString());
                             if (myPlace.getName().toString().length() > 0) {
                                 name = myPlace.getName().toString();
                             }
-                            Log.i(TAG, myPlace.getAddress().toString());
+//                            Log.i(TAG, myPlace.getAddress().toString());
                             String[] addressSplit = myPlace.getAddress().toString().split(", ");
                             if (addressSplit.length == 4) {
                                 // Overwrite the address info from before - this is more reliable
                                 streetAddress = addressSplit[0];
-                                Log.i(TAG, "street address: " + streetAddress);
+//                                Log.i(TAG, "street address: " + streetAddress);
                                 city = addressSplit[1];
                                 state = addressSplit[2].split(" ")[0];
                                 zipCode = addressSplit[2].split(" ")[1];
@@ -418,7 +418,7 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
                             }
                             try {
                                 zipCode = addressSplit[addressSplit.length - 2].split(" ")[1];
-                                Log.i(TAG, "zip code: " + zipCode);
+//                                Log.i(TAG, "zip code: " + zipCode);
 
                             } catch (ArrayIndexOutOfBoundsException e) {
                                 // TODO: Maybe add a toast to tell them they clicked a bad option
