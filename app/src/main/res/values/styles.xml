@@ -1,14 +1,13 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
  
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-    <!--    <item name="actionBarStyle">@style/CustomActionBarTheme</item>-->
+        <item name="actionBarStyle">@style/CustomActionBarTheme</item>
+        <item name="colorAccent">@color/blue</item>
     </style>
-     
-
  
-    <style name="CustomActionBarTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="CustomActionBarTheme" parent="Base.Widget.AppCompat.ActionBar">
         <item name="background">@color/background_navy</item>
         <item name="backgroundStacked">@color/background_navy</item>
+        <item name="android:backgroundSplit">@color/background_navy</item>
     </style>
-
 </resources>
