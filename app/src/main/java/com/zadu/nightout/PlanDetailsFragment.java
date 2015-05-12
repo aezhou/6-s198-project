@@ -360,7 +360,6 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
         placeDetailsLayout.setVisibility(View.GONE);
         spinner.setVisibility(View.VISIBLE);
 
-        //TODO: Cristhian
         mSqlHelper = ((MainActivity) getActivity()).getSqlHelper();
 
         resetInternalDestFields();

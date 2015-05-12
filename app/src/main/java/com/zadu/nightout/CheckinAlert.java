@@ -6,6 +6,9 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
@@ -63,6 +66,13 @@ public class CheckinAlert extends DialogFragment{
     }
 
     private void setUpDialog(AlertDialog.Builder builder, boolean isFinal, int missed) {
+        try {
+            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            Ringtone r = RingtoneManager.getRingtone(getActivity(), notification);
+            r.play();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         if(!isFinal) {
             /** Setting title for the alert dialog */
             builder.setTitle("Check-in Alert");
