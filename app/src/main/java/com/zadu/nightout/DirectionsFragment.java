@@ -185,63 +185,79 @@ public class DirectionsFragment extends Fragment implements PlanChangedListener,
     */
 
     private void setUpMap(final String endpoint, final int numFailedAttempts) {
+        boolean tryHome = false;
+        boolean tryOther = false;
+        boolean tryCurrent = false;
         map.clear();
         // Show the new destination on the embedded map
         String destName = mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_NAME");
         Double destLat = mSqlHelper.getPlanLatLong((MainActivity) getActivity(), "PLACE_LAT");
         Double destLng = mSqlHelper.getPlanLatLong((MainActivity) getActivity(), "PLACE_LONG");
-        if (!endpoint.equals("Home") && !endpoint.equals("Other") &&
-                destLat != null && destLng != null) {
-            LatLng destCoords = new LatLng(destLat, destLng);
-            map.addMarker(new MarkerOptions().position(destCoords).title(destName));
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(destCoords, 15));
+        if (!endpoint.equals("Home") && !endpoint.equals("Other")) {
+            if (destLat != null && destLng != null) {
+                LatLng destCoords = new LatLng(destLat, destLng);
+                map.addMarker(new MarkerOptions().position(destCoords).title(destName));
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(destCoords, 15));
+                return;
+            }
+            else {
+                tryHome = true;
+            }
         }
-        // If the destination coords are null, show home on the map instead
-        else {
-            String homeLat = mSharedPrefs.getString("home_lat", null);
-            String homeLng = mSharedPrefs.getString("home_lng", null);
-            if (endpoint.equals("Home") && homeLat != null && homeLng != null) {
+        String homeLat = mSharedPrefs.getString("home_lat", null);
+        String homeLng = mSharedPrefs.getString("home_lng", null);
+        // If the destination coords are null or Home was chosen, show home on the map instead
+        if (endpoint.equals("Home") || tryHome) {
+            if (homeLat != null && homeLng != null) {
                 Double homeLatDouble = new Double(homeLat);
                 Double homeLngDouble = new Double(homeLng);
                 LatLng homeCoords = new LatLng(homeLatDouble, homeLngDouble);
                 map.addMarker(new MarkerOptions().position(homeCoords).title("Home"));
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeCoords, 15));
-
-                } else if (endpoint.equals("Other")) {
-                    if (otherDestLat != null && otherDestLng != null) {
-                        Double otherLatDouble = new Double(otherDestLat);
-                        Double otherLngDouble = new Double(otherDestLng);
-                        LatLng otherCoords = new LatLng(otherLatDouble, otherLngDouble);
-                        map.addMarker(new MarkerOptions().position(otherCoords).title("Other"));
-                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(otherCoords, 15));
-                    }
-                }
-                else {
-                    // If destination is Other, but nothing is input yet, try to show current location
-                    ((MainActivity) getActivity()).getLastLoc();
-                    String lastLat = ((MainActivity)getActivity()).getLastLat();
-                    String lastLng = ((MainActivity)getActivity()).getLastLng();
-                    if (lastLat != null && lastLng != null) {
-                        Double lastLatDouble = new Double(lastLat);
-                        Double lastLngDouble = new Double(lastLng);
-                        LatLng lastCoords = new LatLng(lastLatDouble, lastLngDouble);
-                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(lastCoords, 15));
-                    }
-                    else {
-                        // If location was not available, try again in half a second, but only up to twice
-                        if (numFailedAttempts < 2) {
-                            final Handler handler = new Handler();
-                            handler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    setUpMap(endpoint, numFailedAttempts + 1);
-                                }
-                            }, 500);
+                return;
+            }
+            else {
+                tryOther = true;
+            }
+        }
+        // If the destination and home coords are null or Other was chosen, show other loc on the map
+        if (endpoint.equals("Other") || tryOther) {
+            if (otherDestLat != null && otherDestLng != null) {
+                Double otherLatDouble = new Double(otherDestLat);
+                Double otherLngDouble = new Double(otherDestLng);
+                LatLng otherCoords = new LatLng(otherLatDouble, otherLngDouble);
+                map.addMarker(new MarkerOptions().position(otherCoords).title("Other"));
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(otherCoords, 15));
+                return;
+            }
+            else {
+                tryCurrent = true;
+            }
+        }
+        // If destination is Other, but nothing is input yet, or if all else fails, try to show current location
+        if (tryCurrent) {
+            ((MainActivity) getActivity()).getLastLoc();
+            String lastLat = ((MainActivity)getActivity()).getLastLat();
+            String lastLng = ((MainActivity)getActivity()).getLastLng();
+            if (lastLat != null && lastLng != null) {
+                Double lastLatDouble = new Double(lastLat);
+                Double lastLngDouble = new Double(lastLng);
+                LatLng lastCoords = new LatLng(lastLatDouble, lastLngDouble);
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(lastCoords, 15));
+            }
+            else {
+                // If location was not available, try again in half a second, but only up to twice
+                if (numFailedAttempts < 2) {
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            setUpMap(endpoint, numFailedAttempts + 1);
                         }
-                    }
+                    }, 500);
                 }
             }
-
+        }
     }
 
     private void updateDestSpinnerContents(View view) {
