@@ -371,7 +371,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     @Override
     public void showDatePickerDialog(Object something) {
-        Log.i(TAG, "called showDatePickerDialog()");
         final Calendar c = Calendar.getInstance();
         final int mYear = c.get(Calendar.YEAR);
         final int mMonth = c.get(Calendar.MONTH);
@@ -382,7 +381,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                         Button datePickerButton = (Button) findViewById(R.id.datePickerButton);
                         datePickerButton.setText((monthOfYear+1) + "/" + dayOfMonth + "/" +year);
-                        updatePlanReservationDate(mYear, mMonth, mDay);
+                        updatePlanReservationDate(year, monthOfYear, dayOfMonth);
 
                         PlanDetailsFragment f = (PlanDetailsFragment) mSectionsPagerAdapter.getItem(0);
                         f.onPlanChanged();
@@ -1161,7 +1160,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
 
         /** Setting an alarm, which invokes the operation at alarm_time */
-        long duration = 10000;//60000*durationMinute;
+        long duration = 60000*durationMinute;
         alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, duration + SystemClock.elapsedRealtime(), duration, pendingIntent);
     }
 
