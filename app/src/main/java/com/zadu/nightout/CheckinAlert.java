@@ -112,7 +112,7 @@ public class CheckinAlert extends DialogFragment{
             builder.setPositiveButton("OK", new OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    /** Exit application on click OK */
+                    mNotificationManager.cancel(notificationId);
                     String planName = ((CheckinActivity) getActivity()).getPlanName();
                     mSqlHelper.updatePingsOnOff(planName, false);
 
