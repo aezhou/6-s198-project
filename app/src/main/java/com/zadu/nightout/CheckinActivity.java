@@ -2,7 +2,10 @@ package com.zadu.nightout;
 
 
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -53,14 +56,16 @@ public class CheckinActivity extends FragmentActivity {
                 .setContentTitle("Check In")
                 .setContentText("Don't forget to check in with NightOut.")
                 .setAutoCancel(true);
+
+
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        // mId allows you to update the notification later on.
         mNotificationManager.notify(mNotificationId, mBuilder.build());
 
         args.putInt("notifId", mNotificationId);
         args.putBoolean("isLast", isLast);
         args.putInt("numMisses", misses-1);
         sAlert.setArguments(args);
+        sAlert.setCancelable(false);
         /** Opening the Alert Dialog Window. This will be opened when the alarm goes off */
         sAlert.show(getSupportFragmentManager(), "CheckinAlert");
     }

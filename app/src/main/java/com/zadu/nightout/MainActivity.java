@@ -346,7 +346,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 Button timePickerButton = (Button)findViewById(R.id.timePickerButton);
-                timePickerButton.setText(hourOfDay + " : " + minute);
+                Log.i("MAGICAL TAG", ""+minute);
+                String realMinute = "" + minute;
+                if(minute < 10) {
+                    Log.i(TAG, "minute was less than 10");
+                    realMinute = "0" + minute;
+                }
+                timePickerButton.setText(hourOfDay + " : " + realMinute);
                 updatePlanReservationTime(hourOfDay, minute);
                 PlanDetailsFragment f = (PlanDetailsFragment) mSectionsPagerAdapter.getItem(0);
                 f.onPlanChanged();
