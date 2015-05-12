@@ -11,6 +11,7 @@
         android:text="@string/walkthrough_main"
         android:textSize="36sp"
         android:padding="16dp"
+        android:textColor="@color/background_navy"
         android:layout_marginTop="60dp"/>
 
     <TextView

@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.telephony.PhoneNumberUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
@@ -24,8 +23,6 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.w3c.dom.Text;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -47,7 +44,7 @@ public class SettingsActivity extends ActionBarActivity implements AdapterView.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings_activity);
+        setContentView(R.layout.activity_settings);
 
 
         mSqlHelper = MyOpenHelper.getInstance(this);
@@ -279,7 +276,6 @@ public class SettingsActivity extends ActionBarActivity implements AdapterView.O
 
     // Click listener for home address autocomplete
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-        // TODO: @Amanda do anything that needs doing after a selection is made
         // Hide keyboard
         adapterView.clearFocus();
     }

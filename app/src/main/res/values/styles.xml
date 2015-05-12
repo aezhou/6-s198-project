@@ -1,22 +1,13 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
  
-    <style name="AppBaseTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-             
-        </style>
-     
-    <style name="textApearanceActionBar" parent="@style/Widget.AppCompat.DropDownItem.Spinner">
-            <item name="android:textColor">@android:color/white</item>
-        </style>
-
-    <style name="spinnerItemStyle" parent="@style/Widget.AppCompat.Light.DropDownItem.Spinner">
-    <!--       <item name="android:textAppearance">@style/textApearanceActionBar</item> -->
-        <item name="android:gravity">center_vertical</item>  
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:textSize">18sp</item>
-    </style>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="actionBarStyle">@style/CustomActionBarTheme</item>
+        <item name="colorAccent">@color/blue</item>
+    </style>
  
-   <style name="AppTheme" parent="AppBaseTheme">
-   </style>
-     
-     
+    <style name="CustomActionBarTheme" parent="Base.Widget.AppCompat.ActionBar">
+        <item name="background">@color/background_navy</item>
+        <item name="backgroundStacked">@color/background_navy</item>
+        <item name="android:backgroundSplit">@color/background_navy</item>
+    </style>
 </resources>

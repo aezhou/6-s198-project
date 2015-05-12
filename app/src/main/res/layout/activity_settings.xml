@@ -15,12 +15,13 @@
         android:textAllCaps="true"
         android:textStyle="bold"
         android:paddingLeft="4dp"
+        android:textColor="@color/background_navy"
         android:textSize="20sp"/>
 
     <View
         android:layout_width="fill_parent"
         android:layout_height="2dp"
-        android:background="#C4C4C4"/>
+        android:background="@color/blue"/>
 
     <LinearLayout
         android:padding="4dp"
@@ -88,12 +89,13 @@
         android:textStyle="bold"
         android:paddingTop="8dp"
         android:paddingLeft="4dp"
+        android:textColor="@color/background_navy"
         android:textSize="20sp"/>
 
     <View
         android:layout_width="fill_parent"
         android:layout_height="2dp"
-        android:background="#C4C4C4"/>
+        android:background="@color/blue"/>
 
     <ListView
         android:id="@+id/emergency_contacts"
