@@ -37,30 +37,53 @@
                 </AutoCompleteTextView>
             </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="16dp"
-                android:paddingBottom="4dp"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:id="@+id/destinationName" />
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_horizontal"
+                android:id="@+id/planPlaceDetailsLayout">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="4dp"
-                android:id="@+id/planAddressText" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="4dp"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:id="@+id/destinationName"
+                    android:gravity="center_horizontal" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/destinationCityStateZip" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="4dp"
+                    android:id="@+id/planAddressText"
+                    android:gravity="center_horizontal" />
 
-            <TextView
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/destinationCityStateZip"
+                    android:gravity="center_horizontal" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="8dp"
+                    android:id="@+id/destinationNumber"
+                    android:gravity="center_horizontal" />
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/placeDetailsProgressSpinner"
+                style="?android:attr/progressBarStyleLarge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingBottom="8dp"
-                android:id="@+id/destinationNumber"/>
+                android:layout_centerHorizontal="true"
+                android:paddingTop="20dp"
+                android:paddingBottom="20dp"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:orientation="horizontal"

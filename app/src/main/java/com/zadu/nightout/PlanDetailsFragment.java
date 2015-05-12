@@ -15,6 +15,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -41,6 +43,8 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
 
     private OnPlanDetailsListener mListener;
     private AutoCompleteTextView autoCompView;
+    LinearLayout placeDetailsLayout;
+    ProgressBar spinner;
     private Button reserveOnlineButton;
     private Button reserveCallButton;
     private ImageView openMapImage;
@@ -93,6 +97,9 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
 
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_plan_details, container, false);
+
+        placeDetailsLayout = (LinearLayout) v.findViewById(R.id.planPlaceDetailsLayout);
+        spinner = (ProgressBar) v.findViewById(R.id.placeDetailsProgressSpinner);
 
         reserveOnlineButton = (Button) v.findViewById(R.id.reservationOnlineButton);
         reserveOnlineButton.setOnClickListener(new View.OnClickListener() {
@@ -309,6 +316,10 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
                     reservationMade.setChecked(false);
                 }
             }
+
+            // Hide the loading spinner and show place details.
+            placeDetailsLayout.setVisibility(View.VISIBLE);
+            spinner.setVisibility(View.GONE);
         }
     }
 
@@ -345,6 +356,10 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
     private String lng = null;
 
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        // Hide the place details and show the loading spinner.
+        placeDetailsLayout.setVisibility(View.GONE);
+        spinner.setVisibility(View.VISIBLE);
+
         resetInternalDestFields();
         String choice = (String) adapterView.getItemAtPosition(position);
         // [name, street, city, state, country]; may not have all elements, start from right
