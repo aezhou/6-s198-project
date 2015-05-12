@@ -222,99 +222,92 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
         if(v != null) {
             TextView placeNameText = (TextView)v.findViewById(R.id.destinationName);
             // FIXME: null pointer crash can happen here after updating settings
-            if(mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NAME") != null) {
-                String placeName = mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NAME");
-                placeNameText.setText(placeName);
-            }
-            else {
-                placeNameText.setText("");
-            }
+            if(mSqlHelper != null) {
+                if (mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_NAME") != null) {
+                    String placeName = mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_NAME");
+                    placeNameText.setText(placeName);
+                } else {
+                    placeNameText.setText("");
+                }
 
-            TextView placeStreetView = (TextView)v.findViewById(R.id.planAddressText);
-            TextView placeCityStateZipView = (TextView)v.findViewById(R.id.destinationCityStateZip);
-            if(mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_ADDRESS") != null) {
-                String placeAddress = mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_ADDRESS");
-                String [] placeAddressParts = placeAddress.split("\\|");
-                String placeStreetAddress = placeAddressParts[0];
-                String placeCityStateZip = placeAddressParts[1];
+                TextView placeStreetView = (TextView) v.findViewById(R.id.planAddressText);
+                TextView placeCityStateZipView = (TextView) v.findViewById(R.id.destinationCityStateZip);
+                if (mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_ADDRESS") != null) {
+                    String placeAddress = mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_ADDRESS");
+                    String[] placeAddressParts = placeAddress.split("\\|");
+                    String placeStreetAddress = placeAddressParts[0];
+                    String placeCityStateZip = placeAddressParts[1];
 
-                placeStreetView.setText(placeStreetAddress);
-                placeCityStateZipView.setText(placeCityStateZip);
-            }
-            else {
-                placeStreetView.setText("");
-                placeCityStateZipView.setText("");
-            }
+                    placeStreetView.setText(placeStreetAddress);
+                    placeCityStateZipView.setText(placeCityStateZip);
+                } else {
+                    placeStreetView.setText("");
+                    placeCityStateZipView.setText("");
+                }
 
-            TextView placePhoneNumber = (TextView) v.findViewById(R.id.destinationNumber);
-            if(mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NUMBER") != null) {
-                String placeNumber = mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_NUMBER");
-                placePhoneNumber.setText(placeNumber);
-            }
-            else {
-                placePhoneNumber.setText("");
-            }
+                TextView placePhoneNumber = (TextView) v.findViewById(R.id.destinationNumber);
+                if (mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_NUMBER") != null) {
+                    String placeNumber = mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_NUMBER");
+                    placePhoneNumber.setText(placeNumber);
+                } else {
+                    placePhoneNumber.setText("");
+                }
 
-            Button dateButton = (Button)v.findViewById(R.id.datePickerButton);
-            if(mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_YEAR") != null && mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MONTH") != null &&
-                    mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_DATE") != null) {
-                int planYear = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_YEAR");
-                int planMonth = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MONTH") + 1;
-                int planDay = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_DATE");
-                dateButton.setText(planMonth + "/" + planDay + "/" + planYear);
-            }
-            else {
-                dateButton.setText("Select a date");
-            }
+                Button dateButton = (Button) v.findViewById(R.id.datePickerButton);
+                if (mSqlHelper.getReservationInfo((MainActivity) getActivity(), "RESERVATION_YEAR") != null && mSqlHelper.getReservationInfo((MainActivity) getActivity(), "RESERVATION_MONTH") != null &&
+                        mSqlHelper.getReservationInfo((MainActivity) getActivity(), "RESERVATION_DATE") != null) {
+                    int planYear = mSqlHelper.getReservationInfo((MainActivity) getActivity(), "RESERVATION_YEAR");
+                    int planMonth = mSqlHelper.getReservationInfo((MainActivity) getActivity(), "RESERVATION_MONTH") + 1;
+                    int planDay = mSqlHelper.getReservationInfo((MainActivity) getActivity(), "RESERVATION_DATE");
+                    dateButton.setText(planMonth + "/" + planDay + "/" + planYear);
+                } else {
+                    dateButton.setText("Select a date");
+                }
 
-            Button timeButton = (Button)v.findViewById(R.id.timePickerButton);
-            Button reservePhoneButton = (Button)v.findViewById(R.id.reservationCallButton);
-            Button reserveOnlineButton = (Button)v.findViewById(R.id.reservationOnlineButton);
-            if(mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_HOUR") != null && mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MINUTE") != null) {
-                int planHour = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_HOUR");
-                int planMin = mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MINUTE");
-                timeButton.setText(planHour + ":" + planMin);
-            }
-            else {
-                timeButton.setText("Select a time");
-            }
-            String currentUrl = mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_URL");
-            if( currentUrl == null || currentUrl.equals("")) {
-                reserveOnlineButton.setEnabled(false);
-                ((MainActivity) getActivity()).findOpenTableUrl(null);
-            }
-            else {
-                //Place url is not null therefore make sure to set visibility to true
-                Log.i(TAG, "Thinks the URL is not null/empty");
-                reserveOnlineButton.setEnabled(true);
-            }
+                Button timeButton = (Button) v.findViewById(R.id.timePickerButton);
+                Button reservePhoneButton = (Button) v.findViewById(R.id.reservationCallButton);
+                Button reserveOnlineButton = (Button) v.findViewById(R.id.reservationOnlineButton);
+                if (mSqlHelper.getReservationInfo((MainActivity) getActivity(), "RESERVATION_HOUR") != null && mSqlHelper.getReservationInfo((MainActivity) getActivity(), "RESERVATION_MINUTE") != null) {
+                    int planHour = mSqlHelper.getReservationInfo((MainActivity) getActivity(), "RESERVATION_HOUR");
+                    int planMin = mSqlHelper.getReservationInfo((MainActivity) getActivity(), "RESERVATION_MINUTE");
+                    timeButton.setText(planHour + ":" + planMin);
+                } else {
+                    timeButton.setText("Select a time");
+                }
+                String currentUrl = mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_URL");
+                if (currentUrl == null || currentUrl.equals("")) {
+                    reserveOnlineButton.setEnabled(false);
+                    ((MainActivity) getActivity()).findOpenTableUrl(null);
+                } else {
+                    //Place url is not null therefore make sure to set visibility to true
+                    Log.i(TAG, "Thinks the URL is not null/empty");
+                    reserveOnlineButton.setEnabled(true);
+                }
 
-            if(mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NUMBER") == null) {
-                Log.i(TAG, "phoneButton is disabled");
-                reservePhoneButton.setEnabled(false);
-            }
-            else {
-                Log.i(TAG, "phoneButton is enabled");
-                reservePhoneButton.setEnabled(true);
-            }
+                if (mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_NUMBER") == null) {
+                    Log.i(TAG, "phoneButton is disabled");
+                    reservePhoneButton.setEnabled(false);
+                } else {
+                    Log.i(TAG, "phoneButton is enabled");
+                    reservePhoneButton.setEnabled(true);
+                }
 
-            //handling when to enable/disable share button
-            Button shareButton = (Button) v.findViewById(R.id.planShareButton);
-            if(mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_DATE") == null || mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_HOUR") == null ||
-            mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MINUTE") == null || mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_YEAR") == null  ||
-            mSqlHelper.getReservationInfo((MainActivity)getActivity(), "RESERVATION_MONTH") == null || mSqlHelper.getPlanDetail((MainActivity)getActivity(), "PLACE_NAME") == null) {
+                //handling when to enable/disable share button
+                Button shareButton = (Button) v.findViewById(R.id.planShareButton);
+                if (mSqlHelper.getReservationInfo((MainActivity) getActivity(), "RESERVATION_DATE") == null || mSqlHelper.getReservationInfo((MainActivity) getActivity(), "RESERVATION_HOUR") == null ||
+                        mSqlHelper.getReservationInfo((MainActivity) getActivity(), "RESERVATION_MINUTE") == null || mSqlHelper.getReservationInfo((MainActivity) getActivity(), "RESERVATION_YEAR") == null ||
+                        mSqlHelper.getReservationInfo((MainActivity) getActivity(), "RESERVATION_MONTH") == null || mSqlHelper.getPlanDetail((MainActivity) getActivity(), "PLACE_NAME") == null) {
 
-                shareButton.setEnabled(false);
-            }
-            else {
-                shareButton.setEnabled(true);
-            }
-            CheckBox reservationMade = (CheckBox) v.findViewById(R.id.checkReservationCheckBox);
-            if(mSqlHelper.hasReservation((MainActivity)getActivity())) {
-                reservationMade.setChecked(true);
-            }
-            else {
-                reservationMade.setChecked(false);
+                    shareButton.setEnabled(false);
+                } else {
+                    shareButton.setEnabled(true);
+                }
+                CheckBox reservationMade = (CheckBox) v.findViewById(R.id.checkReservationCheckBox);
+                if (mSqlHelper.hasReservation((MainActivity) getActivity())) {
+                    reservationMade.setChecked(true);
+                } else {
+                    reservationMade.setChecked(false);
+                }
             }
         }
     }
