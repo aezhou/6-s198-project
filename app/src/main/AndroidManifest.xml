@@ -43,7 +43,6 @@
             android:name=".WelcomeActivity"
             android:configChanges="orientation"
             android:label="Welcome"
-            android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait" >
         </activity>
         <activity

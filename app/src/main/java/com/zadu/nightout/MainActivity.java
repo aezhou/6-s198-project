@@ -118,7 +118,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         String first = preferences.getString("first_time", "true");
         if (!first.equalsIgnoreCase("false")) {
             Intent intent = new Intent(this, WelcomeActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
+            finish();
         }
 
         // Set up the action bar.
