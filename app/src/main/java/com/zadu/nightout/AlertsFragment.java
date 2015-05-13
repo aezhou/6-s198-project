@@ -11,7 +11,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
-import android.provider.Telephony;
 import android.support.v4.app.Fragment;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.SmsManager;
@@ -59,7 +58,6 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
     private MyOpenHelper mSqlHelper;
     private View mView;
 
-    private OnAlertsFragmentInteractionListener mListener;
     private SharedPreferences mPrefs;
 
     /**
@@ -110,13 +108,13 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
             c = mSqlHelper.getContactsToDisplay((MainActivity) getActivity());
             c.moveToFirst();
         }
-        Log.d("ALERT FRAG", c.getString(c.getColumnIndex(mSqlHelper.CONTACT_NAME)));
-        Log.d("ALERT FRAG", c.getString(c.getColumnIndex(mSqlHelper.CONTACT_NUMBER)));
-        Log.d("ALERT FRAG", String.valueOf(c.getInt(c.getColumnIndex(mSqlHelper.IS_ON))));
+        Log.d("ALERT FRAG", c.getString(c.getColumnIndex(MyOpenHelper.CONTACT_NAME)));
+        Log.d("ALERT FRAG", c.getString(c.getColumnIndex(MyOpenHelper.CONTACT_NUMBER)));
+        Log.d("ALERT FRAG", String.valueOf(c.getInt(c.getColumnIndex(MyOpenHelper.IS_ON))));
         mContactsAdapter = new SimpleCursorAdapter(getActivity(),
                 R.layout.list_item_contact,
                 c,
-                new String[] { mSqlHelper.CONTACT_NAME, mSqlHelper.CONTACT_NUMBER, mSqlHelper.IS_ON },
+                new String[] { MyOpenHelper.CONTACT_NAME, MyOpenHelper.CONTACT_NUMBER, MyOpenHelper.IS_ON },
                 new int[] { R.id.contactNameTextView, R.id.contactDescriptionTextView, R.id.contactCheckBox },
                 0);
 
@@ -124,7 +122,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         final View.OnClickListener contactsCheckListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-              onContactChecked((CheckBox) v, true);
+              onContactChecked((CheckBox) v);
             }
         };
         mContactsAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
@@ -275,7 +273,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
             String contactNumber = null;
             String contactName = null;
 
-            if (resultCode == getActivity().RESULT_OK) {
+            if (resultCode == Activity.RESULT_OK) {
                 Cursor cursor = getActivity().getContentResolver().query(contactData, null, null, null, null);
                 if (cursor.moveToFirst()) {
                     contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
@@ -298,18 +296,6 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mSqlHelper = ((MainActivity) getActivity()).getSqlHelper();
-        try {
-            mListener = (OnAlertsFragmentInteractionListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
     }
 
     public void onCollapseContacts(boolean wasToggleClicked) {
@@ -324,8 +310,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         }
     }
 
-    public void onContactChecked(CheckBox v, boolean isDefault) {
-        // might be an artifact of weird initial test db entries??
+    public void onContactChecked(CheckBox v) {
         int numChecked = mSqlHelper.getNumCheckedContacts((MainActivity) getActivity());
         if (numChecked > 1 || v.isChecked()) {
             LinearLayout l = (LinearLayout) v.getParent();
@@ -365,7 +350,13 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
                 mSqlHelper.updatePingsOnOff((MainActivity) getActivity(), false);
                 ((MainActivity) getActivity()).stopAlarm();
             }
+
+            mContactsAdapter.changeCursor(mSqlHelper.getContactsToDisplay((MainActivity) getActivity()));
+            ListView list = (ListView) masterView.findViewById(R.id.contactsListView);
+            list.setAdapter(mContactsAdapter);
         }
+
+
     }
 
     public void onCheckIn() {
@@ -438,15 +429,24 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         }
 
         SmsManager smsManager = SmsManager.getDefault();
+        ArrayList<String> parts = smsManager.divideMessage(message);
+
+        ArrayList<PendingIntent> sentPIs = new ArrayList<>();
+        ArrayList<PendingIntent> deliveredPIs = new ArrayList<>();
 
         if (smsManager != null) {
             String SENT = "SMS_SENT";
             String DELIVERED = "SMS_DELIVERED";
             for (String phoneNumber : numbers) {
-                PendingIntent sentPI = PendingIntent.getBroadcast(getActivity(), 0, new Intent(SENT), 0);
-                PendingIntent deliveredPI = PendingIntent.getBroadcast(getActivity(), 0, new Intent(DELIVERED), 0);
+                for (int i=0; i<parts.size(); i++) {
+                    sentPIs.add(PendingIntent.getBroadcast(getActivity(), 0, new Intent(SENT), 0));
+                    deliveredPIs.add(PendingIntent.getBroadcast(getActivity(), 0, new Intent(DELIVERED), 0));
+                }
                 Log.i("SMSManager", phoneNumber);
-                smsManager.sendTextMessage(phoneNumber, null, "message", sentPI, deliveredPI);
+                smsManager.sendMultipartTextMessage(phoneNumber, null, parts, sentPIs, deliveredPIs);
+                sentPIs.clear();
+                deliveredPIs.clear();
+//                smsManager.sendTextMessage(phoneNumber, null, "message", sentPI, deliveredPI);
                 Log.i("SMS Manager", "after calling send text");
             }
         }
@@ -481,8 +481,8 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
         final String fromNum = fromArea+"3141592";
 
         // TelAPI credentials
-        String telapiSid = "ACbf889084aa9ca594bead45998f1506f9";
-        String telapiToken = "6d7f40fb0da44503a520350fd07398ff";
+        String telapiSid = "ACbf8890843722669662eb4a0d88f7bced";
+        String telapiToken = "50174015c54f4bd4937d2159209e18b4";
         String telapiCredentials = telapiSid + ":" + telapiToken;
         String telapiBase64EncodedCredentials = Base64.encodeToString(telapiCredentials.getBytes(), Base64.NO_WRAP);
 
@@ -503,7 +503,7 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
                         Log.d("ALERT FRAG ERR", e.getMessage());
                     }
                     if (result!= null) {
-                        Log.d("ALERT FRAG RESULT", result.toString());
+                        Log.d("ALERT FRAG RESULT", result);
                     }
                     Log.d("ALERT FRAG", "done printing result");
                     callButton.setEnabled(true);
@@ -552,10 +552,6 @@ public class AlertsFragment extends Fragment implements PlanChangedListener,
             ListView list = (ListView) mView.findViewById(R.id.contactsListView);
             list.setAdapter(mContactsAdapter);
         }
-    }
-
-    public void getLastKnownLocation() {
-        mListener.getLastLoc();
     }
 
     @Override

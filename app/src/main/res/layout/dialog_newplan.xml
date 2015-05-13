@@ -15,6 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/new_plan_edittext"
+        android:hint="My First Plan"
         android:padding="8dp"
         android:inputType="text">
 
