@@ -277,7 +277,11 @@ public class PlanDetailsFragment extends Fragment implements AdapterView.OnItemC
             if (mSqlHelper.getReservationInfo((MainActivity) getActivity(), "RESERVATION_HOUR") != null && mSqlHelper.getReservationInfo((MainActivity) getActivity(), "RESERVATION_MINUTE") != null) {
                 int planHour = mSqlHelper.getReservationInfo((MainActivity) getActivity(), "RESERVATION_HOUR");
                 int planMin = mSqlHelper.getReservationInfo((MainActivity) getActivity(), "RESERVATION_MINUTE");
-                timeButton.setText(planHour + ":" + planMin);
+                String actualMin = "" + planMin;
+                if(planMin < 10) {
+                    actualMin = "0" + planMin;
+                }
+                timeButton.setText(planHour + ":" + actualMin);
             } else {
                 timeButton.setText("Select a time");
             }

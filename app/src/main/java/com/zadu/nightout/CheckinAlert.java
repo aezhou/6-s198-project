@@ -3,6 +3,9 @@ package com.zadu.nightout;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences;
@@ -13,6 +16,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.WindowManager.LayoutParams;
 import android.widget.Toast;
@@ -54,18 +58,20 @@ public class CheckinAlert extends DialogFragment{
         super.onCreate(savedInstanceState);
         boolean isLast = getArguments().getBoolean("isLast");
         int misses = getArguments().getInt("numMisses");
+        int notifId = getArguments().getInt("notifId");
         /** Turn Screen On and Unlock the keypad when this alert dialog is displayed */
         getActivity().getWindow().addFlags(LayoutParams.FLAG_TURN_SCREEN_ON | LayoutParams.FLAG_DISMISS_KEYGUARD);
 
         /** Creating a alert dialog builder */
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        setUpDialog(builder, isLast, misses);
+        setUpDialog(builder, isLast, misses, notifId);
         /** Creating the alert dialog window */
         return builder.create();
     }
 
-    private void setUpDialog(AlertDialog.Builder builder, boolean isFinal, int missed) {
+    private void setUpDialog(AlertDialog.Builder builder, boolean isFinal, int missed, final int notificationId) {
+        final NotificationManager mNotificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
         try {
             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             Ringtone r = RingtoneManager.getRingtone(getActivity(), notification);
@@ -82,6 +88,7 @@ public class CheckinAlert extends DialogFragment{
             builder.setPositiveButton("Check In", new OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    mNotificationManager.cancel(notificationId);
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
                     preferences.edit().putString("checkin_change", "true").apply();
                 }
@@ -90,6 +97,7 @@ public class CheckinAlert extends DialogFragment{
             builder.setNegativeButton("Turn Off", new OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    mNotificationManager.cancel(notificationId);
                     String planName = ((CheckinActivity) getActivity()).getPlanName();
                     mSqlHelper.updatePingsOnOff(planName, false);
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -104,7 +112,7 @@ public class CheckinAlert extends DialogFragment{
             builder.setPositiveButton("OK", new OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    /** Exit application on click OK */
+                    mNotificationManager.cancel(notificationId);
                     String planName = ((CheckinActivity) getActivity()).getPlanName();
                     mSqlHelper.updatePingsOnOff(planName, false);
 
@@ -113,5 +121,6 @@ public class CheckinAlert extends DialogFragment{
                 }
             });
         }
+
     }
 }
